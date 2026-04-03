@@ -1,0 +1,13 @@
+# Cloudflare Pages — Standard Security Headers
+# Copy file ini ke /public/_headers per app
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-XSS-Protection: 1; mode=block
+
+/api/*
+  Cache-Control: no-store, no-cache
+  Access-Control-Allow-Origin: https://sovereign-orchestrator.pages.dev

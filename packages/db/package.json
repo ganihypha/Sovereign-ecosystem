@@ -1,0 +1,19 @@
+{
+  "name": "@sovereign/db",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Sovereign Ecosystem — DB schema, types, query helpers (Supabase)",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

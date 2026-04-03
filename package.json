@@ -1,0 +1,25 @@
+{
+  "name": "sovereign-ecosystem",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Sovereign Business Engine v4.0 — Canonical Mother Repo (Governance Center + Integration Home)",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "test": "turbo run test",
+    "type-check": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.0.0"
+  },
+  "packageManager": "npm@10.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

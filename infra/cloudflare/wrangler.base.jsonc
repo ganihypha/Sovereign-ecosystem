@@ -1,0 +1,17 @@
+// wrangler.base.jsonc — Base Cloudflare Workers config
+// Extend file ini per app (jangan edit langsung — buat override per app)
+// Lihat: docs/27-MOTHER-REPO-STRUCTURE.md untuk konvensi naming
+
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Override per-app:
+  // "name": "your-app-name",
+  // "pages_build_output_dir": "./dist",
+  "compatibility_date": "2024-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Ganti dengan nilai aktual per app
+  // "d1_databases": [],
+  // "kv_namespaces": [],
+  // "r2_buckets": []
+}
