@@ -170,6 +170,7 @@ SEKARANG (setelah Session 1):
 | Versi | Tanggal | Perubahan |
 |-------|---------|-----------|
 | 1.0 | 2026-04-03 | Phase tracker v1.0 — Session 0-1 DONE |
+| 1.1 | 2026-04-03 | Session 2a DONE — @sovereign/types v0.1.0 implemented |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*

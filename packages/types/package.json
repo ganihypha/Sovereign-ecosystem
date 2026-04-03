@@ -1,6 +1,6 @@
 {
   "name": "@sovereign/types",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "description": "Sovereign Ecosystem — Shared TypeScript types (non-DB)",
   "main": "./src/index.ts",
@@ -11,6 +11,6 @@
     "clean": "rm -rf dist"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.3.3"
   }
 }
