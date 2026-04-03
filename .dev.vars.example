@@ -1,0 +1,80 @@
+# ==============================================================================
+# SOVEREIGN BUSINESS ENGINE v4.0 — DEV VARS EXAMPLE
+# File: .dev.vars.example
+# Tujuan: Template untuk Cloudflare Workers local dev (.dev.vars format)
+# PENTING: File ini HANYA berisi placeholder — BUKAN nilai asli
+# Copy ke .dev.vars → isi nilai asli → JANGAN commit .dev.vars
+#
+# Format ini spesifik untuk Cloudflare Workers / wrangler dev
+# (berbeda dari .env — tidak pakai export, cukup KEY=VALUE)
+# ==============================================================================
+
+# ──────────────────────────────────────────────────────────────────────────────
+# SUPABASE — Canonical Database (Sovereign Bridge)
+# ──────────────────────────────────────────────────────────────────────────────
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key-here
+SUPABASE_ANON_KEY=your-supabase-anon-key-here
+
+# ──────────────────────────────────────────────────────────────────────────────
+# AUTHENTICATION
+# ──────────────────────────────────────────────────────────────────────────────
+JWT_SECRET=your-jwt-secret-minimum-64-chars-here
+MASTER_PIN=your-secure-numeric-pin-here
+
+# ──────────────────────────────────────────────────────────────────────────────
+# CLOUDFLARE — Infrastructure
+# ──────────────────────────────────────────────────────────────────────────────
+CLOUDFLARE_API_TOKEN=your-cloudflare-api-token-here
+CLOUDFLARE_ACCOUNT_ID=your-cloudflare-account-id-here
+
+# ──────────────────────────────────────────────────────────────────────────────
+# AI / LLM
+# ──────────────────────────────────────────────────────────────────────────────
+GROQ_API_KEY=your-groq-api-key-here
+LLM_BASE_URL=https://api.groq.com/openai/v1
+LLM_MODEL=llama-3.3-70b-versatile
+OPENAI_API_KEY=your-openai-api-key-or-leave-empty
+LANGCHAIN_API_KEY=your-langchain-api-key-here
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_PROJECT=sovereign-engine
+
+# ──────────────────────────────────────────────────────────────────────────────
+# WHATSAPP — Fonnte (MISSING — BLOCKER Phase 3)
+# ──────────────────────────────────────────────────────────────────────────────
+FONNTE_TOKEN=your-fonnte-token-here
+
+# ──────────────────────────────────────────────────────────────────────────────
+# SCRAPING
+# ──────────────────────────────────────────────────────────────────────────────
+SCRAPERAPI_KEY=your-scraperapi-key-here
+
+# ──────────────────────────────────────────────────────────────────────────────
+# CREWAI — Phase 6
+# ──────────────────────────────────────────────────────────────────────────────
+CREWAI_PAT=your-crewai-pat-here
+CREWAI_ORG_ID=your-crewai-org-id-here
+
+# ──────────────────────────────────────────────────────────────────────────────
+# SEARCH
+# ──────────────────────────────────────────────────────────────────────────────
+SERPAPI_KEY=your-serpapi-key-here
+
+# ──────────────────────────────────────────────────────────────────────────────
+# GITHUB
+# ──────────────────────────────────────────────────────────────────────────────
+GITHUB_PAT=your-github-pat-here
+
+# ──────────────────────────────────────────────────────────────────────────────
+# APP CONFIG
+# ──────────────────────────────────────────────────────────────────────────────
+NODE_ENV=development
+APP_URL=http://localhost:3000
+
+# ==============================================================================
+# CARA PAKAI:
+# 1. cp .dev.vars.example .dev.vars
+# 2. Edit .dev.vars dengan nilai credential asli
+# 3. wrangler pages dev dist --d1=... — otomatis baca .dev.vars
+# 4. JANGAN commit .dev.vars (sudah di .gitignore)
+# ==============================================================================
