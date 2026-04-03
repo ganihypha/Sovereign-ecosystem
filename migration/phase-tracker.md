@@ -171,6 +171,7 @@ SEKARANG (setelah Session 1):
 |-------|---------|-----------|
 | 1.0 | 2026-04-03 | Phase tracker v1.0 — Session 0-1 DONE |
 | 1.1 | 2026-04-03 | Session 2a DONE — @sovereign/types v0.1.0 implemented |
+| 1.2 | 2026-04-03 | Session 2b DONE — @sovereign/db v0.1.0: schema (14 tables, 6 domains), Supabase wrapper, domain helpers, 4 SQL migrations |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*
