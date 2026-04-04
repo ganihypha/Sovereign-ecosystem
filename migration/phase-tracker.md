@@ -2,7 +2,7 @@
 # MIGRATION: PHASE TRACKER
 # (Progress Tiap Phase — Update Setiap Session)
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Update: 2026-04-04 | Setelah Session 3b
+### Update: 2026-04-04 | Setelah Session 3c
 
 ---
 
@@ -16,7 +16,7 @@
 Session 0  [██████████] 100% ✅ DONE
 Session 1  [██████████] 100% ✅ DONE
 Phase 2    [██████████]  71% 🟡 IN PROGRESS (2a✅ 2b✅ 2c✅ 2d✅ 2e✅ 2f⏳ 2g⏳)
-Phase 3    [████       ]  29% 🟡 IN PROGRESS (3a✅ 3b✅ 3c⏳ 3d⏳ 3e⏳ 3f⏳ 3g⏳)
+Phase 3    [█████      ]  43% 🟡 IN PROGRESS (3a✅ 3b✅ 3c✅ 3d⏳ 3e⏳ 3f⏳ 3g⏳)
 Phase 4    [          ]   0% 🔴 NOT STARTED
 Phase 5    [          ]   0% 🔴 NOT STARTED
 Phase 6    [          ]   0% 🔴 NOT STARTED
@@ -86,8 +86,12 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 | Wire `@sovereign/auth` JWT middleware | ✅ DONE | 2026-04-04 | `src/app.ts` — jwtMiddleware + founderOnly via @sovereign/auth |
 | Wire Supabase DB narrow endpoints | ✅ DONE | 2026-04-04 | `src/lib/db-adapter.ts` — dashboard/today + revenue-ops |
 | `wrangler.jsonc` deployment config | ✅ DONE | 2026-04-04 | `apps/sovereign-tower/wrangler.jsonc` — placeholder bindings |
-| 4 tabel baru: wa_logs, ai_tasks, ai_insights, order_items | 🔴 3c | — | Sprint 1 DB migration pending |
-| Sprint 1 DB migration | 🔴 3c | — | — |
+| Migration files hardened (001-004) + 005 gap fill | ✅ DONE | 2026-04-04 | `migration/sql/001-005` — checklists, rollback, dry-run queries |
+| Migration inventory + validation matrix + blocker log | ✅ DONE | 2026-04-04 | `migration/migration-inventory-map.md`, `validation-matrix.md`, `blocker-log.md`, `risk-rollback-notes.md` |
+| Sprint 1 DB tables live in Supabase | 🔴 3d | — | BLOCKED: founder must run 001-005 SQL in Supabase |
+| ai-resource-manager wired to ai_tasks + credit_ledger | 🔴 3d | — | After migration |
+| founder-review wired to weekly_reviews | 🔴 3d | — | After migration |
+| decision-center wired to ADR files | 🔴 3d | — | After migration |
 | `/api/wa/send` (Fonnte) | 🔴 BLOCKED | — | Blocked: FONNTE_TOKEN missing |
 | `/api/wa/broadcast` | 🔴 BLOCKED | — | Blocked: FONNTE_TOKEN missing |
 | Scout Agent (LangGraph) | 🔴 3c+ | — | — |
@@ -98,6 +102,7 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 **Blocker Phase 3 (partial):** 🔴 `FONNTE_TOKEN` MISSING (WA routes only)  
 **Session 3a:** ✅ DONE — Tower scaffold, 7 modules, TypeScript strict mode  
 **Session 3b:** ✅ DONE — Auth wired (@sovereign/auth jwtMiddleware+founderOnly), narrow DB wiring (db-adapter), wrangler.jsonc added
+**Session 3c:** ✅ DONE — DB Migration Hardening: 001-004 hardened, 005-credit-ledger.sql gap filled, migration-inventory-map.md, validation-matrix.md, blocker-log.md, risk-rollback-notes.md, ADR-009, CCA domain-4/5 updated
 
 ---
 
@@ -158,13 +163,23 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 SEKARANG (setelah Session 3b):
   1. ✅ Session 3b DONE — Auth + DB wired + wrangler.jsonc added
   
-  2. 🔴 Session 3c — Sprint 1 DB Migration + Module Wiring
-     → Run SQL migrations: migration/sql/001-wa-logs.sql sampai 004
-     → Wire ai-resource-manager ke credit_ledger table
+  2. ✅ Session 3c DONE — DB Migration Hardening
+     → 001-004 hardened (checklist, rollback, dry-run queries)
+     → 005-credit-ledger.sql dibuat (gap fill)
+     → migration-inventory-map.md, validation-matrix.md, blocker-log.md, risk-rollback-notes.md
+     → ADR-009: migration hardening pattern
+     → CCA domain-4, domain-5 updated
+
+  3. ⏳ FOUNDER ACTION REQUIRED sebelum Session 3d:
+     → Fill .dev.vars dengan real credentials
+     → Run migration/sql/001-005 di Supabase SQL Editor
+     → Verify 5 tabel Sprint 1 sudah ada
+
+  4. 🔴 Session 3d — Module Wiring (setelah migration dijalankan)
+     → Wire ai-resource-manager ke ai_tasks + credit_ledger
      → Wire founder-review ke weekly_reviews table
      → Wire decision-center ke evidence/architecture/ ADR files
-     → Add .dev.vars dengan real credentials untuk local testing
-     → Test all endpoints dengan real JWT
+     → Test all endpoints dengan real JWT + real DB
   
   3. 🔴 Urus FONNTE_TOKEN (paralel, tidak block Session 3c)
      → Daftar di fonnte.com
@@ -189,6 +204,7 @@ SEKARANG (setelah Session 3b):
 | 1.5 | 2026-04-04 | Session 2e DONE — @sovereign/prompt-contracts v0.1.0: PromptContract typed model, 6 template builders (execution/db/auth/integration/handoff), validator, completeness score, session2eContract self-referential example |
 | 1.6 | 2026-04-04 | Session 3a DONE — apps/sovereign-tower v0.1.0: Hono app scaffold, 7 modules (module-registry), 14 routes (health/founder/modules/dashboard), TypeScript strict zero errors, ADR-006 |
 | 1.7 | 2026-04-04 | Session 3b DONE — Real auth wired (@sovereign/auth jwtMiddleware+founderOnly), narrow DB wiring (db-adapter.ts, Supabase direct), wrangler.jsonc added, pnpm workspace resolved, TypeScript zero errors |
+| 1.8 | 2026-04-04 | Session 3c DONE — Migration Hardening: 001-004 SQL files hardened, 005-credit-ledger.sql gap filled, migration-inventory-map.md + validation-matrix.md + blocker-log.md + risk-rollback-notes.md created, ADR-009 accepted, CCA domain-4/5 updated |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*
