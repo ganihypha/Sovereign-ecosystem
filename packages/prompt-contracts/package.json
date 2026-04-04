@@ -1,12 +1,16 @@
 {
   "name": "@sovereign/prompt-contracts",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
-  "description": "Sovereign Ecosystem — Agent system prompts + output schemas",
+  "description": "Sovereign Ecosystem — Typed prompt contracts, reusable templates, and validation helpers for AI session orchestration",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
@@ -14,6 +18,14 @@
     "@sovereign/types": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
-  }
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "sovereign",
+    "prompt-contracts",
+    "ai-agent",
+    "typescript"
+  ],
+  "author": "Haidar Faras Maulia — PT Waskita Cakrawarti Digital",
+  "license": "UNLICENSED"
 }
