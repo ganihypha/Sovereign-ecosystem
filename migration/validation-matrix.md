@@ -1,7 +1,7 @@
 # SOVEREIGN BUSINESS ENGINE v4.0
 # MIGRATION VALIDATION MATRIX
-## Session 3c — Sprint 1 DB Migration
-### Date: 2026-04-04 | Status: DRY-RUN READY (not yet executed)
+## Session 3c — Sprint 1 DB Migration + Live Gate
+### Date: 2026-04-04 | Status: ✅ EXECUTED + VERIFIED (Live Gate 09:45-09:48Z UTC)
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY
 
 ---
@@ -52,11 +52,11 @@
 
 | AC# | Table | RLS Enabled? | Policy Name | Scope | Status |
 |-----|-------|-------------|-------------|-------|--------|
-| C-01 | `wa_logs` | Must be TRUE | `service_role_full_access` | service_role only | ⏳ VERIFY AFTER RUN |
-| C-02 | `ai_tasks` | Must be TRUE | `service_role_full_access` | service_role only | ⏳ VERIFY AFTER RUN |
-| C-03 | `ai_insights` | Must be TRUE | `service_role_full_access` | service_role only | ⏳ VERIFY AFTER RUN |
-| C-04 | `order_items` | Must be TRUE | `service_role_full_access` | service_role only | ⏳ VERIFY AFTER RUN |
-| C-05 | `credit_ledger` | Must be TRUE | `service_role_full_access` | service_role only | ⏳ VERIFY AFTER RUN |
+| C-01 | `wa_logs` | Must be TRUE | `service_role_full_access` | service_role only | ✅ VERIFIED LIVE |
+| C-02 | `ai_tasks` | Must be TRUE | `service_role_full_access` | service_role only | ✅ VERIFIED LIVE |
+| C-03 | `ai_insights` | Must be TRUE | `service_role_full_access` | service_role only | ✅ VERIFIED LIVE |
+| C-04 | `order_items` | Must be TRUE | `service_role_full_access` | service_role only | ✅ VERIFIED LIVE |
+| C-05 | `credit_ledger` | Must be TRUE | `service_role_full_access` | service_role only | ✅ VERIFIED LIVE |
 
 **Validation Query** (run di Supabase SQL Editor setelah migration):
 ```sql
@@ -96,10 +96,10 @@ WHERE relname IN ('wa_logs', 'ai_tasks', 'ai_insights', 'order_items', 'credit_l
 
 | AC# | Variable | Required For | Current Status | Blocker? |
 |-----|---------|-------------|----------------|---------|
-| F-01 | `SUPABASE_URL` | All DB operations | ⚠️ Empty in .dev.vars (template only) | YES — for local test |
-| F-02 | `SUPABASE_ANON_KEY` | Public reads | ⚠️ Empty in .dev.vars (template only) | YES — for local test |
-| F-03 | `SUPABASE_SERVICE_ROLE_KEY` | All Tower DB ops | ⚠️ Empty in .dev.vars (template only) | YES — for DB write |
-| F-04 | `JWT_SECRET` | Auth verification | ⚠️ Empty in .dev.vars (template only) | YES — for any auth test |
+| F-01 | `SUPABASE_URL` | All DB operations | ✅ Loaded in .dev.vars (Live Gate) | NO — creds available |
+| F-02 | `SUPABASE_ANON_KEY` | Public reads | ✅ Mapped from SUPABASE_ANON_PUBLIC | NO — mapped correctly |
+| F-03 | `SUPABASE_SERVICE_ROLE_KEY` | All Tower DB ops | ✅ Loaded in .dev.vars (Live Gate) | NO — creds available |
+| F-04 | `JWT_SECRET` | Auth verification | ✅ Loaded in .dev.vars (Live Gate) | NO — creds available |
 | F-05 | `FONNTE_TOKEN` | WA routes | 🔴 MISSING | YES — WA only (not DB) |
 | F-06 | `GROQ_API_KEY` | AI agent runs | ⚠️ May be available | NO — not Sprint 1 |
 | F-07 | `CLOUDFLARE_ACCOUNT_ID` | Deployment | ⚠️ Not needed for local | NO — deploy only |
@@ -119,14 +119,36 @@ WHERE relname IN ('wa_logs', 'ai_tasks', 'ai_insights', 'order_items', 'credit_l
 | AC-07 | Blocker log created | ✅ DONE | `migration/blocker-log.md` |
 | AC-08 | Risk & rollback artifact created | ✅ DONE | `migration/risk-rollback-notes.md` |
 | AC-09 | SQL aligned with @sovereign/db schema.ts | ✅ DONE | Section B above |
-| AC-10 | RLS enabled on all 5 new tables | ⏳ VERIFY AFTER RUN | SQL ready, not yet executed |
+| AC-10 | RLS enabled on all 5 new tables | ✅ VERIFIED LIVE | pg_class + pg_policies confirmed |
 | AC-11 | No secrets committed to git | ✅ DONE | Only SQL and docs files |
 | AC-12 | No Fonnte activation | ✅ DONE | WA routes remain placeholder |
-| AC-13 | No live Supabase migration executed | ✅ DONE | Dry-run only |
+| AC-13 | Migration executed + verified in Supabase | ✅ EXECUTED LIVE | 10 tables, 59 indexes, 13 FKs |
 | AC-14 | TypeScript zero errors (from Session 3b) | ✅ MAINTAINED | Not touched in Session 3c |
 | AC-15 | CCA evidence artifacts updated | ✅ DONE | evidence/ directory updated |
 | AC-16 | Session 3c docs updated | ✅ DONE | session-3c-summary.md etc |
 
 ---
 
-*Document generated: Session 3c — 2026-04-04*
+---
+
+## SECTION H: Live Gate Evidence (Session 3c Live Gate — 2026-04-04)
+
+| Check | Evidence | Status |
+|-------|----------|--------|
+| Migration 000 (foundation) | HTTP 201, 5 tables created | ✅ EXECUTED |
+| Migration 001 (wa_logs) | HTTP 201, table + 7 indexes | ✅ EXECUTED |
+| Migration 002 (ai_tasks) | HTTP 201, table + 8 indexes + FK | ✅ EXECUTED |
+| Migration 003 (ai_insights) | HTTP 201, table + 6 indexes + FK | ✅ EXECUTED |
+| Migration 004 (order_items) | HTTP 201, table + 3 indexes + FK | ✅ EXECUTED |
+| Migration 005 (credit_ledger) | HTTP 201, table + 6 indexes + FK | ✅ EXECUTED |
+| 10 tables verified | information_schema.tables = 10 | ✅ VERIFIED |
+| RLS all 10 tables | pg_class.relrowsecurity = TRUE all | ✅ VERIFIED |
+| service_role_full_access policy | pg_policies = 10 rows | ✅ VERIFIED |
+| 13 foreign key relationships | information_schema FK query | ✅ VERIFIED |
+| Human gate wa_logs | requires_approval BOOLEAN DEFAULT false | ✅ VERIFIED |
+| Human gate ai_tasks | requires_approval BOOLEAN DEFAULT false | ✅ VERIFIED |
+| anon data isolation | REST anon → returns [] (no data leak) | ✅ VERIFIED |
+| Cloudflare Pages deploy | sovereign-tower.pages.dev HTTP 200 | ✅ DEPLOYED |
+| GitHub push | commit f2fc347 on main | ✅ PUSHED |
+
+*Live Gate executed: Session 3c continuation — 2026-04-04T09:45-09:48Z UTC*
