@@ -6,8 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler pages dev dist --ip 0.0.0.0 --port 3001",
-    "build": "tsc --noEmit && echo 'TypeCheck PASS'",
+    "build": "vite build",
+    "build:check": "tsc --noEmit && echo 'TypeCheck PASS'",
     "typecheck": "tsc --noEmit",
+    "deploy": "vite build && wrangler pages deploy dist --project-name sovereign-tower",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -21,7 +23,9 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250705.0",
+    "@hono/vite-cloudflare-pages": "^0.4.3",
     "typescript": "^5.3.3",
+    "vite": "^8.0.3",
     "wrangler": "^3.78.0"
   }
 }
