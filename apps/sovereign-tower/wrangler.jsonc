@@ -1,0 +1,54 @@
+// sovereign-tower — wrangler.jsonc
+// Cloudflare Pages deployment config untuk Sovereign Tower
+// Sovereign Business Engine v4.0 — Session 3b
+//
+// ⚠️ PLACEHOLDER BINDINGS — Nilai asli WAJIB dari Cloudflare Secrets / .dev.vars
+// JANGAN isi nilai real di sini — hanya structure dan placeholder
+//
+// Cara setup:
+//   Development: buat file .dev.vars di folder ini (sudah di .gitignore)
+//   Production:  wrangler pages secret put <KEY> --project-name sovereign-tower
+//
+// .dev.vars template ada di: infra/env-templates/sovereign-tower.env.example
+
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Nama project di Cloudflare Pages
+  "name": "sovereign-tower",
+
+  // Kompatibilitas Cloudflare Workers
+  "compatibility_date": "2024-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Entry point — Cloudflare Pages Functions
+  "pages_build_output_dir": "./dist",
+
+  // ── ENVIRONMENT VARIABLE BINDINGS (PLACEHOLDER) ──────────────────────────
+  // Semua nilai di bawah ini adalah PLACEHOLDER
+  // TIDAK ada secret nyata di file ini
+  //
+  // Untuk development: isi di .dev.vars (format KEY=VALUE, sudah di .gitignore)
+  // Untuk production:  isi via Cloudflare Dashboard atau wrangler secret put
+  //
+  // Required vars:
+  //   JWT_SECRET              → secret untuk sign/verify JWT (WAJIB)
+  //   SUPABASE_URL            → https://xxxx.supabase.co (WAJIB)
+  //   SUPABASE_ANON_KEY       → public anon key dari Supabase (WAJIB)
+  //   SUPABASE_SERVICE_ROLE_KEY → service role key (WAJIB untuk Tower)
+  //
+  // Optional vars (blocked until available):
+  //   FONNTE_TOKEN            → Fonnte WA API token (BLOCKED)
+  //   GROQ_API_KEY            → Groq LLM API key (optional)
+  //   OPENAI_API_KEY          → OpenAI API key (optional fallback)
+  //   FOUNDER_USER_ID         → UUID dari founder di Supabase auth
+  //   ENVIRONMENT             → development | staging | production
+  //
+  // Tidak ada nilai di sini — semua dari .dev.vars atau Cloudflare Secrets
+  "vars": {
+    // Placeholder indicator — values populated from .dev.vars / Cloudflare Secrets
+    "APP_NAME": "sovereign-tower",
+    "APP_VERSION": "0.1.0",
+    "BUILD_SESSION": "3b"
+  }
+}

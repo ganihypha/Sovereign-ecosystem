@@ -1,12 +1,16 @@
 // sovereign-tower — src/app.ts
 // Main Hono Application — route registration + middleware setup
-// Sovereign Business Engine v4.0 — Session 3a
+// Sovereign Business Engine v4.0 — Session 3b
 // ⚠️ FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
 
 import { Hono } from 'hono'
 import type { Context, MiddlewareHandler } from 'hono'
 import type { TowerEnv } from './lib/app-config'
 import { TOWER_APP_NAME, TOWER_APP_VERSION, errorResponse } from './lib/app-config'
+
+// @sovereign/auth — real shared auth wiring (Session 3b upgrade dari placeholder)
+import { jwtMiddleware, founderOnly } from '@sovereign/auth'
+import type { SovereignAuthVariables } from '@sovereign/auth'
 
 // Route handlers
 import { healthRouter } from './routes/health'
@@ -18,7 +22,14 @@ import { dashboardRouter } from './routes/dashboard'
 // APP FACTORY
 // =============================================================================
 
-type TowerApp = Hono<{ Bindings: TowerEnv }>
+/**
+ * TowerApp — Hono app type dengan:
+ * - Bindings: TowerEnv (Cloudflare env vars)
+ * - Variables: SovereignAuthVariables (jwtPayload dari @sovereign/auth middleware)
+ *
+ * Session 3b: Full auth wiring via @sovereign/auth jwtMiddleware + founderOnly
+ */
+type TowerApp = Hono<{ Bindings: TowerEnv; Variables: SovereignAuthVariables }>
 
 /**
  * Buat Sovereign Tower Hono app.
@@ -26,7 +37,7 @@ type TowerApp = Hono<{ Bindings: TowerEnv }>
  * Dipanggil dari src/index.ts sebagai Cloudflare Worker handler.
  */
 export function createApp(): TowerApp {
-  const app: TowerApp = new Hono<{ Bindings: TowerEnv }>()
+  const app: TowerApp = new Hono<{ Bindings: TowerEnv; Variables: SovereignAuthVariables }>()
 
   // ─────────────────────────────────────────────────────────────────────────
   // GLOBAL MIDDLEWARE
@@ -43,20 +54,32 @@ export function createApp(): TowerApp {
   app.use('*', corsMiddleware)
 
   // ─────────────────────────────────────────────────────────────────────────
-  // AUTH MIDDLEWARE NOTE (Session 3a → 3b)
+  // AUTH MIDDLEWARE — Session 3b Real Wiring
   // ─────────────────────────────────────────────────────────────────────────
   //
   // Session 3a: auth check dilakukan per-route (manual Bearer header check)
   //
-  // Session 3b wire-up (tidak dilakukan sekarang):
-  //   import { jwtMiddleware, founderOnly } from '@sovereign/auth'
-  //   app.use('/api/*', (c, next) => jwtMiddleware({ JWT_SECRET: c.env.JWT_SECRET })(c, next))
-  //   app.use('/api/founder/*', founderOnly())
-  //   app.use('/api/modules/*', founderOnly())
-  //   app.use('/api/dashboard/*', founderOnly())
+  // Session 3b UPGRADE:
+  //   - jwtMiddleware verify token cryptographically via @sovereign/auth (Web Crypto API)
+  //   - founderOnly() enforce role === 'founder' untuk semua /api/* routes
+  //   - c.get('jwtPayload') tersedia di semua route handlers setelah middleware pass
   //
-  // Alasan di-defer: workspace:* package resolution membutuhkan
-  // npm install di monorepo root. Scaffold tetap valid dan siap di-wire.
+  // ADR-007: Auth wiring via app-level middleware (tidak per-route)
+  //   → Lebih maintainable, satu tempat untuk semua /api/* protection
+  //   → Route handlers bisa fokus ke business logic
+  //
+  // ⚠️ JWT_SECRET WAJIB ada di env vars. Jika tidak ada:
+  //   - Development: tambahkan ke .dev.vars
+  //   - Production: wrangler secret put JWT_SECRET
+
+  // JWT Middleware — verifikasi Bearer token untuk semua /api/* routes
+  app.use('/api/*', (c, next) =>
+    jwtMiddleware({ JWT_SECRET: c.env.JWT_SECRET })(c, next)
+  )
+
+  // Founder-only guard — enforce role === 'founder' untuk semua protected routes
+  // /health/* tetap public (tidak dalam /api/*)
+  app.use('/api/*', founderOnly())
 
   // ─────────────────────────────────────────────────────────────────────────
   // ROUTES
@@ -65,7 +88,7 @@ export function createApp(): TowerApp {
   // --- Public Routes (no auth required) ---
   app.route('/health', healthRouter)
 
-  // --- Founder-Protected Routes ---
+  // --- Founder-Protected Routes (JWT + founderOnly di atas sudah handle) ---
   app.route('/api/founder', founderRouter)
   app.route('/api/modules', modulesRouter)
   app.route('/api/dashboard', dashboardRouter)
@@ -75,14 +98,20 @@ export function createApp(): TowerApp {
   // ─────────────────────────────────────────────────────────────────────────
 
   /** GET / — App info */
-  app.get('/', (c: Context<{ Bindings: TowerEnv }>) => {
+  app.get('/', (c: Context<{ Bindings: TowerEnv; Variables: SovereignAuthVariables }>) => {
     return c.json({
       app: TOWER_APP_NAME,
       version: TOWER_APP_VERSION,
       description: 'Private Founder-Only Command Center — Sovereign Business Engine v4.0',
-      session: '3a',
+      session: '3b',
       phase: 'phase-3',
-      access: 'FOUNDER ONLY — requires valid JWT',
+      access: 'FOUNDER ONLY — requires valid JWT (HS256 signed)',
+      auth: {
+        package: '@sovereign/auth v0.1.0',
+        algorithm: 'HS256 (Web Crypto API)',
+        middleware: 'jwtMiddleware + founderOnly (app-level, /api/*)',
+        required_env: 'JWT_SECRET (from .dev.vars or Cloudflare secret)',
+      },
       endpoints: {
         public: ['GET /health', 'GET /health/status'],
         founder_protected: [
@@ -100,13 +129,20 @@ export function createApp(): TowerApp {
           'GET /api/dashboard/today',
         ],
       },
-      notice:
-        'Session 3a: scaffold only — all module endpoints return structured placeholder responses. Wire to @sovereign/db + full auth in Session 3b.',
+      db_wiring: {
+        status: 'partial',
+        wired: [
+          'GET /api/dashboard/today → leads + orders count (with fallback)',
+          'GET /api/modules/revenue-ops → total revenue sum (with fallback)',
+        ],
+        note: 'DB wiring narrow-scoped for Session 3b. Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in env.',
+      },
+      notice: 'Session 3b: real auth wired + narrow DB wiring. Session 3c: full module wiring + DB migration.',
     })
   })
 
   /** 404 fallback */
-  app.notFound((c: Context<{ Bindings: TowerEnv }>) => {
+  app.notFound((c: Context<{ Bindings: TowerEnv; Variables: SovereignAuthVariables }>) => {
     return c.json(
       errorResponse(
         'NOT_FOUND',
@@ -118,7 +154,7 @@ export function createApp(): TowerApp {
   })
 
   /** Global error handler */
-  app.onError((err: Error, c: Context<{ Bindings: TowerEnv }>) => {
+  app.onError((err: Error, c: Context<{ Bindings: TowerEnv; Variables: SovereignAuthVariables }>) => {
     return c.json(
       errorResponse('INTERNAL_ERROR', `Internal server error: ${err.message}`),
       500

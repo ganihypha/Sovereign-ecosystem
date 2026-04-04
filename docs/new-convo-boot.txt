@@ -1,0 +1,46 @@
+SOVEREIGN ECOSYSTEM — NEW CONVERSATION BOOT
+============================================
+Baca ini pertama sebelum baca dokumen lain.
+Update: 2026-04-04 | Setelah Session 3b
+
+PROJECT: Sovereign Business Engine v4.0
+FOUNDER: Haidar Faras Maulia — PT WASKITA CAKRAWARTI DIGITAL
+REPO: https://github.com/ganihypha/Sovereign-ecosystem
+STACK: Hono + TypeScript + Cloudflare Pages + Supabase
+PHASE: Phase 3 — Sovereign Tower Hardening (Session 3c next)
+
+LAST COMPLETED: Session 3b — Sovereign Tower Core Wiring ✅
+  - @sovereign/auth jwtMiddleware + founderOnly wired di app.ts level
+  - db-adapter.ts: narrow Supabase direct client, safe fallback
+  - wrangler.jsonc: Cloudflare Pages config dengan placeholder bindings
+  - TypeScript zero errors ✅
+
+NEXT SESSION: Session 3c — Sprint 1 DB Migration + Full Module Wiring
+  - Run SQL migrations (migration/sql/001-004) ke Supabase
+  - Wire ai-resource-manager → ai_tasks + credit_ledger
+  - Wire founder-review → weekly_reviews
+  - Wire decision-center → ADR files
+  - Test dengan real .dev.vars credentials
+
+CRITICAL CONTEXT FILES (baca dalam urutan ini):
+  1. docs/current-handoff.md        ← STATE SEKARANG (ini dulu)
+  2. docs/session-last-summary.md   ← Detail session 3b
+  3. migration/phase-tracker.md     ← Progress per phase
+  4. docs/29-AI-DEV-HANDOFF-PACK.md ← Rules untuk AI dev
+
+BLOCKERS:
+  - FONNTE_TOKEN: MISSING — WA routes disabled
+  - .dev.vars: belum diisi dengan real credentials
+  - Sprint 1 DB migration: belum dijalankan
+
+DO NOT:
+  - Rebuild @sovereign packages (types, db, auth, integrations, prompt-contracts)
+  - Aktifkan Fonnte tanpa FONNTE_TOKEN
+  - Expand scope ke Phase 4+ dulu
+  - Touch live Supabase/Cloudflare production settings
+  - Commit .dev.vars atau secrets apapun
+
+WORKSPACE SETUP:
+  - Package manager: PNPM (bukan npm)
+  - Install: cd repo root && pnpm install
+  - TypeCheck Tower: cd apps/sovereign-tower && npx tsc --noEmit

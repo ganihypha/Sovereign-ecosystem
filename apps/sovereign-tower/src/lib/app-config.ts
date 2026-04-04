@@ -12,7 +12,7 @@
 
 export const TOWER_APP_NAME = 'Sovereign Tower' as const
 export const TOWER_APP_VERSION = '0.1.0' as const
-export const TOWER_BUILD_SESSION = '3a' as const
+export const TOWER_BUILD_SESSION = '3b' as const
 export const TOWER_PHASE = 'phase-3' as const
 export const TOWER_DESCRIPTION = 'Private founder-only command center — Sovereign Business Engine v4.0'
 
@@ -39,6 +39,13 @@ export type TowerEnv = {
   SUPABASE_URL: string
   /** Supabase anon key — untuk public DB reads */
   SUPABASE_ANON_KEY: string
+  /**
+   * Supabase Service Role Key — untuk server-side full access
+   * ⚠️ WAJIB ada untuk DB wiring di Sovereign Tower
+   * ⚠️ JANGAN expose ke client/browser
+   * Tambahkan ke .dev.vars atau Cloudflare Secret
+   */
+  SUPABASE_SERVICE_ROLE_KEY?: string
 
   // --- External Integrations (blocked until token available) ---
   /** Fonnte API Token — BLOCKED: belum tersedia */

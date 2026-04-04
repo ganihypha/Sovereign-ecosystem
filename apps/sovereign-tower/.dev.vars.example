@@ -1,0 +1,33 @@
+# sovereign-tower — .dev.vars.example
+# Template untuk local development environment
+# Sovereign Business Engine v4.0 — Session 3b
+#
+# CARA PENGGUNAAN:
+#   1. Copy file ini ke .dev.vars (JANGAN rename, buat copy baru)
+#   2. Isi nilai asli di .dev.vars (sudah di .gitignore — AMAN)
+#   3. JANGAN commit .dev.vars ke repo
+#
+# Format: KEY=value (tidak perlu quotes kecuali ada spasi)
+
+# ── AUTH ──────────────────────────────────────────────────────────────────────
+# JWT Secret untuk sign/verify token founder
+# Generate via: openssl rand -base64 32
+JWT_SECRET=your-jwt-secret-here-minimum-32-chars
+
+# ── SUPABASE ──────────────────────────────────────────────────────────────────
+# Dari Supabase Dashboard → Project Settings → API
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key-here
+
+# ── FOUNDER CONFIG ────────────────────────────────────────────────────────────
+# UUID founder di Supabase auth.users table
+FOUNDER_USER_ID=your-founder-uuid-here
+
+# ── APP CONFIG ────────────────────────────────────────────────────────────────
+ENVIRONMENT=development
+
+# ── EXTERNAL INTEGRATIONS (BLOCKED — tidak aktif di Session 3b) ──────────────
+# FONNTE_TOKEN=your-fonnte-token-here
+# GROQ_API_KEY=your-groq-api-key-here
+# OPENAI_API_KEY=your-openai-key-here

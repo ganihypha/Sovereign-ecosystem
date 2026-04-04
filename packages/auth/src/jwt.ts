@@ -136,7 +136,7 @@ async function hmacVerify(key: CryptoKey, data: string, signature: Uint8Array): 
   return crypto.subtle.verify(
     'HMAC',
     key,
-    signature,
+    signature.buffer as ArrayBuffer,
     encoder.encode(data)
   )
 }

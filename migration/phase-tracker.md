@@ -2,7 +2,7 @@
 # MIGRATION: PHASE TRACKER
 # (Progress Tiap Phase — Update Setiap Session)
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Update: 2026-04-04 | Setelah Session 3a
+### Update: 2026-04-04 | Setelah Session 3b
 
 ---
 
@@ -16,7 +16,7 @@
 Session 0  [██████████] 100% ✅ DONE
 Session 1  [██████████] 100% ✅ DONE
 Phase 2    [██████████]  71% 🟡 IN PROGRESS (2a✅ 2b✅ 2c✅ 2d✅ 2e✅ 2f⏳ 2g⏳)
-Phase 3    [██         ]  14% 🟡 IN PROGRESS (3a✅ 3b⏳ 3c⏳ 3d⏳ 3e⏳ 3f⏳ 3g⏳)
+Phase 3    [████       ]  29% 🟡 IN PROGRESS (3a✅ 3b✅ 3c⏳ 3d⏳ 3e⏳ 3f⏳ 3g⏳)
 Phase 4    [          ]   0% 🔴 NOT STARTED
 Phase 5    [          ]   0% 🔴 NOT STARTED
 Phase 6    [          ]   0% 🔴 NOT STARTED
@@ -83,11 +83,11 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 | Item | Status | Tanggal | Output |
 |------|--------|---------|--------|
 | **Session 3a: Sovereign Tower scaffold** | ✅ DONE | 2026-04-04 | `apps/sovereign-tower/` — v0.1.0, 7 modules, 14 routes |
-| Wire `@sovereign/auth` JWT middleware | 🔴 3b | — | — |
-| Wire `@sovereign/db` real data | 🔴 3b | — | — |
-| `wrangler.jsonc` deployment config | 🔴 3b | — | — |
-| 4 tabel baru: wa_logs, ai_tasks, ai_insights, order_items | 🔴 3b | — | — |
-| Sprint 1 DB migration | 🔴 3b | — | — |
+| Wire `@sovereign/auth` JWT middleware | ✅ DONE | 2026-04-04 | `src/app.ts` — jwtMiddleware + founderOnly via @sovereign/auth |
+| Wire Supabase DB narrow endpoints | ✅ DONE | 2026-04-04 | `src/lib/db-adapter.ts` — dashboard/today + revenue-ops |
+| `wrangler.jsonc` deployment config | ✅ DONE | 2026-04-04 | `apps/sovereign-tower/wrangler.jsonc` — placeholder bindings |
+| 4 tabel baru: wa_logs, ai_tasks, ai_insights, order_items | 🔴 3c | — | Sprint 1 DB migration pending |
+| Sprint 1 DB migration | 🔴 3c | — | — |
 | `/api/wa/send` (Fonnte) | 🔴 BLOCKED | — | Blocked: FONNTE_TOKEN missing |
 | `/api/wa/broadcast` | 🔴 BLOCKED | — | Blocked: FONNTE_TOKEN missing |
 | Scout Agent (LangGraph) | 🔴 3c+ | — | — |
@@ -96,7 +96,8 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 
 **Pre-condition:** Phase 2 ✅ DONE  
 **Blocker Phase 3 (partial):** 🔴 `FONNTE_TOKEN` MISSING (WA routes only)  
-**Session 3a:** ✅ DONE — Tower scaffold, 7 modules, TypeScript strict mode
+**Session 3a:** ✅ DONE — Tower scaffold, 7 modules, TypeScript strict mode  
+**Session 3b:** ✅ DONE — Auth wired (@sovereign/auth jwtMiddleware+founderOnly), narrow DB wiring (db-adapter), wrangler.jsonc added
 
 ---
 
@@ -154,21 +155,24 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 ## 🚦 NEXT ACTIONS
 
 ```
-SEKARANG (setelah Session 3a):
-  1. ✅ Session 3b — Wire @sovereign/auth + @sovereign/db ke Tower
-     → pnpm install dari monorepo root (resolve workspace:* deps)
-     → Wire jwtMiddleware + founderOnly dari @sovereign/auth
-     → Wire @sovereign/db helpers ke real endpoint data
-     → Tambah wrangler.jsonc deployment config
-     → Sprint 1 DB migration (ai_tasks, credit_ledger)
+SEKARANG (setelah Session 3b):
+  1. ✅ Session 3b DONE — Auth + DB wired + wrangler.jsonc added
   
-  2. 🔴 Urus FONNTE_TOKEN (paralel, tidak block Session 3b)
+  2. 🔴 Session 3c — Sprint 1 DB Migration + Module Wiring
+     → Run SQL migrations: migration/sql/001-wa-logs.sql sampai 004
+     → Wire ai-resource-manager ke credit_ledger table
+     → Wire founder-review ke weekly_reviews table
+     → Wire decision-center ke evidence/architecture/ ADR files
+     → Add .dev.vars dengan real credentials untuk local testing
+     → Test all endpoints dengan real JWT
+  
+  3. 🔴 Urus FONNTE_TOKEN (paralel, tidak block Session 3c)
      → Daftar di fonnte.com
      → Verify nomor WA
      → Update docs/credential-map.md + .dev.vars
 
-  3. 📖 Lanjut CCA study (paralel semua)
-     → Domains 1-5: evidence dari Session 3a scaffold
+  4. 📖 Lanjut CCA study (paralel semua)
+     → Domains 1-5: evidence dari Session 3a/3b scaffold
 ```
 
 ---
@@ -184,6 +188,7 @@ SEKARANG (setelah Session 3a):
 | 1.4 | 2026-04-04 | Session 2d DONE — @sovereign/integrations v0.1.0: Fonnte + Groq contracts, IWaClient, ILLMClient, scaffolds, env config helpers |
 | 1.5 | 2026-04-04 | Session 2e DONE — @sovereign/prompt-contracts v0.1.0: PromptContract typed model, 6 template builders (execution/db/auth/integration/handoff), validator, completeness score, session2eContract self-referential example |
 | 1.6 | 2026-04-04 | Session 3a DONE — apps/sovereign-tower v0.1.0: Hono app scaffold, 7 modules (module-registry), 14 routes (health/founder/modules/dashboard), TypeScript strict zero errors, ADR-006 |
+| 1.7 | 2026-04-04 | Session 3b DONE — Real auth wired (@sovereign/auth jwtMiddleware+founderOnly), narrow DB wiring (db-adapter.ts, Supabase direct), wrangler.jsonc added, pnpm workspace resolved, TypeScript zero errors |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*

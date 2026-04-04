@@ -13,9 +13,10 @@
   "dependencies": {
     "@sovereign/auth": "workspace:*",
     "@sovereign/db": "workspace:*",
-    "@sovereign/types": "workspace:*",
     "@sovereign/integrations": "workspace:*",
     "@sovereign/prompt-contracts": "workspace:*",
+    "@sovereign/types": "workspace:*",
+    "@supabase/supabase-js": "^2.101.1",
     "hono": "^4.7.4"
   },
   "devDependencies": {
