@@ -103,7 +103,7 @@ export function createApp(): TowerApp {
       app: TOWER_APP_NAME,
       version: TOWER_APP_VERSION,
       description: 'Private Founder-Only Command Center — Sovereign Business Engine v4.0',
-      session: '3b',
+      session: '3d',
       phase: 'phase-3',
       access: 'FOUNDER ONLY — requires valid JWT (HS256 signed)',
       auth: {
@@ -132,12 +132,15 @@ export function createApp(): TowerApp {
       db_wiring: {
         status: 'partial',
         wired: [
-          'GET /api/dashboard/today → leads + orders count (with fallback)',
+          'GET /api/dashboard/today → leads + orders (with date-range filter, fallback)',
           'GET /api/modules/revenue-ops → total revenue sum (with fallback)',
+          'GET /api/modules/ai-resource-manager → ai_tasks + credit_ledger (with fallback)',
+          'GET /api/modules/decision-center → static ADR manifest (10 ADRs)',
+          'GET /api/modules/founder-review → weekly_reviews OR evidence-based fallback',
         ],
-        note: 'DB wiring narrow-scoped for Session 3b. Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in env.',
+        note: 'DB wiring progressive. Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in env.',
       },
-      notice: 'Session 3b: real auth wired + narrow DB wiring. Session 3c: full module wiring + DB migration.',
+      notice: 'Session 3d: ai-resource-manager, decision-center, founder-review wired. Date-range filter added to dashboard.',
     })
   })
 

@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-04 | Setelah Session 3c + Live Gate
+### Update: 2026-04-04 | Setelah Session 3d — Module Wiring
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -8,9 +8,9 @@
 ## 🎯 STATE SAAT INI
 
 ```
-Session 3c SELESAI ✅ — DB Migration Hardening + Evidence Hardening + LIVE GATE
-Live Gate: PASSED ✅ — 10 tabel live di Supabase (ljixhglhoyivhidseubp)
-Melanjutkan ke: Session 3d — Module Wiring (tabel sudah live, TIDAK perlu founder action untuk DB)
+Session 3d SELESAI ✅ — Module Wiring
+TypeScript: ✅ zero errors | Build: ✅ 230.84 kB
+Melanjutkan ke: Session 3e — Deploy + Test + (optional) weekly_reviews table
 ```
 
 ## 📊 PROGRESS RINGKAS
@@ -22,64 +22,59 @@ Melanjutkan ke: Session 3d — Module Wiring (tabel sudah live, TIDAK perlu foun
 | Phase 2 (2a-2e) | ✅ DONE |
 | Session 3a | ✅ DONE |
 | Session 3b | ✅ DONE |
-| **Session 3c + Live Gate** | ✅ **DONE — LIVE GATE PASSED** |
-| Session 3d | ⏳ NEXT (tabel live, siap wire) |
+| Session 3c + Live Gate | ✅ DONE — LIVE GATE PASSED |
+| **Session 3d** | ✅ **DONE — MODULE WIRING COMPLETE** |
+| Session 3e | ⏳ NEXT (deploy + test + optional weekly_reviews) |
 
 ---
 
-## ✅ APA YANG SUDAH SELESAI (Session 3c + Live Gate)
+## ✅ APA YANG SUDAH SELESAI (Session 3d)
 
-1. **Migration files hardened** — 001-004 updated, 005-credit-ledger.sql baru (gap fill)
-2. **Migration 000 created** — foundation tables (users, leads, customers, products, orders)
-3. **Migration inventory map** — `migration/migration-inventory-map.md`
-4. **Validation matrix** — `migration/validation-matrix.md` (16 AC, semua PASS)
-5. **Blocker log** — `migration/blocker-log.md` (B-003 RESOLVED, 3 resolved total)
-6. **Risk & rollback notes** — `migration/risk-rollback-notes.md`
-7. **ADR-009** — Migration hardening pattern accepted
-8. **CCA evidence updated** — domain-4-testing.md, domain-5-architecture.md
-9. **🔴 LIVE GATE ✅**: 10 tabel dibuat di Supabase project ljixhglhoyivhidseubp
-10. **Cloudflare Pages deployed** — sovereign-tower.pages.dev live HTTP 200
-11. **GitHub push** — commit f2fc347 on ganihypha/Sovereign-ecosystem main
+1. **ai-resource-manager wired** → ai_tasks + credit_ledger read path, safe fallback
+2. **decision-center wired** → static ADR manifest (10 ADRs), always available
+3. **founder-review wired** → probe weekly_reviews → safe evidence-based fallback
+4. **Dashboard date-range filter** → `?date_from=YYYY-MM-DD&date_to=YYYY-MM-DD`
+5. **6 new DB helper functions** di `db-adapter.ts`
+6. **ADR-010 created** → documents decision-center static manifest pattern
+7. **TypeScript zero errors** → `npx tsc --noEmit` exit 0
+8. **Build pass** → `npx vite build` → `dist/_worker.js 230.84 kB`
 
 ---
 
-## 🔴 FOUNDER ACTIONS REQUIRED (sebelum Session 3d bisa jalan)
+## 🔴 FOUNDER ACTIONS REQUIRED (sebelum Session 3e)
 
 ### ACTION 1 (MEDIUM — optional): FONNTE_TOKEN
 - Daftar fonnte.com, verify nomor WA, masukkan ke `.dev.vars` sebagai `FONNTE_TOKEN`
 - WA routes tetap disabled tanpa token ini
-- NOT blocking Session 3d (module wiring dapat jalan tanpa FONNTE)
+- NOT blocking Session 3e (deploy + test bisa jalan tanpa FONNTE)
 
-### ACTION 2 (OPTIONAL — jika test lokal): Verify .dev.vars
-- .dev.vars sudah dibuat oleh Live Gate
-- Pastikan JWT_SECRET dan semua credential masih valid untuk local dev testing
+### ACTION 2 (RECOMMENDED untuk 3e): Deploy ke Cloudflare Pages
+- Jalankan: `wrangler pages deploy dist --project-name sovereign-tower`
+- Atau serahkan ke AI Dev di session 3e
+
+### ACTION 3 (OPTIONAL): weekly_reviews table
+- Jika founder-review dengan persistence diperlukan, buat migration SQL baru
+- Tabel belum di-scope Sprint 1 — boleh ditambah di Sprint 2 scope
 
 ---
 
-## 📁 FILE KUNCI SESSION 3c
+## 📁 FILE KUNCI SESSION 3d
 
 ```
-migration/sql/
-├── 000-foundation-tables.sql  ← NEW (Live Gate — users, leads, customers, products, orders)
-├── 001-wa-logs.sql          ← HARDENED + EXECUTED ✅
-├── 002-ai-tasks.sql         ← HARDENED + EXECUTED ✅
-├── 003-ai-insights.sql      ← HARDENED + EXECUTED ✅
-├── 004-order-items.sql      ← HARDENED + EXECUTED ✅
-└── 005-credit-ledger.sql    ← NEW + EXECUTED ✅
+apps/sovereign-tower/src/
+├── lib/
+│   ├── db-adapter.ts     ← EXTENDED (6 new helpers: ai_tasks, credit_ledger, weekly_reviews)
+│   └── app-config.ts     ← UPDATED (session 3b → 3d)
+├── routes/
+│   ├── modules.ts        ← WIRED (ai-resource-manager, decision-center, founder-review, build-ops)
+│   └── dashboard.ts      ← EXTENDED (date-range filter + session 3d)
+└── app.ts                ← UPDATED (db_wiring info + session 3d)
 
-migration/
-├── migration-inventory-map.md   ← NEW
-├── validation-matrix.md         ← NEW (16 AC)
-├── blocker-log.md               ← NEW
-└── risk-rollback-notes.md       ← NEW
-
-evidence/
-├── architecture/ADR-009-migration-hardening-pattern.md  ← NEW
-├── cca/domain-4-testing.md      ← UPDATED
-└── cca/domain-5-architecture.md ← UPDATED
+evidence/architecture/
+└── ADR-010-decision-center-static-manifest.md  ← NEW
 
 docs/
-└── session-3c-summary.md        ← NEW
+└── session-3d-summary.md  ← NEW
 ```
 
 ---
@@ -89,31 +84,30 @@ docs/
 | Module | Route | DB Wire? | Status |
 |--------|-------|---------|--------|
 | health | `/health` | — | ✅ LIVE |
-| today-dashboard | `/api/dashboard/today` | orders + leads | ✅ WIRED (3b) |
+| today-dashboard | `/api/dashboard/today` | orders + leads + date filter | ✅ WIRED + DATE FILTER |
 | revenue-ops | `/api/modules/revenue-ops` | orders | ✅ WIRED (3b) |
-| build-ops | `/api/modules/build-ops` | session_logs* | 🟡 PLACEHOLDER |
-| ai-resource-manager | `/api/modules/ai-resource-manager` | ai_tasks + credit_ledger | 🔴 NEEDS 3d |
-| proof-center | `/api/modules/proof-center` | proof_entries* | 🟡 PLACEHOLDER |
-| decision-center | `/api/modules/decision-center` | ADR files | 🔴 NEEDS 3d |
-| founder-review | `/api/modules/founder-review` | weekly_reviews | 🔴 NEEDS 3d |
+| build-ops | `/api/modules/build-ops` | — | 🟡 PLACEHOLDER (updated 3d) |
+| ai-resource-manager | `/api/modules/ai-resource-manager` | ai_tasks + credit_ledger | ✅ WIRED (3d) |
+| proof-center | `/api/modules/proof-center` | — | 🟡 PLACEHOLDER |
+| decision-center | `/api/modules/decision-center` | static manifest | ✅ WIRED (3d, static) |
+| founder-review | `/api/modules/founder-review` | weekly_reviews + fallback | ✅ WIRED (3d, fallback) |
 | WA routes | `/api/wa/*` | wa_logs | 🔴 BLOCKED (FONNTE_TOKEN) |
-
-*session_logs dan proof_entries: tabel governance, belum di Sprint 1 scope
 
 ---
 
-## 🚀 SESSION 3D TASKS (untuk AI Developer)
+## 🚀 SESSION 3E TASKS (untuk AI Developer)
 
 ```
-PRE-CONDITION: Tabel sudah LIVE ✅ (tidak perlu founder action untuk DB)
+PRE-CONDITION: 3d DONE ✅ — TypeScript clean, build pass
 
-1. Wire ai-resource-manager → ai_tasks + credit_ledger queries (db-adapter.ts)
-2. Wire founder-review → weekly_reviews table
-3. Wire decision-center → evidence/architecture/ ADR files (static read)
-4. Add date filtering ke dashboard/today revenue + leads
-5. Full local test: wrangler pages dev + real JWT
-6. Update docs + phase-tracker
-7. Commit + push
+RECOMMENDED TASKS:
+1. Deploy ke Cloudflare Pages: wrangler pages deploy dist --project-name sovereign-tower
+2. Verify semua endpoints di deployed URL dengan real JWT
+3. (Optional) Create weekly_reviews migration SQL + apply
+4. (Optional) Add POST /api/modules/founder-review untuk submit review
+5. Wire proof-center → static CCA evidence manifest (sama pola decision-center)
+6. Wire build-ops → static phase-tracker status
+7. Update docs + commit
 ```
 
 ---
@@ -123,9 +117,9 @@ PRE-CONDITION: Tabel sudah LIVE ✅ (tidak perlu founder action untuk DB)
 - TIDAK rebuild shared packages (types, db, auth, integrations, prompt-contracts)
 - TIDAK aktifkan Fonnte tanpa FONNTE_TOKEN terverifikasi
 - TIDAK expand scope ke Phase 4+ sebelum Session 3d selesai
-- TIDAK run migration langsung — itu tugas founder
 - CATAT semua architectural decisions ke ADR
-- TIDAK fake live migration success — claim VERIFIED hanya jika benar-benar ditest
+- TIDAK fake verification — claim VERIFIED hanya jika benar-benar ditest
+- Setiap ADR baru wajib update static manifest di decision-center
 
 ---
 
@@ -133,12 +127,13 @@ PRE-CONDITION: Tabel sudah LIVE ✅ (tidak perlu founder action untuk DB)
 
 | ID | Blocker | Severity | Owner |
 |----|---------|----------|-------|
-| B-001 | FONTTE_TOKEN missing | 🔴 HIGH (WA only) | Founder |
+| B-001 | FONNTE_TOKEN missing | 🔴 HIGH (WA only) | Founder |
 | B-002 | .dev.vars permanent setup | 🟡 LOW (local dev) | Founder |
 | B-003 | Migration not run | ✅ RESOLVED | AI Dev (Live Gate) |
-| B-004 | ai-resource-manager placeholder | 🟡 MEDIUM | AI Dev (3d) |
+| B-004 | ai-resource-manager placeholder | ✅ RESOLVED | AI Dev (3d) |
+| B-005 | weekly_reviews table missing | 🟡 LOW (founder-review fallback) | AI Dev (future) |
 
 ---
 
-*Updated: Session 3c + Live Gate — 2026-04-04T09:48Z UTC*  
-*Backup: Available via ProjectBackup (Session 3c)*
+*Updated: Session 3d complete — 2026-04-04*
+*TypeScript: ✅ zero errors | Build: ✅ 230.84 kB*

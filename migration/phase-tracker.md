@@ -2,7 +2,7 @@
 # MIGRATION: PHASE TRACKER
 # (Progress Tiap Phase — Update Setiap Session)
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Update: 2026-04-04 | Setelah Session 3c + Live Gate
+### Update: 2026-04-04 | Setelah Session 3d — Module Wiring
 
 ---
 
@@ -16,7 +16,7 @@
 Session 0  [██████████] 100% ✅ DONE
 Session 1  [██████████] 100% ✅ DONE
 Phase 2    [██████████]  71% 🟡 IN PROGRESS (2a✅ 2b✅ 2c✅ 2d✅ 2e✅ 2f⏳ 2g⏳)
-Phase 3    [██████     ]  57% 🟡 IN PROGRESS (3a✅ 3b✅ 3c✅ 3c-live✅ 3d⏳ 3e⏳ 3f⏳ 3g⏳)
+Phase 3    [████████   ]  71% 🟡 IN PROGRESS (3a✅ 3b✅ 3c✅ 3c-live✅ 3d✅ 3e⏳ 3f⏳ 3g⏳)
 Phase 4    [          ]   0% 🔴 NOT STARTED
 Phase 5    [          ]   0% 🔴 NOT STARTED
 Phase 6    [          ]   0% 🔴 NOT STARTED
@@ -90,9 +90,9 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 | Migration inventory + validation matrix + blocker log | ✅ DONE | 2026-04-04 | `migration/migration-inventory-map.md`, `validation-matrix.md`, `blocker-log.md`, `risk-rollback-notes.md` |
 | Sprint 1 DB tables live in Supabase | ✅ DONE | 2026-04-04 | LIVE GATE: 10 tabel di project ljixhglhoyivhidseubp (RLS enabled, 13 FKs, 59 indexes) |
 | `000-foundation-tables.sql` dibuat | ✅ DONE | 2026-04-04 | Foundation: users, leads, customers, products, orders |
-| ai-resource-manager wired to ai_tasks + credit_ledger | 🔴 3d | — | After migration |
-| founder-review wired to weekly_reviews | 🔴 3d | — | After migration |
-| decision-center wired to ADR files | 🔴 3d | — | After migration |
+| ai-resource-manager wired to ai_tasks + credit_ledger | ✅ DONE | 2026-04-04 | WIRED: read path, safe fallback |
+| founder-review wired to weekly_reviews | ✅ DONE | 2026-04-04 | WIRED: probe+fallback (weekly_reviews belum ada = evidence fallback) |
+| decision-center wired to ADR files | ✅ DONE | 2026-04-04 | WIRED: static manifest (10 ADRs, ADR-010 created) |
 | `/api/wa/send` (Fonnte) | 🔴 BLOCKED | — | Blocked: FONNTE_TOKEN missing |
 | `/api/wa/broadcast` | 🔴 BLOCKED | — | Blocked: FONNTE_TOKEN missing |
 | Scout Agent (LangGraph) | 🔴 3c+ | — | — |
@@ -104,6 +104,7 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 **Session 3a:** ✅ DONE — Tower scaffold, 7 modules, TypeScript strict mode  
 **Session 3b:** ✅ DONE — Auth wired (@sovereign/auth jwtMiddleware+founderOnly), narrow DB wiring (db-adapter), wrangler.jsonc added
 **Session 3c:** ✅ DONE — DB Migration Hardening + LIVE GATE PASSED: 10 tabel dibuat via Supabase Management API, RLS verified, FKs verified, Cloudflare Pages deployed (sovereign-tower.pages.dev), GitHub pushed (f2fc347)
+**Session 3d:** ✅ DONE — Module Wiring: ai-resource-manager wired (ai_tasks + credit_ledger), decision-center wired (static ADR manifest, ADR-010), founder-review wired (probe weekly_reviews + evidence fallback), date-range filter di dashboard, TypeScript zero errors, build pass (230.84 kB)
 
 ---
 
@@ -206,6 +207,7 @@ SEKARANG (setelah Session 3b):
 | 1.6 | 2026-04-04 | Session 3a DONE — apps/sovereign-tower v0.1.0: Hono app scaffold, 7 modules (module-registry), 14 routes (health/founder/modules/dashboard), TypeScript strict zero errors, ADR-006 |
 | 1.7 | 2026-04-04 | Session 3b DONE — Real auth wired (@sovereign/auth jwtMiddleware+founderOnly), narrow DB wiring (db-adapter.ts, Supabase direct), wrangler.jsonc added, pnpm workspace resolved, TypeScript zero errors |
 | 1.8 | 2026-04-04 | Session 3c DONE — Migration Hardening: 001-004 SQL files hardened, 005-credit-ledger.sql gap filled, migration-inventory-map.md + validation-matrix.md + blocker-log.md + risk-rollback-notes.md created, ADR-009 accepted, CCA domain-4/5 updated |
+| 1.9 | 2026-04-04 | Session 3d DONE — Module Wiring: ai-resource-manager wired (ai_tasks + credit_ledger read path + fallback), decision-center wired (static ADR manifest 10 ADRs + ADR-010), founder-review wired (weekly_reviews probe + evidence fallback), date-range filter /api/dashboard/today, TypeScript zero errors, build pass 230.84 kB |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*
