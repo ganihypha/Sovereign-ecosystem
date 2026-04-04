@@ -1,8 +1,8 @@
 {
   "name": "@sovereign/auth",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
-  "description": "Sovereign Ecosystem — JWT validation, role checking, auth middleware",
+  "description": "Sovereign Ecosystem — JWT foundation, role guards, Hono middleware (Cloudflare Workers compatible)",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
@@ -11,9 +11,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "hono": "^4.0.0"
+    "hono": "^4.7.4"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.3.3"
   }
 }
