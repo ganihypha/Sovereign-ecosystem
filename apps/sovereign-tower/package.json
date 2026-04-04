@@ -1,0 +1,26 @@
+{
+  "name": "sovereign-tower",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sovereign Tower — Private Founder-Only Command Center | Sovereign Business Engine v4.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev dist --ip 0.0.0.0 --port 3001",
+    "build": "tsc --noEmit && echo 'TypeCheck PASS'",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@sovereign/auth": "workspace:*",
+    "@sovereign/db": "workspace:*",
+    "@sovereign/types": "workspace:*",
+    "@sovereign/integrations": "workspace:*",
+    "@sovereign/prompt-contracts": "workspace:*",
+    "hono": "^4.7.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250705.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.78.0"
+  }
+}
