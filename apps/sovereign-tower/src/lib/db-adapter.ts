@@ -275,9 +275,13 @@ export async function getWeeklyReviews(
  */
 export async function checkWeeklyReviewsTableExists(db: DbClient): Promise<boolean> {
   try {
+    // NOTE: Use .select('id').limit(1) instead of HEAD count — HEAD count does not trigger
+    // PGRST205 (schema cache miss) and gives false positive if table doesn't exist.
+    // Real SELECT correctly fails with PGRST205 if table is missing from PostgREST schema cache.
     const { error } = await db
       .from('weekly_reviews')
-      .select('id', { count: 'exact', head: true })
+      .select('id')
+      .limit(1)
     return !error
   } catch {
     return false
