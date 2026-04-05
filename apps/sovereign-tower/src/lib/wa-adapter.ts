@@ -48,12 +48,23 @@ export type WaLogStatus =
 // =============================================================================
 
 /**
- * Resolve Fonnte token dari env.
+ * Resolve Fonnte token untuk ACCOUNT/MANAGEMENT operations.
  * Priority: FONNTE_ACCOUNT_TOKEN > FONNTE_TOKEN > FONNTE_DEVICE_TOKEN
  * Return null jika tidak ada.
  */
 export function getFonnteToken(env: TowerEnv): string | null {
   const token = env.FONNTE_ACCOUNT_TOKEN || env.FONNTE_TOKEN || env.FONNTE_DEVICE_TOKEN || null
+  return token && token.length > 0 ? token : null
+}
+
+/**
+ * Resolve Fonnte DEVICE token untuk SEND operations.
+ * Fonnte memerlukan device-specific token untuk mengirim pesan.
+ * Priority: FONNTE_DEVICE_TOKEN > FONNTE_TOKEN > FONNTE_ACCOUNT_TOKEN
+ * ADR-012: Device token digunakan untuk /send, account token untuk /get-devices
+ */
+export function getFonnteDeviceToken(env: TowerEnv): string | null {
+  const token = env.FONNTE_DEVICE_TOKEN || env.FONNTE_TOKEN || env.FONNTE_ACCOUNT_TOKEN || null
   return token && token.length > 0 ? token : null
 }
 
@@ -377,15 +388,16 @@ export async function waSendAndLog(params: WaSendAndLogParams): Promise<WaSendAn
 
   const normalizedPhone = normalizePhone(phone)
 
-  // Resolve Fonnte token
-  const token = getFonnteToken(env)
+  // Resolve Fonnte DEVICE token untuk send
+  // Device token digunakan untuk /send, bukan account token
+  const token = getFonnteDeviceToken(env)
   if (!token) {
     return {
       logged: false,
       attempted: false,
       confirmed: false,
       final_status: 'failed',
-      error: 'FONNTE_ACCOUNT_TOKEN or FONNTE_TOKEN not present in env',
+      error: 'FONNTE_DEVICE_TOKEN or FONNTE_TOKEN not present in env',
     }
   }
 
