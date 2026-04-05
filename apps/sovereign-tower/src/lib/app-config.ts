@@ -12,7 +12,7 @@
 
 export const TOWER_APP_NAME = 'Sovereign Tower' as const
 export const TOWER_APP_VERSION = '0.1.0' as const
-export const TOWER_BUILD_SESSION = '3d' as const
+export const TOWER_BUILD_SESSION = '3e' as const
 export const TOWER_PHASE = 'phase-3' as const
 export const TOWER_DESCRIPTION = 'Private founder-only command center — Sovereign Business Engine v4.0'
 
@@ -47,11 +47,20 @@ export type TowerEnv = {
    */
   SUPABASE_SERVICE_ROLE_KEY?: string
 
-  // --- External Integrations (blocked until token available) ---
-  /** Fonnte API Token — BLOCKED: belum tersedia */
+  // --- External Integrations ---
+  /**
+   * Fonnte Account Token — tersedia di .dev.vars (session 3e)
+   * WA routes akan diaktifkan di session 3f
+   */
+  FONNTE_ACCOUNT_TOKEN?: string
+  /** Fonnte Device Token — tersedia di .dev.vars (session 3e) */
+  FONNTE_DEVICE_TOKEN?: string
+  /** Fonnte API Token — alias (backward compat) */
   FONNTE_TOKEN?: string
   /** Groq API Key — untuk LLM calls */
   GROQ_API_KEY?: string
+  /** Groq Console key — dari .dev.vars */
+  GROQ_CONSOLE?: string
   /** OpenAI API Key — untuk LLM fallback */
   OPENAI_API_KEY?: string
 

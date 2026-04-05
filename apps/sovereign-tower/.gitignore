@@ -1,0 +1,19 @@
+# Secret files — NEVER commit
+.dev.vars
+.env
+.env.local
+.env.production
+*.secret
+dev.vars.setup*.txt
+*secret*.txt
+*credential*.txt
+
+# Build output
+dist/
+.wrangler/
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log

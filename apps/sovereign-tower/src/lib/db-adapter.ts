@@ -3,6 +3,7 @@
 // Menggunakan type assertions minimal untuk menghindari cascade errors dari packages
 // Session 3b: narrow DB wiring untuk dashboard + revenue-ops
 // Session 3d: tambah helpers untuk ai_tasks, credit_ledger, weekly_reviews, dan date-range filters
+// Session 3e: tambah insertWeeklyReview helper
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -280,5 +281,51 @@ export async function checkWeeklyReviewsTableExists(db: DbClient): Promise<boole
     return !error
   } catch {
     return false
+  }
+}
+
+// =============================================================================
+// FOUNDER REVIEW WRITE HELPERS — Session 3e
+// =============================================================================
+
+export interface WeeklyReviewInsert {
+  week_label: string          // e.g. "2026-W14"
+  revenue_progress: string    // Q1 answer
+  build_progress: string      // Q2 answer
+  arch_decisions: string      // Q3 answer
+  lessons_learned: string     // Q4 answer
+  next_priorities: string     // Q5 answer
+  overall_rating?: number     // 1-5 optional
+  notes?: string              // free-form notes
+}
+
+/**
+ * Insert satu weekly review entry
+ * Return inserted row atau null jika error
+ */
+export async function insertWeeklyReview(
+  db: DbClient,
+  review: WeeklyReviewInsert
+): Promise<any | null> {
+  try {
+    const { data, error } = await db
+      .from('weekly_reviews')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .insert({
+        week_label: review.week_label,
+        revenue_progress: review.revenue_progress,
+        build_progress: review.build_progress,
+        arch_decisions: review.arch_decisions,
+        lessons_learned: review.lessons_learned,
+        next_priorities: review.next_priorities,
+        overall_rating: review.overall_rating ?? null,
+        notes: review.notes ?? null,
+      } as any)
+      .select()
+      .single()
+    if (error) return null
+    return data
+  } catch {
+    return null
   }
 }

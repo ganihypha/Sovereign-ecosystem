@@ -103,7 +103,7 @@ export function createApp(): TowerApp {
       app: TOWER_APP_NAME,
       version: TOWER_APP_VERSION,
       description: 'Private Founder-Only Command Center — Sovereign Business Engine v4.0',
-      session: '3d',
+      session: '3e',
       phase: 'phase-3',
       access: 'FOUNDER ONLY — requires valid JWT (HS256 signed)',
       auth: {
@@ -125,6 +125,7 @@ export function createApp(): TowerApp {
           'GET /api/modules/proof-center',
           'GET /api/modules/decision-center',
           'GET /api/modules/founder-review',
+          'POST /api/modules/founder-review',
           'GET /api/dashboard',
           'GET /api/dashboard/today',
         ],
@@ -135,12 +136,15 @@ export function createApp(): TowerApp {
           'GET /api/dashboard/today → leads + orders (with date-range filter, fallback)',
           'GET /api/modules/revenue-ops → total revenue sum (with fallback)',
           'GET /api/modules/ai-resource-manager → ai_tasks + credit_ledger (with fallback)',
-          'GET /api/modules/decision-center → static ADR manifest (10 ADRs)',
+          'GET /api/modules/decision-center → static ADR manifest (11 ADRs, ADR-011 latest)',
           'GET /api/modules/founder-review → weekly_reviews OR evidence-based fallback',
+          'POST /api/modules/founder-review → insert weekly_reviews entry',
+          'GET /api/modules/proof-center → static CCA domain manifest (5 domains)',
+          'GET /api/modules/build-ops → static phase-tracker manifest',
         ],
         note: 'DB wiring progressive. Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in env.',
       },
-      notice: 'Session 3d: ai-resource-manager, decision-center, founder-review wired. Date-range filter added to dashboard.',
+      notice: 'Session 3e: proof-center CCA manifest, build-ops phase-tracker, POST founder-review, weekly_reviews migration SQL.',
     })
   })
 
