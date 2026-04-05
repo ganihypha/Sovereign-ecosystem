@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-05 | Session 3e = VERIFIED AND READY TO CLOSE | Session 3f = IMPLEMENTED
+### Update: 2026-04-05 | Session 3f = VERIFIED AND READY TO CLOSE
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -10,49 +10,38 @@
 ```
 ✅  STATUS: SESSION 3D = COMPLETE AND SYNCED
 ✅  STATUS: SESSION 3E = VERIFIED AND READY TO CLOSE (Truth Gate PASSED 2026-04-05)
-✅  STATUS: SESSION 3F = IMPLEMENTED (WA/Fonnte Activation — 2026-04-05)
+✅  STATUS: SESSION 3F = VERIFIED AND READY TO CLOSE (WA E2E CONFIRMED 2026-04-05)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SESSION 3D   ✅ COMPLETE AND SYNCED (2026-04-05)
   - All 3d wiring done (ai-resource-manager, decision-center, founder-review, dashboard)
-  - TypeScript: zero errors
-  - Build: dist/_worker.js 230.84KB ✅
-  - GitHub push: 89762b4 ✅ SYNCED (via GITHUB_TOKEN dari .dev.vars)
-  - .dev.vars: ✅ SETUP (14 variabel: SUPABASE, CF, GITHUB, FONNTE, JWT, GROQ)
+  - TypeScript: zero errors | Build: dist/_worker.js 230.84 kB ✅
+  - GitHub push: 89762b4 ✅ SYNCED
 
 SESSION 3E   ✅ VERIFIED AND READY TO CLOSE (Micro-Fix PASSED 2026-04-05)
-  - proof-center → CCA static manifest ✅ LIVE (5 domains, readiness_pct, domain_at_risk)
-  - build-ops → phase-tracker static manifest ✅ LIVE (5 phases, 12 sessions done)
+  - proof-center → CCA static manifest ✅ LIVE
+  - build-ops → phase-tracker static manifest ✅ LIVE
   - POST /api/modules/founder-review → ✅ FULL E2E VERIFIED (id:1 inserted, week: 2026-W15)
   - weekly_reviews table ✅ LIVE in Supabase (migration 006 applied)
-  - GET founder-review → status: db-wired, reviews.count: 1, source: live ✅
-  - checkWeeklyReviewsTableExists false positive fixed (HEAD→SELECT limit 1) ✅
   - TypeScript zero errors ✅ | Build: 238.51 kB ✅
-  - GitHub: 06d3a99 (microfix) ✅ SYNCED
-  - Cloudflare Pages: b87d5982.sovereign-tower.pages.dev ✅ build_session: 3e
+  - GitHub: 775d9af ✅ SYNCED | Cloudflare: b87d5982.sovereign-tower.pages.dev
 
-RUNTIME      ✅ LIVE — VERIFIED (dari 3d closeout)
-  - Cloudflare Pages deployed: https://edba49d6.sovereign-tower.pages.dev
-  - /health → session: 3d ✅
-  - /api/modules → 7 modules ✅ (with JWT auth)
-  - ai-resource-manager → status: db-wired ✅
-  - decision-center → 10 ADRs (ADR-010 latest) ✅
-  - founder-review → status: db-wired-empty (weekly_reviews kosong) ✅
-  - dashboard/today → date filter active ✅
-
-SESSION 3F   ✅ IMPLEMENTED (2026-04-05)
+SESSION 3F   ✅ VERIFIED AND READY TO CLOSE (2026-04-05)
   - wa-adapter.ts: Fonnte HTTP client, wa_logs helpers, waSendAndLog() ✅
   - wa.ts routes: GET /api/wa/status, GET /api/wa/logs, POST /api/wa/test, POST /api/wa/send ✅
+  - FONNTE_DEVICE_TOKEN corrected (extracted from Fonnte /get-devices, updated CF secret) ✅
+  - POST /api/wa/test → delivery_status: CONFIRMED, fonnte_message_id: [150273541] ✅
+  - wa_logs E2E: 3 entries (1 sent, 2 failed — honest audit trail) ✅
   - Single-target only, no broadcast, all sends logged to wa_logs ✅
   - dry_run mode available (POST /api/wa/send with dry_run: true) ✅
   - ADR-012 created ✅
-  - TypeScript zero errors ✅ | Build: 248.33 kB ✅
-  - GitHub: pending push
-  - Cloudflare: pending redeploy
-  - Prerequisite: wa_logs table must be live (migration/sql/001-wa-logs.sql)
+  - TypeScript zero errors ✅ | Build: 248.48 kB ✅
+  - GitHub: 0aa51c2 (feat 3f), 47d947f (fix device token) ✅ SYNCED
+  - Cloudflare: 4911cc0d.sovereign-tower.pages.dev ✅ build_session: 3f
+  - Production: https://sovereign-tower.pages.dev ✅
 
-FONNTE       ✅ TOKEN TERSEDIA + ROUTES ACTIVATED
-             ⏳ VERIFICATION PENDING (deploy + wa_logs table required)
+FONNTE       ✅ TOKENS PRESENT + ROUTES ACTIVATED + E2E DELIVERY CONFIRMED
+             Device: Sovereign-ecosystem (6281558098096) — status: connect ✅
 ```
 
 ## 📊 PROGRESS RINGKAS
@@ -67,57 +56,29 @@ FONNTE       ✅ TOKEN TERSEDIA + ROUTES ACTIVATED
 | Session 3c + Live Gate | ✅ DONE — LIVE GATE PASSED |
 | **Session 3d** | ✅ COMPLETE AND SYNCED (89762b4 pushed) |
 | **Session 3e** | ✅ VERIFIED AND READY TO CLOSE — E2E verified, weekly_reviews live |
-| **Session 3f** | ✅ IMPLEMENTED — WA/Fonnte activation, 4 routes, wa-adapter, ADR-012 |
+| **Session 3f** | ✅ VERIFIED AND READY TO CLOSE — WA E2E CONFIRMED, wa_logs live |
 
 ---
 
-## ✅ APA YANG SUDAH SELESAI (Session 3d)
-
-1. **ai-resource-manager wired** → ai_tasks + credit_ledger read path, safe fallback
-2. **decision-center wired** → static ADR manifest (10 ADRs), always available
-3. **founder-review wired** → probe weekly_reviews → safe evidence-based fallback
-4. **Dashboard date-range filter** → `?date_from=YYYY-MM-DD&date_to=YYYY-MM-DD`
-5. **6 new DB helper functions** di `db-adapter.ts`
-6. **ADR-010 created** → documents decision-center static manifest pattern
-7. **TypeScript zero errors** → `npx tsc --noEmit` exit 0
-8. **Build pass** → `npx vite build` → `dist/_worker.js 230.84 kB`
-
----
-
-## 🔴 FOUNDER ACTIONS REQUIRED (sebelum Session 3e)
-
-### ACTION 1 (MEDIUM — optional): FONNTE_TOKEN
-- Daftar fonnte.com, verify nomor WA, masukkan ke `.dev.vars` sebagai `FONNTE_TOKEN`
-- WA routes tetap disabled tanpa token ini
-- NOT blocking Session 3e (deploy + test bisa jalan tanpa FONNTE)
-
-### ACTION 2 (RECOMMENDED untuk 3e): Deploy ke Cloudflare Pages
-- Jalankan: `wrangler pages deploy dist --project-name sovereign-tower`
-- Atau serahkan ke AI Dev di session 3e
-
-### ACTION 3 (OPTIONAL): weekly_reviews table
-- Jika founder-review dengan persistence diperlukan, buat migration SQL baru
-- Tabel belum di-scope Sprint 1 — boleh ditambah di Sprint 2 scope
-
----
-
-## 📁 FILE KUNCI SESSION 3d
+## 📁 FILE KUNCI SESSION 3f
 
 ```
 apps/sovereign-tower/src/
 ├── lib/
-│   ├── db-adapter.ts     ← EXTENDED (6 new helpers: ai_tasks, credit_ledger, weekly_reviews)
-│   └── app-config.ts     ← UPDATED (session 3b → 3d)
+│   ├── wa-adapter.ts     ← NEW (Fonnte client, wa_logs helpers, waSendAndLog)
+│   ├── db-adapter.ts     ← unchanged
+│   └── app-config.ts     ← UPDATED (session 3e → 3f, WA routes added)
 ├── routes/
-│   ├── modules.ts        ← WIRED (ai-resource-manager, decision-center, founder-review, build-ops)
-│   └── dashboard.ts      ← EXTENDED (date-range filter + session 3d)
-└── app.ts                ← UPDATED (db_wiring info + session 3d)
+│   ├── wa.ts             ← NEW (4 WA routes: status, logs, test, send)
+│   ├── modules.ts        ← unchanged
+│   └── app.ts            ← UPDATED (waRouter registered)
 
 evidence/architecture/
-└── ADR-010-decision-center-static-manifest.md  ← NEW
+└── ADR-012-wa-routes-activation.md  ← NEW
 
 docs/
-└── session-3d-summary.md  ← NEW
+├── session-3f-summary.md  ← UPDATED (VERIFIED AND READY TO CLOSE)
+└── current-handoff.md     ← THIS FILE
 ```
 
 ---
@@ -125,36 +86,54 @@ docs/
 ## 📋 MODULE STATUS (apps/sovereign-tower)
 
 | Module | Route | DB Wire? | Status |
-|--------|-------|---------|--------|
-| health | `/health` | — | ✅ LIVE |
-| today-dashboard | `/api/dashboard/today` | orders + leads + date filter | ✅ WIRED + DATE FILTER |
-| revenue-ops | `/api/modules/revenue-ops` | orders | ✅ WIRED (3b) |
-| build-ops | `/api/modules/build-ops` | — | 🟡 PLACEHOLDER (updated 3d) |
-| ai-resource-manager | `/api/modules/ai-resource-manager` | ai_tasks + credit_ledger | ✅ WIRED (3d) |
-| proof-center | `/api/modules/proof-center` | — | 🟡 PLACEHOLDER |
-| decision-center | `/api/modules/decision-center` | static manifest | ✅ WIRED (3d, static) |
-| founder-review | `/api/modules/founder-review` | weekly_reviews + fallback | ✅ WIRED (3d, fallback) |
-| WA routes | `/api/wa/*` | wa_logs | 🔴 BLOCKED (FONNTE_TOKEN) |
+|--------|-------|----------|--------|
+| health | `/health` | — | ✅ LIVE build_session: 3f |
+| today-dashboard | `/api/dashboard/today` | orders + leads | ✅ WIRED + DATE FILTER |
+| revenue-ops | `/api/modules/revenue-ops` | orders | ✅ WIRED |
+| build-ops | `/api/modules/build-ops` | static manifest | ✅ LIVE |
+| ai-resource-manager | `/api/modules/ai-resource-manager` | ai_tasks + credit_ledger | ✅ WIRED |
+| proof-center | `/api/modules/proof-center` | static CCA manifest | ✅ LIVE |
+| decision-center | `/api/modules/decision-center` | static manifest (ADR-012 latest) | ✅ LIVE |
+| founder-review | `/api/modules/founder-review` | weekly_reviews | ✅ DB-WIRED (id:1) |
+| **WA status** | `/api/wa/status` | wa_logs table check | ✅ LIVE (is_ready_to_send: true) |
+| **WA logs** | `/api/wa/logs` | wa_logs read | ✅ LIVE (3 entries) |
+| **WA test** | `/api/wa/test` | wa_logs write + Fonnte send | ✅ CONFIRMED (msg_id: 150273541) |
+| **WA send** | `/api/wa/send` | wa_logs write + Fonnte send | ✅ READY (same path as test) |
 
 ---
 
-## 🚀 SESSION 3E TASKS (untuk AI Developer)
+## 🔒 SECRETS STATUS
+
+| Secret | Cloudflare Status | Verified |
+|--------|-------------------|---------|
+| SUPABASE_URL | ✅ Present | ✅ DB queries working |
+| SUPABASE_SERVICE_ROLE_KEY | ✅ Present | ✅ weekly_reviews write works |
+| SUPABASE_ANON_KEY | ✅ Present | ✅ |
+| JWT_SECRET | ✅ Present | ✅ Auth working |
+| FONNTE_ACCOUNT_TOKEN | ✅ Present | ✅ get-devices returns device list |
+| FONNTE_DEVICE_TOKEN | ✅ UPDATED (session 3f) | ✅ /send CONFIRMED delivery |
+| GROQ_API_KEY | ✅ Present | — (not used yet) |
+| GROQ_CONSOLE | ✅ Present | — (not used yet) |
+
+---
+
+## 🚀 SESSION 3G SCOPE (NEXT)
 
 ```
-PRE-CONDITION: 3d DONE ✅ — TypeScript clean, build pass, LIVE di Cloudflare Pages
+PRE-CONDITION: 3f DONE ✅ — WA routes active, E2E delivery confirmed
 
-DEPLOYED URL: https://sovereign-tower.pages.dev (production)
-             https://edba49d6.sovereign-tower.pages.dev (latest deployment)
+PRODUCTION URL: https://sovereign-tower.pages.dev
+LATEST BUILD: 4911cc0d.sovereign-tower.pages.dev (build_session: 3f)
 
-RECOMMENDED TASKS:
-1. ✅ DONE — Deploy ke Cloudflare Pages (sudah selesai di 3d closeout)
-2. ✅ DONE — Verify endpoints dengan real JWT (verified di 3d closeout)
-3. Founder: git push origin main (GitHub sync — satu-satunya pending item)
-4. (Optional) Create weekly_reviews migration SQL + apply (sprint 2 scope)
-5. (Optional) Add POST /api/modules/founder-review untuk submit review
-6. Wire proof-center → static CCA evidence manifest (sama pola decision-center)
-7. Wire build-ops → static phase-tracker status
-8. Update docs + commit + push
+SCOPE 3g:
+1. Inbound WA webhook receiver (/api/wa/webhook)
+   - Receive WA messages from Fonnte webhook
+   - Parse and log to wa_logs (direction: inbound)
+2. Agent-triggered WA with human gate queue
+   - requires_approval: true flow
+   - Founder approval endpoint (/api/wa/approve/:id)
+3. Broadcast with founder approval flow (gated)
+4. Full delivery receipt tracking (requires webhook setup)
 ```
 
 ---
@@ -162,8 +141,8 @@ RECOMMENDED TASKS:
 ## 📌 ATURAN PENTING (Berlaku Terus)
 
 - TIDAK rebuild shared packages (types, db, auth, integrations, prompt-contracts)
-- TIDAK aktifkan Fonnte tanpa FONNTE_TOKEN terverifikasi
-- TIDAK expand scope ke Phase 4+ sebelum Session 3d selesai
+- TIDAK enable auto-send loops atau broadcast tanpa human gate
+- TIDAK expand WA scope melampaui session yang didefinisikan
 - CATAT semua architectural decisions ke ADR
 - TIDAK fake verification — claim VERIFIED hanya jika benar-benar ditest
 - Setiap ADR baru wajib update static manifest di decision-center
@@ -172,45 +151,20 @@ RECOMMENDED TASKS:
 
 ## 🔒 BLOCKERS (Ringkas)
 
-| ID | Blocker | Severity | Owner |
-|----|---------|----------|-------|
-| B-001 | FONNTE_TOKEN missing | 🔴 HIGH (WA only) | Founder |
-| B-002 | .dev.vars permanent setup | ✅ RESOLVED (created 3d closeout) | AI Dev |
-| B-003 | Migration not run | ✅ RESOLVED | AI Dev (Live Gate) |
-| B-004 | ai-resource-manager placeholder | ✅ RESOLVED | AI Dev (3d) |
-| B-005 | weekly_reviews table missing | 🟡 LOW (founder-review fallback active) | AI Dev (future) |
-| **B-006** | **GitHub push SYNC-PENDING** | **🟡 MEDIUM (tidak block 3e)** | **Founder** |
-| B-007 | Cloudflare Pages deploy | ✅ RESOLVED (3d closeout) | AI Dev |
+| ID | Blocker | Severity | Status |
+|----|---------|----------|--------|
+| B-001 | FONNTE_TOKEN/DEVICE_TOKEN | ✅ RESOLVED | FONNTE_DEVICE_TOKEN updated + delivery confirmed |
+| B-002 | .dev.vars permanent setup | ✅ RESOLVED | |
+| B-003 | Migration not run | ✅ RESOLVED | |
+| B-004 | ai-resource-manager placeholder | ✅ RESOLVED | |
+| B-005 | weekly_reviews table missing | ✅ RESOLVED | Migration 006 applied, id:1 exists |
+| B-006 | GitHub push SYNC-PENDING | ✅ RESOLVED | commits 0aa51c2 + 47d947f pushed |
+| B-007 | Cloudflare Pages deploy | ✅ RESOLVED | 4911cc0d.sovereign-tower.pages.dev |
+
+**⚠️ NO ACTIVE BLOCKERS — Session 3f VERIFIED AND READY TO CLOSE**
 
 ---
 
-## 📋 3D CLOSEOUT CHECKLIST — STATUS FINAL
-
-| Check | Status | Keterangan |
-|-------|--------|------------|
-| Code wiring selesai | ✅ DONE | — |
-| TypeScript zero errors | ✅ VERIFIED | `npx tsc --noEmit` exit 0 |
-| Build artifact ada | ✅ VERIFIED | `dist/_worker.js` 230.84kB |
-| Local commit | ✅ EXISTS | 246ea99 + 2a93b09 (closeout) |
-| Docs session-3d-summary.md | ✅ DONE | — |
-| current-handoff.md updated | ✅ DONE | — |
-| phase-tracker.md updated | ✅ DONE | — |
-| ADR-010 created | ✅ DONE | evidence/architecture/ |
-| .dev.vars configured | ✅ DONE | apps/sovereign-tower/.dev.vars (9 keys) |
-| Cloudflare Pages deploy | ✅ LIVE | https://edba49d6.sovereign-tower.pages.dev |
-| Live endpoint test | ✅ VERIFIED | /health ✅, 7 modules ✅, ai-resource-manager ✅, decision-center ✅, founder-review ✅, dashboard ✅ |
-| Supabase DB connected | ✅ VERIFIED | ai_tasks 200, credit_ledger 200 |
-| **GitHub push synced** | 🟡 **PENDING** | **Founder: `git push origin main`** |
-
-**✅ GO CRITERIA untuk Session 3e: SEMUA TERPENUHI**
-- Deploy live ✅ — verified
-- Endpoints working ✅ — verified
-- DB connected ✅ — verified
-- .dev.vars ✅ — created
-- GitHub push 🟡 PENDING (tidak block 3e)
-
----
-
-*Updated: Session 3d Closeout FINAL — 2026-04-05*
-*Local commits: 246ea99 + 2a93b09 | Remote: 217f4ce (push pending) | Cloudflare: LIVE*
-*✅ VERDICT: SESSION 3D = COMPLETE AND LIVE (GitHub push satu-satunya yang pending)*
+*Updated: Session 3f VERIFIED AND READY TO CLOSE — 2026-04-05*
+*GitHub: 47d947f (latest) | Cloudflare: 4911cc0d.sovereign-tower.pages.dev | Production: sovereign-tower.pages.dev*
+*WA E2E: ✅ CONFIRMED delivery — fonnte_message_id: [150273541] — wa_logs: 3 entries*

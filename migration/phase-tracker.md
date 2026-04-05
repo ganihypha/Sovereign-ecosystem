@@ -2,7 +2,7 @@
 # MIGRATION: PHASE TRACKER
 # (Progress Tiap Phase — Update Setiap Session)
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Update: 2026-04-05 | Session 3f — ✅ IMPLEMENTED AND DEPLOYED (WA/Fonnte Activation)
+### Update: 2026-04-05 | Session 3f — ✅ VERIFIED AND READY TO CLOSE (WA E2E CONFIRMED)
 
 ---
 
@@ -16,7 +16,7 @@
 Session 0  [██████████] 100% ✅ DONE
 Session 1  [██████████] 100% ✅ DONE
 Phase 2    [██████████]  71% 🟡 IN PROGRESS (2a✅ 2b✅ 2c✅ 2d✅ 2e✅ 2f⏳ 2g⏳)
-Phase 3    [█████████  ]  93% 🟡 IN PROGRESS (3a✅ 3b✅ 3c✅ 3c-live✅ 3d✅ 3e✅ 3f✅ 3g⏳)
+Phase 3    [█████████  ]  93% 🟡 IN PROGRESS (3a✅ 3b✅ 3c✅ 3c-live✅ 3d✅ 3e✅ 3f✅✅ 3g⏳)
 Phase 4    [          ]   0% 🔴 NOT STARTED
 Phase 5    [          ]   0% 🔴 NOT STARTED
 Phase 6    [          ]   0% 🔴 NOT STARTED
@@ -103,13 +103,13 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 | GitHub Actions auto-deploy | 🔴 3d+ | — | — |
 
 **Pre-condition:** Phase 2 ✅ DONE  
-**Blocker Phase 3 (partial):** 🔴 `FONNTE_TOKEN` MISSING (WA routes only)  
+**Blocker Phase 3 (partial):** ✅ RESOLVED — FONNTE_DEVICE_TOKEN updated, WA delivery confirmed  
 **Session 3a:** ✅ DONE — Tower scaffold, 7 modules, TypeScript strict mode  
 **Session 3b:** ✅ DONE — Auth wired (@sovereign/auth jwtMiddleware+founderOnly), narrow DB wiring (db-adapter), wrangler.jsonc added
 **Session 3c:** ✅ DONE — DB Migration Hardening + LIVE GATE PASSED: 10 tabel dibuat via Supabase Management API, RLS verified, FKs verified, Cloudflare Pages deployed (sovereign-tower.pages.dev), GitHub pushed (f2fc347)
 **Session 3d:** ✅ CODE COMPLETE — 🟡 SYNC-PENDING — Module Wiring: ai-resource-manager wired (ai_tasks + credit_ledger), decision-center wired (static ADR manifest, ADR-010), founder-review wired (probe weekly_reviews + evidence fallback), date-range filter di dashboard, TypeScript zero errors, build pass (228KB). Local commit 246ea99. GitHub push PENDING — founder action required.
 **Session 3e:** ✅ VERIFIED AND READY TO CLOSE (Micro-Fix PASSED 2026-04-05) — proof-center CCA manifest, build-ops phase-tracker manifest, POST founder-review E2E (id:1 inserted), weekly_reviews live, TypeScript zero errors, build 238.51KB, GitHub 775d9af synced.
-**Session 3f:** ✅ IMPLEMENTED — WA/Fonnte activation: wa-adapter.ts, wa.ts routes, 4 endpoints (/api/wa/status, /api/wa/logs, /api/wa/test, /api/wa/send), wa_logs wiring, TypeScript zero errors, build 248.33KB. ADR-012 created. Verification pending deploy.
+**Session 3f:** ✅ VERIFIED AND READY TO CLOSE (2026-04-05) — WA/Fonnte E2E delivery CONFIRMED: POST /api/wa/test → delivery_status: CONFIRMED, fonnte_message_id: [150273541], wa_logs 3 entries live. FONNTE_DEVICE_TOKEN corrected (extracted from get-devices, updated CF secret). TypeScript zero errors, build 248.48kB. GitHub 47d947f pushed. Cloudflare 4911cc0d.sovereign-tower.pages.dev. Production: sovereign-tower.pages.dev.
 
 ---
 
@@ -167,34 +167,29 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 ## 🚦 NEXT ACTIONS
 
 ```
-SEKARANG (setelah Session 3b):
-  1. ✅ Session 3b DONE — Auth + DB wired + wrangler.jsonc added
-  
-  2. ✅ Session 3c DONE — DB Migration Hardening
-     → 001-004 hardened (checklist, rollback, dry-run queries)
-     → 005-credit-ledger.sql dibuat (gap fill)
-     → migration-inventory-map.md, validation-matrix.md, blocker-log.md, risk-rollback-notes.md
-     → ADR-009: migration hardening pattern
-     → CCA domain-4, domain-5 updated
+SEKARANG (setelah Session 3f VERIFIED AND READY TO CLOSE):
 
-  3. ⏳ FOUNDER ACTION REQUIRED sebelum Session 3d:
-     → Fill .dev.vars dengan real credentials
-     → Run migration/sql/001-005 di Supabase SQL Editor
-     → Verify 5 tabel Sprint 1 sudah ada
+  ✅ Session 3e DONE — proof-center, build-ops, POST founder-review E2E
+  ✅ Session 3f DONE — WA/Fonnte E2E delivery CONFIRMED
+     → POST /api/wa/test → delivery_status: CONFIRMED ✅
+     → fonnte_message_id: [150273541] ✅
+     → wa_logs: 3 entries live in Supabase ✅
+     → FONNTE_DEVICE_TOKEN corrected in Cloudflare Secrets ✅
+     → TypeScript zero errors, build 248.48kB, GitHub 47d947f synced ✅
 
-  4. 🔴 Session 3d — Module Wiring (setelah migration dijalankan)
-     → Wire ai-resource-manager ke ai_tasks + credit_ledger
-     → Wire founder-review ke weekly_reviews table
-     → Wire decision-center ke evidence/architecture/ ADR files
-     → Test all endpoints dengan real JWT + real DB
-  
-  3. 🔴 Urus FONNTE_TOKEN (paralel, tidak block Session 3c)
-     → Daftar di fonnte.com
-     → Verify nomor WA
-     → Update docs/credential-map.md + .dev.vars
+  NEXT — Session 3g:
+  1. Inbound WA webhook (/api/wa/webhook)
+     → Receive WA messages from Fonnte webhook endpoint
+     → Parse and log to wa_logs (direction: inbound)
+     → Setup Fonnte webhook URL to sovereign-tower.pages.dev/api/wa/webhook
 
-  4. 📖 Lanjut CCA study (paralel semua)
-     → Domains 1-5: evidence dari Session 3a/3b scaffold
+  2. Human gate queue (requires_approval: true flow)
+     → POST /api/wa/approve/:id endpoint (founder approve a pending wa_log)
+     → Agent-triggered sends must go through approval queue
+
+  3. CCA evidence updates (paralel)
+     → Domain 4 (testing): WA E2E delivery proof
+     → Domain 5 (architecture): ADR-012 WA activation pattern
 ```
 
 ---
@@ -213,6 +208,8 @@ SEKARANG (setelah Session 3b):
 | 1.7 | 2026-04-04 | Session 3b DONE — Real auth wired (@sovereign/auth jwtMiddleware+founderOnly), narrow DB wiring (db-adapter.ts, Supabase direct), wrangler.jsonc added, pnpm workspace resolved, TypeScript zero errors |
 | 1.8 | 2026-04-04 | Session 3c DONE — Migration Hardening: 001-004 SQL files hardened, 005-credit-ledger.sql gap filled, migration-inventory-map.md + validation-matrix.md + blocker-log.md + risk-rollback-notes.md created, ADR-009 accepted, CCA domain-4/5 updated |
 | 1.9 | 2026-04-04 | Session 3d DONE — Module Wiring: ai-resource-manager wired (ai_tasks + credit_ledger read path + fallback), decision-center wired (static ADR manifest 10 ADRs + ADR-010), founder-review wired (weekly_reviews probe + evidence fallback), date-range filter /api/dashboard/today, TypeScript zero errors, build pass 230.84 kB |
+| 2.0 | 2026-04-05 | Session 3e DONE — proof-center CCA manifest, build-ops phase-tracker manifest, POST /api/modules/founder-review E2E (id:1 inserted), weekly_reviews table live (migration 006), false positive fix, TypeScript zero errors, build 238.51 kB |
+| 2.1 | 2026-04-05 | Session 3f VERIFIED AND READY TO CLOSE — WA/Fonnte E2E: wa-adapter.ts, wa.ts (4 routes), FONNTE_DEVICE_TOKEN corrected, POST /api/wa/test CONFIRMED (fonnte_message_id: 150273541), wa_logs 3 entries, ADR-012, TypeScript zero errors, build 248.48 kB, GitHub 47d947f |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*
