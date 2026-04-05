@@ -1,7 +1,7 @@
 # 🏛️ SOVEREIGN BUSINESS ENGINE v4.0
 # MASTER INDEX — DAFTAR 29 DOKUMEN STRATEGIS + OPERASIONAL + MIGRATION OS
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-03 (v6.0)
+### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-05 (v7.0)
 
 ---
 
@@ -84,9 +84,20 @@
 | 28 | **Migration Phase Plan** | `28-MIGRATION-PHASE-PLAN.md` | Urutan kerja 8 phase — evidence-based, incremental |
 | 29 | **AI Dev Handoff Pack** | `29-AI-DEV-HANDOFF-PACK.md` | Reading order + execution rules + response format untuk AI Dev |
 
----
+### 🔄 LAYER 7 — GOVERNANCE & ROLE ARCHITECTURE DOCS (Tambahan 2026-04-05)
 
-## 🏗️ ARCHITECTURE AT A GLANCE
+> 🏛️ **Dokumen ini mendefinisikan arsitektur peran internal, RBAC, approval flow, profit-sharing milestones, dan external publishing governance.**
+> **Semua berstatus DRAFT INTERNAL FRAMEWORK — aktifkan secara bertahap sesuai proof.**
+
+| # | Dokumen | File | Fungsi |
+|---|---------|------|--------|
+| 30 | **Managing Strategist Role Pack** | `30-MANAGING-STRATEGIST-ROLE-PACK.md` | Role definition, mission, boundaries, tools, upgrade path |
+| 31 | **RBAC Permission Matrix** | `31-RBAC-PERMISSION-MATRIX.md` | Permission matrix per role + upgrade trigger conditions |
+| 32 | **Human Approval & Escalation Flow** | `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` | Approval tiers, escalation rules, WA approval gate |
+| 33 | **Partnership & Profit-Sharing Milestones** | `33-PARTNERSHIP-AND-PROFIT-SHARING-MILESTONES.md` | Milestone framework sebelum sharing aktif |
+| 34 | **External Market & Publishing Governance** | `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` | Channel ownership, brand voice rules, content approval |
+
+---
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -218,20 +229,27 @@ KEY INSIGHT dari exam takers:
 | JWT Secret + PIN | ✅ CONFIGURED | None |
 | ScraperAPI Key | ✅ CONFIGURED | None |
 | Cloudflare API Token | ✅ CONFIGURED | None |
-| LangChain API Key | ✅ PROVIDED | Add to .dev.vars |
-| CrewAI PAT + Org ID | ✅ PROVIDED | Add to .dev.vars |
-| SerpAPI Key | ✅ PROVIDED | Add to .dev.vars |
-| **OpenAI API Key** | 🔴 **NEEDED** | **User harus provide** |
-| **Fonnte Token** | 🔴 **NEEDED** | **Daftar di fonnte.com** |
+| **FONNTE_ACCOUNT_TOKEN** | ✅ **CONFIGURED** | Session 3f live |
+| **FONNTE_DEVICE_TOKEN** | ✅ **CONFIGURED** | Session 3f live (device-specific) |
+| **GROQ API Key** | ✅ **CONFIGURED** | Ready untuk Sprint 2+ |
+| LangChain API Key | 🟡 PROVIDED | Add to .dev.vars |
+| CrewAI PAT + Org ID | 🟡 PROVIDED | Add to .dev.vars |
+| SerpAPI Key | 🟡 PROVIDED | Add to .dev.vars |
+| OpenAI API Key | 🟡 GROQ as substitute | Use GROQ for dev |
 
 ### Build Status
 | Fase | Status | Sprint |
 |------|--------|--------|
-| Phase 1: Foundation | 🔴 NOT STARTED | Sprint 1 |
-| Phase 2: Scout AI | 🔴 NOT STARTED | Sprint 2-3 |
-| Phase 3: Closer AI | 🔴 NOT STARTED | Sprint 4-5 |
-| Phase 4: AI Intelligence | 🔴 NOT STARTED | Sprint 6-7 |
-| Phase 5: Revenue Upgrade | 🔴 NOT STARTED | Sprint 8 |
+| Phase 0-1 (Scaffold) | ✅ DONE | — |
+| Phase 2 (Shared Core) | ✅ DONE | — |
+| Phase 3a-3c (Tower Scaffold + Wiring) | ✅ DONE | — |
+| Phase 3d (Module Wiring) | ✅ DONE | Sprint 1 Foundation |
+| Phase 3e (Verification + Weekly Reviews) | ✅ DONE | Sprint 1 Foundation |
+| **Phase 3f (WA/Fonnte Activation)** | ✅ **DONE — LIVE** | Session 3f |
+| Phase 3g (Inbound WA, Human-Gate Queue) | ⏳ NEXT | Session 3g |
+| Phase 4 (Scout Agent Intelligence) | 🔴 NOT STARTED | Sprint 2-3 |
+| Phase 5 (DB Consolidation) | 🔴 NOT STARTED | Sprint 4-5 |
+| Phase 6 (Agent Orchestration) | 🔴 NOT STARTED | Sprint 6-7 |
 | CCA Exam Prep | 🟡 READING | Week 1-2 |
 
 ### Documentation Status
@@ -263,6 +281,11 @@ KEY INSIGHT dari exam takers:
 | **Mother Repo Structure (27)** | ✅ COMPLETE — Migration OS Layer |
 | **Migration Phase Plan (28)** | ✅ COMPLETE — Migration OS Layer |
 | **AI Dev Handoff Pack (29)** | ✅ COMPLETE — Migration OS Layer |
+| **Managing Strategist Role Pack (30)** | ✅ COMPLETE — Governance Layer (DRAFT) |
+| **RBAC Permission Matrix (31)** | ✅ COMPLETE — Governance Layer (DRAFT) |
+| **Human Approval & Escalation Flow (32)** | ✅ COMPLETE — Governance Layer (DRAFT) |
+| **Partnership & Profit-Sharing Milestones (33)** | ✅ COMPLETE — Governance Layer (DRAFT) |
+| **External Market & Publishing Governance (34)** | ✅ COMPLETE — Governance Layer (DRAFT) |
 
 ---
 
@@ -270,24 +293,22 @@ KEY INSIGHT dari exam takers:
 
 ```
 ══════════════════════════════════════════════════════
-  DOKUMENTASI: 29/29 SELESAI ✅ (22 strategic/ops + 7 migration OS)
+  DOKUMENTASI: 34/34 SELESAI ✅ (22 strategic/ops + 7 migration OS + 5 governance)
   MIGRATION OS: TERKUNCI ✅
-  BUILD: SIAP DIMULAI — TUNGGU 2 CREDENTIAL
+  GOVERNANCE LAYER: 30-34 DIBUAT ✅ (DRAFT INTERNAL FRAMEWORK)
+  WA INTEGRATION: ✅ LIVE — Session 3f verified (fonnte_message_id 150273541)
+  BUILD PHASE 3: SESSIONS 3a-3f ✅ COMPLETE — NEXT: Session 3g
 ══════════════════════════════════════════════════════
 
 PRIORITAS HARI INI:
 
-1. 🔴 SEGERA: Daftar di fonnte.com → dapatkan FONNTE_TOKEN
-   → Update 20-CREDENTIAL-REGISTRY.md setelah dapat
-2. 🔴 SEGERA: Dapatkan GROQ API Key dari console.groq.com (GRATIS)
-   → Update 20-CREDENTIAL-REGISTRY.md + LLM_BASE_URL=https://api.groq.com/openai/v1
-3. 🏗️ MIGRATION: Mulai Phase 0 — baca 29-AI-DEV-HANDOFF-PACK.md dulu
-   → Lalu buka 28-MIGRATION-PHASE-PLAN.md → jalankan Phase 0 Audit Checklist
-4. 🔨 BUILD: Buka 17-TASK-PROMPT-PACK-TEMPLATE.md → copy Task 1.1 → paste ke AI Developer
-   → Catat progres di 18-BUILD-SPRINT-LOG.md
-5. 📖 PARALEL: Mulai baca D1 Agentic Architecture (LangGraph docs)
+1. 🔨 SESSION 3g: Inbound WA webhook + human-gate queue + broadcast gated
+   → Buka docs/current-handoff.md → lihat scope Session 3g
+2. 🔨 SPRINT 2: ScoutScorer Agent — tunggu Sprint 1 foundation stabil dulu
+3. 📖 CCA-F PARALEL: Mulai D1 Agentic Architecture (LangGraph docs)
    CCA-F Link: https://anthropic.skilljar.com/claude-certified-architect-foundations-access-request
-6. 💰 SALES: Gunakan 10-14 sebagai sales kit saat Sprint 1 selesai
+4. 💰 SALES: Gunakan 10-14 sebagai sales kit — WA send sudah live
+5. 🏛️ GOVERNANCE: Docs 30-34 disiapkan, aktifkan sesuai proof milestone
 
 DOKUMEN AKTIF PER TUJUAN:
   ► SAAT BUILD           → 07 (tasks), 17 (template), 08 (acceptance), 18 (sprint log)
@@ -300,6 +321,9 @@ DOKUMEN AKTIF PER TUJUAN:
   ► CEK CREDENTIAL       → 20 (registry) — satu-satunya sumber kebenaran
   ► CCA-F EXAM           → 16 (cheatsheet), 09 (alignment map)
   ► DEMO INVESTOR        → 01, 02, 05, 10
+  ► ROLE GOVERNANCE      → 30 (role pack), 31 (RBAC), 32 (escalation), 33 (profit-sharing)
+  ► EXTERNAL MARKET      → 34 (publishing governance), 14 (runbook)
+  ► WA INTEGRATION       → docs/session-3f-summary.md, evidence/architecture/ADR-012
 
 INGAT SELALU:
   ► Bukan pedagang fashion
@@ -317,7 +341,7 @@ INGAT SELALU:
 
 | # | Dokumen | Versi | Tanggal Update |
 |---|---------|-------|----------------|
-| INDEX | Master Index | 6.0 | 2026-04-03 |
+| INDEX | Master Index | 7.0 | 2026-04-05 |
 | 01 | North Star PRD | 1.0 | 2026-04-02 |
 | 02 | System Architecture Brief | 1.0 | 2026-04-02 |
 | 03 | Build Spec per Module | 1.0 | 2026-04-02 |
@@ -348,6 +372,12 @@ INGAT SELALU:
 | **27** | **Mother Repo Structure** | **1.0** | **2026-04-03** |
 | **28** | **Migration Phase Plan** | **1.0** | **2026-04-03** |
 | **29** | **AI Dev Handoff Pack** | **1.0** | **2026-04-03** |
+
+| **30** | **Managing Strategist Role Pack** | **1.0** | **2026-04-05** |
+| **31** | **RBAC Permission Matrix** | **1.0** | **2026-04-05** |
+| **32** | **Human Approval & Escalation Flow** | **1.0** | **2026-04-05** |
+| **33** | **Partnership & Profit-Sharing Milestones** | **1.0** | **2026-04-05** |
+| **34** | **External Market & Publishing Governance** | **1.0** | **2026-04-05** |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*
