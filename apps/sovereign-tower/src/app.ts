@@ -17,6 +17,7 @@ import { healthRouter } from './routes/health'
 import { founderRouter } from './routes/founder'
 import { modulesRouter } from './routes/modules'
 import { dashboardRouter } from './routes/dashboard'
+import { waRouter } from './routes/wa'
 
 // =============================================================================
 // APP FACTORY
@@ -92,6 +93,7 @@ export function createApp(): TowerApp {
   app.route('/api/founder', founderRouter)
   app.route('/api/modules', modulesRouter)
   app.route('/api/dashboard', dashboardRouter)
+  app.route('/api/wa', waRouter)
 
   // ─────────────────────────────────────────────────────────────────────────
   // ROOT + FALLBACK
@@ -103,7 +105,7 @@ export function createApp(): TowerApp {
       app: TOWER_APP_NAME,
       version: TOWER_APP_VERSION,
       description: 'Private Founder-Only Command Center — Sovereign Business Engine v4.0',
-      session: '3e',
+      session: '3f',
       phase: 'phase-3',
       access: 'FOUNDER ONLY — requires valid JWT (HS256 signed)',
       auth: {
@@ -128,6 +130,10 @@ export function createApp(): TowerApp {
           'POST /api/modules/founder-review',
           'GET /api/dashboard',
           'GET /api/dashboard/today',
+          'GET /api/wa/status',
+          'GET /api/wa/logs',
+          'POST /api/wa/test',
+          'POST /api/wa/send',
         ],
       },
       db_wiring: {
@@ -144,7 +150,7 @@ export function createApp(): TowerApp {
         ],
         note: 'DB wiring progressive. Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in env.',
       },
-      notice: 'Session 3e: proof-center CCA manifest, build-ops phase-tracker, POST founder-review, weekly_reviews migration SQL.',
+      notice: 'Session 3f: WA/Fonnte activation — /api/wa/status, /api/wa/logs, /api/wa/test, /api/wa/send (founder-controlled, logged to wa_logs).',
     })
   })
 

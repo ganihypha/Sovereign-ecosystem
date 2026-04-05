@@ -12,7 +12,7 @@
 
 export const TOWER_APP_NAME = 'Sovereign Tower' as const
 export const TOWER_APP_VERSION = '0.1.0' as const
-export const TOWER_BUILD_SESSION = '3e' as const
+export const TOWER_BUILD_SESSION = '3f' as const
 export const TOWER_PHASE = 'phase-3' as const
 export const TOWER_DESCRIPTION = 'Private founder-only command center — Sovereign Business Engine v4.0'
 
@@ -105,6 +105,12 @@ export const TOWER_ROUTES = {
   PROOF_CENTER: '/api/modules/proof-center',
   DECISION_CENTER: '/api/modules/decision-center',
   FOUNDER_REVIEW: '/api/modules/founder-review',
+  // WA Routes (Session 3f — Fonnte/WhatsApp activation)
+  WA: '/api/wa',
+  WA_STATUS: '/api/wa/status',
+  WA_LOGS: '/api/wa/logs',
+  WA_TEST: '/api/wa/test',
+  WA_SEND: '/api/wa/send',
 } as const
 
 export type TowerRoute = (typeof TOWER_ROUTES)[keyof typeof TOWER_ROUTES]

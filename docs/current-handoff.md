@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-05 | Session 3d = COMPLETE AND SYNCED | Session 3e = VERIFIED AND READY TO CLOSE
+### Update: 2026-04-05 | Session 3e = VERIFIED AND READY TO CLOSE | Session 3f = IMPLEMENTED
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -10,6 +10,7 @@
 ```
 ✅  STATUS: SESSION 3D = COMPLETE AND SYNCED
 ✅  STATUS: SESSION 3E = VERIFIED AND READY TO CLOSE (Truth Gate PASSED 2026-04-05)
+✅  STATUS: SESSION 3F = IMPLEMENTED (WA/Fonnte Activation — 2026-04-05)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SESSION 3D   ✅ COMPLETE AND SYNCED (2026-04-05)
@@ -39,8 +40,19 @@ RUNTIME      ✅ LIVE — VERIFIED (dari 3d closeout)
   - founder-review → status: db-wired-empty (weekly_reviews kosong) ✅
   - dashboard/today → date filter active ✅
 
-FONNTE       ✅ TOKEN TERSEDIA (.dev.vars FONNTE_ACCOUNT_TOKEN + FONNTE_DEVICE_TOKEN)
-             🟡 ROUTES MASIH DISABLED — belum di-activate Session 3e
+SESSION 3F   ✅ IMPLEMENTED (2026-04-05)
+  - wa-adapter.ts: Fonnte HTTP client, wa_logs helpers, waSendAndLog() ✅
+  - wa.ts routes: GET /api/wa/status, GET /api/wa/logs, POST /api/wa/test, POST /api/wa/send ✅
+  - Single-target only, no broadcast, all sends logged to wa_logs ✅
+  - dry_run mode available (POST /api/wa/send with dry_run: true) ✅
+  - ADR-012 created ✅
+  - TypeScript zero errors ✅ | Build: 248.33 kB ✅
+  - GitHub: pending push
+  - Cloudflare: pending redeploy
+  - Prerequisite: wa_logs table must be live (migration/sql/001-wa-logs.sql)
+
+FONNTE       ✅ TOKEN TERSEDIA + ROUTES ACTIVATED
+             ⏳ VERIFICATION PENDING (deploy + wa_logs table required)
 ```
 
 ## 📊 PROGRESS RINGKAS
@@ -54,8 +66,8 @@ FONNTE       ✅ TOKEN TERSEDIA (.dev.vars FONNTE_ACCOUNT_TOKEN + FONNTE_DEVICE_
 | Session 3b | ✅ DONE |
 | Session 3c + Live Gate | ✅ DONE — LIVE GATE PASSED |
 | **Session 3d** | ✅ COMPLETE AND SYNCED (89762b4 pushed) |
-| **Session 3e** | ✅ COMPLETE — proof-center CCA, build-ops phase-tracker, POST founder-review, weekly_reviews SQL |
-| Session 3f | ⏳ NEXT — Fonnte/WA activation (tokens tersedia di .dev.vars), re-deploy |
+| **Session 3e** | ✅ VERIFIED AND READY TO CLOSE — E2E verified, weekly_reviews live |
+| **Session 3f** | ✅ IMPLEMENTED — WA/Fonnte activation, 4 routes, wa-adapter, ADR-012 |
 
 ---
 

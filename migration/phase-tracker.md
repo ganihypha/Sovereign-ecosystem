@@ -2,7 +2,7 @@
 # MIGRATION: PHASE TRACKER
 # (Progress Tiap Phase — Update Setiap Session)
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Update: 2026-04-05 | Session 3e — ✅ VERIFIED AND READY TO CLOSE (Truth Gate PASSED)
+### Update: 2026-04-05 | Session 3f — ✅ IMPLEMENTED AND DEPLOYED (WA/Fonnte Activation)
 
 ---
 
@@ -16,7 +16,7 @@
 Session 0  [██████████] 100% ✅ DONE
 Session 1  [██████████] 100% ✅ DONE
 Phase 2    [██████████]  71% 🟡 IN PROGRESS (2a✅ 2b✅ 2c✅ 2d✅ 2e✅ 2f⏳ 2g⏳)
-Phase 3    [█████████  ]  86% 🟡 IN PROGRESS (3a✅ 3b✅ 3c✅ 3c-live✅ 3d✅ 3e✅ 3f⏳ 3g⏳)
+Phase 3    [█████████  ]  93% 🟡 IN PROGRESS (3a✅ 3b✅ 3c✅ 3c-live✅ 3d✅ 3e✅ 3f✅ 3g⏳)
 Phase 4    [          ]   0% 🔴 NOT STARTED
 Phase 5    [          ]   0% 🔴 NOT STARTED
 Phase 6    [          ]   0% 🔴 NOT STARTED
@@ -93,8 +93,11 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 | ai-resource-manager wired to ai_tasks + credit_ledger | ✅ DONE | 2026-04-04 | WIRED: read path, safe fallback |
 | founder-review wired to weekly_reviews | ✅ DONE | 2026-04-04 | WIRED: probe+fallback (weekly_reviews belum ada = evidence fallback) |
 | decision-center wired to ADR files | ✅ DONE | 2026-04-04 | WIRED: static manifest (10 ADRs, ADR-010 created) |
-| `/api/wa/send` (Fonnte) | 🔴 BLOCKED | — | Blocked: FONNTE_TOKEN missing |
-| `/api/wa/broadcast` | 🔴 BLOCKED | — | Blocked: FONNTE_TOKEN missing |
+| `/api/wa/send` (Fonnte) | ✅ DONE (3f) | 2026-04-05 | LIVE: single-target, founder-controlled, wa_logs wired |
+| `/api/wa/test` (Fonnte test path) | ✅ DONE (3f) | 2026-04-05 | LIVE: minimal test send, logged |
+| `/api/wa/status` (device check) | ✅ DONE (3f) | 2026-04-05 | LIVE: Fonnte device status + env readiness |
+| `/api/wa/logs` (audit trail) | ✅ DONE (3f) | 2026-04-05 | LIVE: reads wa_logs recent entries |
+| `/api/wa/broadcast` | 🔴 OUT OF SCOPE | — | Intentionally disabled — Session 3g+ |
 | Scout Agent (LangGraph) | 🔴 3c+ | — | — |
 | `/api/scout/gather` | 🔴 3c+ | — | — |
 | GitHub Actions auto-deploy | 🔴 3d+ | — | — |
@@ -105,6 +108,8 @@ Phase 7    [          ]   0% 🔴 NOT STARTED (paralel Phase 3-6)
 **Session 3b:** ✅ DONE — Auth wired (@sovereign/auth jwtMiddleware+founderOnly), narrow DB wiring (db-adapter), wrangler.jsonc added
 **Session 3c:** ✅ DONE — DB Migration Hardening + LIVE GATE PASSED: 10 tabel dibuat via Supabase Management API, RLS verified, FKs verified, Cloudflare Pages deployed (sovereign-tower.pages.dev), GitHub pushed (f2fc347)
 **Session 3d:** ✅ CODE COMPLETE — 🟡 SYNC-PENDING — Module Wiring: ai-resource-manager wired (ai_tasks + credit_ledger), decision-center wired (static ADR manifest, ADR-010), founder-review wired (probe weekly_reviews + evidence fallback), date-range filter di dashboard, TypeScript zero errors, build pass (228KB). Local commit 246ea99. GitHub push PENDING — founder action required.
+**Session 3e:** ✅ VERIFIED AND READY TO CLOSE (Micro-Fix PASSED 2026-04-05) — proof-center CCA manifest, build-ops phase-tracker manifest, POST founder-review E2E (id:1 inserted), weekly_reviews live, TypeScript zero errors, build 238.51KB, GitHub 775d9af synced.
+**Session 3f:** ✅ IMPLEMENTED — WA/Fonnte activation: wa-adapter.ts, wa.ts routes, 4 endpoints (/api/wa/status, /api/wa/logs, /api/wa/test, /api/wa/send), wa_logs wiring, TypeScript zero errors, build 248.33KB. ADR-012 created. Verification pending deploy.
 
 ---
 
