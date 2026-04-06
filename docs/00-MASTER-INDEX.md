@@ -1,7 +1,7 @@
 # 🏛️ SOVEREIGN BUSINESS ENGINE v4.0
 # MASTER INDEX — DAFTAR 37 DOKUMEN STRATEGIS + OPERASIONAL + MIGRATION OS + GOVERNANCE
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-06 (v10.0)
+### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-06 (v10.1)
 
 ---
 
@@ -307,6 +307,7 @@ KEY INSIGHT dari exam takers:
   DOC AUDIT (2026-04-06): ✅ SELESAI — Docs 30-34 repo = canonical, ADR-013 ditambahkan
   GOVERNANCE EXTENSION (2026-04-06): ✅ Docs 35-37 DITAMBAHKAN (ADR-014/015/016)
   GOVERNANCE PATCH v1.1 (2026-04-06): ✅ Docs 35-37 DIUPGRADE ke v1.1 (ADR-017 — operator-proof, evidence-based, delegation-ready)
+  CANONICAL POLISH v1.1 (2026-04-06): ✅ FINAL CLEANUP SPRINT SELESAI — version consistency fixed (header+DocControl=1.1), Doc 36 ambiguity removed (3 strings), Doc 37 diperkuat dengan 3 section eksplisit baru (3.1 Severity Decision Rule, 3.2 Incident Command Structure, 3.3 Evidence Preservation Checklist)
 ══════════════════════════════════════════════════════
 
 PRIORITAS HARI INI:

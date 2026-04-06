@@ -80,6 +80,81 @@ Insiden adalah situasi yang:
 
 ---
 
+## 3.1 SEVERITY DECISION RULE
+
+Gunakan tiga pertanyaan berikut secara berurutan untuk menentukan severity level sebelum mengambil tindakan apapun. Jangan skip langkah.
+
+```
+RAPID TRIAGE — 3 PERTANYAAN:
+
+Q1: Apakah situasi ini melibatkan pihak eksternal (media, hukum, viral publik)?
+  → YA  : Langsung L3 — aktivasi Founder segera
+  → TIDAK: Lanjut Q2
+
+Q2: Apakah ada traksi publik (>5 engagement negatif, komentar berkembang, screenshot beredar)?
+  → YA  : L2 — eskalasi ke Founder dalam 4 jam
+  → TIDAK: Lanjut Q3
+
+Q3: Apakah ini bisa diselesaikan dengan template yang sudah approved tanpa Founder?
+  → YA  : L1 — MS handle, log, catat weekly report
+  → TIDAK: L2 — eskalasi ke Founder
+```
+
+**Rule:** Jika ada keraguan di antara dua level → selalu pilih level yang lebih tinggi.
+**Rule:** Jangan klasifikasikan insiden sendirian jika ini pertama kalinya MS menghadapi situasi serupa → eskalasi default.
+
+---
+
+## 3.2 INCIDENT COMMAND STRUCTURE
+
+Tabel ini menetapkan siapa yang bertindak sebagai command authority di setiap fase penanganan insiden. Tidak boleh ada kekosongan komando.
+
+| Fase | Level 1 | Level 2 | Level 3 |
+|------|---------|---------|---------|
+| **Deteksi & Klasifikasi** | MS | MS | MS / Founder |
+| **Freeze Decision** | MS (otomatis) | MS (immediate) | Founder (immediate) |
+| **Incident Brief** | Log singkat | MS menyusun brief | MS menyusun brief, Founder verifikasi |
+| **Eskalasi ke Founder** | Tidak wajib (log only) | Wajib dalam 4 jam | Wajib segera (0 delay) |
+| **Public Response Decision** | MS (template pre-approved) | Founder | Founder only |
+| **Channel Freeze Execution** | Tidak perlu | MS (per instruksi Founder) | Founder |
+| **Corrective Communication** | MS (template) | Founder decide, MS execute | Founder only |
+| **Incident Log Entry** | MS | MS | MS + Founder review |
+| **ADR Creation** | Tidak wajib | Founder nilai | Wajib |
+| **Post-Incident Review** | Tidak wajib | Founder | Wajib — Founder pimpin |
+
+**Prinsip command:**
+- **L1:** MS is command. Founder tidak perlu dilibatkan kecuali tren anomali.
+- **L2:** Founder adalah decision authority. MS adalah executor.
+- **L3:** Founder adalah satu-satunya command authority. MS tidak boleh berinisiatif tanpa instruksi eksplisit.
+
+> *"Tidak ada insiden yang boleh berjalan tanpa command authority yang jelas."*
+
+---
+
+## 3.3 EVIDENCE PRESERVATION CHECKLIST
+
+Sebelum merespons, menghapus, mengedit, atau mengambil tindakan apapun — kumpulkan dan simpan bukti terlebih dahulu.
+
+```
+EVIDENCE PRESERVATION — WAJIB SEBELUM TINDAKAN APAPUN:
+
+□ 1. Screenshot penuh situasi insiden (komentar, DM, post, thread) dengan timestamp terlihat
+□ 2. Screenshot konteks sekitar (post sebelum/sesudah, riwayat percakapan yang relevan)
+□ 3. URL / link langsung ke konten yang bermasalah (catat sebelum dihapus)
+□ 4. Identifikasi akun / pihak yang terlibat (nama akun, bukan personal info)
+□ 5. Catat waktu pertama kali insiden terdeteksi (jam, tanggal)
+□ 6. Catat metrik awal saat ditemukan (jumlah like/reply/share/views jika terlihat)
+□ 7. Simpan semua file bukti di lokasi aman yang hanya dapat diakses Founder
+     (Folder khusus di Google Drive / storage yang ditetapkan — jangan di chat)
+```
+
+**Critical Rule:** Jangan hapus, sembunyikan (hide), atau edit konten apapun sebelum bukti tersimpan.
+Menghapus tanpa dokumentasi dapat memperburuk situasi jika ada pihak yang sudah merekam.
+
+> Lihat Section 4 (Response Protocol) untuk langkah selanjutnya setelah evidence terkumpul.
+
+---
+
 ## 4. RESPONSE PROTOCOL PER SEVERITY
 
 ### Respons Level 1
@@ -413,7 +488,7 @@ Langkah preventif yang harus berjalan rutin:
 
 | Field | Value |
 |-------|-------|
-| Versi | 1.0 |
+| Versi | 1.1 |
 | Status | DRAFT FRAMEWORK |
 | Dibuat | 2026-04-06 |
 | Dokumen Terkait | `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` (governance), `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` (escalation tiers), `36-CONTENT-OPS-AND-CHANNEL-SOP.md` (content SOP), `35-MANAGING-STRATEGIST-ONBOARDING-AND-ACTIVATION-CHECKLIST.md` (onboarding), `14-OPERATIONAL-RUNBOOK.md` (operational runbook), `19-DECISION-LOG.md` (post-incident ADR), `20-CREDENTIAL-REGISTRY.md` (credential audit) |

@@ -216,6 +216,26 @@
 
 ---
 
+### ADR-018 – Final Canonical Polish Sprint: Docs 35–37 v1.1 Consistency Cleanup
+- **Tanggal:** 2026-04-06
+- **Status:** ACCEPTED
+- **Konteks:** Setelah upgrade ke v1.1 (ADR-017), ditemukan 3 inkonsistensi canonical yang perlu dibersihkan sebelum docs 35–37 bisa dinyatakan final: (1) Document Control table di ketiga docs masih menampilkan Versi 1.0 meskipun header sudah 1.1; (2) Doc 36 masih memiliki 3 wording ambigu yang bertentangan dengan Section 2.1 Canonical Operating Locations; (3) Doc 37 belum memiliki 3 section komando eksplisit yang disebutkan di ADR-017 sebagai bagian dari v1.1.
+- **Pilihan yang dipertimbangkan:**
+  - (A) HOLD — biarkan sampai Managing Strategist diaktifkan nyata
+  - (B) UPDATE SURGICAL — fix minimal in-place tanpa rewrite
+- **Keputusan:** B – UPDATE SURGICAL
+- **Alasan:** Gap yang ada bersifat canonical confidence issue (versi inconsistency, open placeholder, missing command sections) — bukan masalah konten besar. Surgical fix adalah tindakan terkecil yang memberikan hasil terbesar: docs 35–37 mencapai final polished canonical quality.
+- **Perubahan yang diimplementasikan:**
+  - **Task 1 – Version Fix (3 files):** Document Control `Versi` field diupdate dari `1.0` → `1.1` di Doc 35, 36, dan 37. Header dan Document Control sekarang sinkron penuh.
+  - **Task 2 – Doc 36 Ambiguity Removal (3 strings):** (a) `content queue doc atau Notion/Sheets yang disepakati` → `canonical content queue — Google Sheet aktif yang ditetapkan Founder (lihat Section 2.1)`; (b) `Canva atau tool yang disepakati` → `tool yang aktif saat ini — hanya satu tool yang boleh canonical per periode (lihat Section 2.1 Rule 3)`; (c) `[Tentukan lokasi — Notion, Google Sheets, atau doc dedicated]` → `Google Sheet / doc registry yang ditetapkan Founder — satu registry aktif, tidak boleh tersebar (lihat Section 2.1 Rule 2)`. Semua wording ambiguous sudah diselaraskan ke prinsip Section 2.1.
+  - **Task 3 – Doc 37 Command Sections (3 new subsections):** Ditambahkan sebagai Section 3.1, 3.2, dan 3.3 antara Section 3 (Severity Levels) dan Section 4 (Response Protocol): (a) `3.1 SEVERITY DECISION RULE` — rapid triage 3 pertanyaan berurutan; (b) `3.2 INCIDENT COMMAND STRUCTURE` — tabel command authority per level (L1/L2/L3) untuk 10 fase penanganan insiden; (c) `3.3 EVIDENCE PRESERVATION CHECKLIST` — 7 item wajib yang harus dikumpulkan sebelum tindakan apapun.
+  - **Task 4 – Index Sync:** `00-MASTER-INDEX.md` diupdate ke v10.1 dengan catatan CANONICAL POLISH sprint. `19-DECISION-LOG.md` ditambahkan ADR-018 ini.
+- **Konsekuensi:** (+) Docs 35–37 mencapai final polished canonical quality v1.1 — siap digunakan tanpa ambiguity; (+) Doc 37 sekarang command-grade dengan 3 section eksplisit; (+) Tidak ada doc baru dibuat; (+) Tidak ada drift arsitektur; (-) Tidak ada dampak negatif teridentifikasi.
+- **Cross-links tidak berubah:** Semua cross-links di docs 14, 22, 30–37 sudah akurat sebelum sprint ini — tidak ada perubahan diperlukan.
+- **Review:** Saat Managing Strategist diaktifkan pertama kali dan setelah insiden Level 2/3 pertama.
+
+---
+
 | ID | Topik | Konteks | Deadline |
 |----|-------|---------|----------|
 | PENDING-001 | Apakah perlu mobile app native? | Dashboard saat ini web-only, klien minta app | Post-Sprint 5 |
@@ -225,5 +245,5 @@
 
 ---
 
-*Document Control: v1.3 – 2026-04-06 – Living Document (ADR-017 ditambahkan: upgrade docs 35–37 ke v1.1 dengan 7 section operasional baru per dokumen)*
+*Document Control: v1.4 – 2026-04-06 – Living Document (ADR-018 ditambahkan: final canonical polish sprint docs 35–37 — version fix, Doc 36 ambiguity removal, Doc 37 command sections 3.1/3.2/3.3)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

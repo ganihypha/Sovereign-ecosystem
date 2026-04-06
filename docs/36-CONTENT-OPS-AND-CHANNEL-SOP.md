@@ -87,7 +87,7 @@ Maksimal: 4 feed post + 5 story per minggu
 STEP 1 — IDEASI (Managing Strategist)
   □ Buat 3-5 ide konten untuk minggu berjalan
   □ Format: [Tipe] | [Caption draft] | [Visual brief] | [Channel]
-  □ Simpan di content queue doc atau Notion/Sheets yang disepakati
+  □ Simpan di canonical content queue — Google Sheet aktif yang ditetapkan Founder (lihat Section 2.1)
   □ Deadline: setiap Jumat sore untuk minggu berikutnya
 
 STEP 2 — REVIEW (Founder)
@@ -98,8 +98,8 @@ STEP 2 — REVIEW (Founder)
 
 STEP 3 — FINALISASI (Managing Strategist)
   □ Implementasi revisi Founder
-  □ Siapkan visual (via Canva atau tool yang disepakati)
-  □ Jadwalkan via Meta Business Suite atau tool yang disepakati
+  □ Siapkan visual menggunakan tool yang aktif saat ini — hanya satu tool yang boleh canonical per periode (Founder tetapkan jika belum ada, lihat Section 2.1 Rule 3)
+  □ Jadwalkan via Meta Business Suite (default) — jika ada perubahan tool scheduling, Founder wajib menetapkan dan mencatat cut-over date
   □ Konfirmasi ke Founder bahwa konten sudah terjadwal
 
 STEP 4 — POSTING & MONITORING
@@ -189,7 +189,7 @@ STEP 2 — Founder review dan approve
   Approval harus eksplisit — tidak ada auto-approve
 
 STEP 3 — Template disimpan di template registry
-  Lokasi: [Tentukan lokasi — Notion, Google Sheets, atau doc dedicated]
+  Lokasi: Google Sheet / doc registry yang ditetapkan Founder — satu registry aktif, tidak boleh tersebar di beberapa file (lihat Section 2.1 Rule 2)
   Format: ID | Nama | Tipe | Isi | Status | Approved By | Tanggal
 
 STEP 4 — MS hanya bisa pakai template yang sudah [APPROVED]
@@ -451,7 +451,7 @@ Registry template minimum harus memiliki field berikut untuk setiap template yan
 
 | Field | Value |
 |-------|-------|
-| Versi | 1.0 |
+| Versi | 1.1 |
 | Status | DRAFT FRAMEWORK |
 | Dibuat | 2026-04-06 |
 | Dokumen Terkait | `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` (governance rules), `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` (approval tiers), `31-RBAC-PERMISSION-MATRIX.md` (permission), `14-OPERATIONAL-RUNBOOK.md` (runbook), `37-INCIDENT-AND-CRISIS-COMMUNICATION-PLAYBOOK.md` (crisis), `35-MANAGING-STRATEGIST-ONBOARDING-AND-ACTIVATION-CHECKLIST.md` (onboarding) |
