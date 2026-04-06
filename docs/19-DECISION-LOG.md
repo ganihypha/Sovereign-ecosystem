@@ -142,6 +142,7 @@
 - **Alasan:** Konsisten dengan prinsip migration: incremental, evidence-based, tidak chaos. Role disiapkan di sistem, diaktifkan nanti berdasarkan proof.
 - **Konsekuensi:** (+) Founder tidak improvisasi saat hari aktivasi tiba; (+) RBAC terdefinisi; (-) Butuh disiplin menjaga docs ini hidup
 - **Docs dibuat:** `30-MANAGING-STRATEGIST-ROLE-PACK.md`, `31-RBAC-PERMISSION-MATRIX.md`, `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md`, `33-PARTNERSHIP-AND-PROFIT-SHARING-MILESTONES.md`, `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md`
+- **Cross-links:** `31-RBAC-PERMISSION-MATRIX.md` → `packages/auth/src/roles.ts` (future impl); `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` → Session 3f WA approval gate; `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` → `14-OPERATIONAL-RUNBOOK.md`
 - **Review:** Saat activation trigger (Stage 0 → Stage 1) terpenuhi.
 
 ### ADR-012 – WA Routes Activation via Fonnte (Session 3f)
@@ -153,6 +154,17 @@
 - **Alasan:** Fonnte API requirement: device token untuk send, account token untuk management API.
 - **Konsekuensi:** (+) WA send works; (+) status check works; (-) wajib maintain 2 token berbeda di Cloudflare Secrets
 - **Review:** Jika Fonnte mengubah API auth model.
+
+### ADR-013 – Repo-First Documentation Workflow Established
+- **Tanggal:** 2026-04-06
+- **Status:** ACCEPTED
+- **Konteks:** Terdapat uploaded files (docs 30–34 variants) yang perlu diaudit terhadap repo. Diperlukan workflow yang jelas: clone repo dulu → audit current canonical docs → compare uploaded files as secondary → putuskan ADD/MERGE/UPDATE/SYNC/HOLD/PRIVATE.
+- **Pilihan:** (A) Langsung copy uploaded files ke repo, (B) Repo-first audit sebelum setiap perubahan dokumentasi
+- **Keputusan:** B — REPO-FIRST, DOCS-FIRST, AUDIT-BEFORE-EDIT sebagai mandatory workflow untuk semua sesi dokumentasi
+- **Alasan:** Uploaded files bisa berupa conversational notes, raw founder thinking, duplikat, atau versi lebih lemah dari repo canon. Jika tidak di-audit dulu, risiko overwrting stronger docs dengan weaker drafts.
+- **Hasil audit session ini:** Docs 30–34 di uploaded files = IDENTIK dengan repo. Tidak ada perubahan substantif yang diperlukan pada docs 30–34. Satu-satunya perubahan yang justified: update cross-link di ADR-011 dan penambahan ADR-013 ini.
+- **Prinsip yang dikunci:** (1) Repo selalu primary source of truth; (2) Uploaded files selalu secondary; (3) PAT/auth untuk push deferred sampai tahap akhir; (4) Tidak membuat doc baru hanya karena nomor tersedia.
+- **Review:** Setiap kali ada sesi upload dokumentasi baru.
 
 ---
 
@@ -167,5 +179,5 @@
 
 ---
 
-*Document Control: v1.0 – 2026-04-03 – Living Document*
+*Document Control: v1.1 – 2026-04-06 – Living Document (ADR-013 ditambahkan: repo-first doc workflow)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

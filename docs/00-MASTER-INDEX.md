@@ -1,7 +1,7 @@
 # 🏛️ SOVEREIGN BUSINESS ENGINE v4.0
-# MASTER INDEX — DAFTAR 29 DOKUMEN STRATEGIS + OPERASIONAL + MIGRATION OS
+# MASTER INDEX — DAFTAR 34 DOKUMEN STRATEGIS + OPERASIONAL + MIGRATION OS + GOVERNANCE
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-05 (v7.0)
+### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-06 (v8.0)
 
 ---
 
@@ -270,7 +270,7 @@ KEY INSIGHT dari exam takers:
 | Distilled Build Rules (16) | ✅ COMPLETE — 10 rules, 8 anti-patterns, CCA-F cheatsheet |
 | Task Prompt Templates (17) | ✅ COMPLETE — 6 templates, pre-filled Sprint 1-2 |
 | **Build Sprint Log (18)** | ✅ LIVE — Update harian saat build Sprint 1-5 |
-| **Decision Log ADR (19)** | ✅ LIVE — 10 ADR seeded (ADR-001 s/d ADR-010) |
+| **Decision Log ADR (19)** | ✅ LIVE — ADR-001 s/d ADR-013 (ADR-013: repo-first doc workflow) |
 | **Credential Registry (20)** | ✅ LIVE — 15 credentials mapped, 2 missing (Fonnte + LLM) |
 | **Proof Tracker Live (21)** | ✅ LIVE — Menunggu bukti nyata Sprint 1 |
 | **Weekly Founder Review (22)** | ✅ LIVE — Week 0 entry selesai, Week 1 dimulai |
@@ -298,6 +298,7 @@ KEY INSIGHT dari exam takers:
   GOVERNANCE LAYER: 30-34 DIBUAT ✅ (DRAFT INTERNAL FRAMEWORK)
   WA INTEGRATION: ✅ LIVE — Session 3f verified (fonnte_message_id 150273541)
   BUILD PHASE 3: SESSIONS 3a-3f ✅ COMPLETE — NEXT: Session 3g
+  DOC AUDIT (2026-04-06): ✅ SELESAI — Docs 30-34 repo = canonical, ADR-013 ditambahkan
 ══════════════════════════════════════════════════════
 
 PRIORITAS HARI INI:
@@ -341,7 +342,7 @@ INGAT SELALU:
 
 | # | Dokumen | Versi | Tanggal Update |
 |---|---------|-------|----------------|
-| INDEX | Master Index | 7.0 | 2026-04-05 |
+| INDEX | Master Index | 8.0 | 2026-04-06 |
 | 01 | North Star PRD | 1.0 | 2026-04-02 |
 | 02 | System Architecture Brief | 1.0 | 2026-04-02 |
 | 03 | Build Spec per Module | 1.0 | 2026-04-02 |
