@@ -558,5 +558,10 @@ MINIMUM YANG HARUS DI-TRACK:
 |-------|---------|-----------|
 | 1.0 | 2026-04-02 | Operational Runbook v1.0 — onboarding, daily ops, outreach, troubleshooting, offboarding |
 
+**Dokumen Terkait (Governance Extension):**
+- `35-MANAGING-STRATEGIST-ONBOARDING-AND-ACTIVATION-CHECKLIST.md` — checklist bertahap aktivasi Managing Strategist (pre-activation gates, phase 1–3, KPI baseline)
+- `36-CONTENT-OPS-AND-CHANNEL-SOP.md` — SOP operasional channel publishing (Instagram, WA/Fonnte) setelah MS aktif
+- `37-INCIDENT-AND-CRISIS-COMMUNICATION-PLAYBOOK.md` — protokol respons insiden dan krisis komunikasi market-facing
+
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*

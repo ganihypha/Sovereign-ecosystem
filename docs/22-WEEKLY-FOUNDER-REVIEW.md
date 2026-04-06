@@ -214,4 +214,5 @@
 ---
 
 *Document Control: v1.0 – 2026-04-03 – Living Document*
+*Update 2026-04-06: Governance Layer diperluas ke docs 35–37 (onboarding checklist, content ops SOP, crisis playbook)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

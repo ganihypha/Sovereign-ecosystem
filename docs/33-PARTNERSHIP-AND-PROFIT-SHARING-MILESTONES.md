@@ -176,7 +176,7 @@ Dokumen ini dibuat untuk memastikan bahwa ketika hari aktivasi tiba, Founder pun
 | Status | DRAFT INTERNAL FRAMEWORK |
 | Dibuat | 2026-04-05 |
 | Sumber distilasi | `doc.manahing.stratgst.1.1.1.1.q.1...txt` |
-| Dokumen Terkait | `30-MANAGING-STRATEGIST-ROLE-PACK.md`, `31-RBAC-PERMISSION-MATRIX.md` |
+| Dokumen Terkait | `30-MANAGING-STRATEGIST-ROLE-PACK.md`, `31-RBAC-PERMISSION-MATRIX.md`, `35-MANAGING-STRATEGIST-ONBOARDING-AND-ACTIVATION-CHECKLIST.md` (checklist aktivasi) |
 | Review | Saat activation trigger (Stage 0 → Stage 1) terpenuhi |
 | Legal Note | Semua angka bersifat indikatif — perlu review hukum sebelum diaktifkan |
 

@@ -314,5 +314,7 @@ AGENT LAYER ──────► API (internal) ────────► CAN
 |-------|---------|-----------|
 | 1.0 | 2026-04-03 | Canonical Architecture Map v1.0 — full ecosystem target + layer definitions |
 
+**Catatan Governance Layer (update 2026-04-06):** Layer 7 diperluas dengan docs 35–37 — lihat `00-MASTER-INDEX.md` untuk daftar lengkap.
+
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*

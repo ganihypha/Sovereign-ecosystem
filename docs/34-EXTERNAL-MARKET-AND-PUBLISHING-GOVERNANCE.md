@@ -186,7 +186,7 @@ Sebelum mendelegasikan channel apapun ke Managing Strategist:
 | Status | DRAFT FRAMEWORK |
 | Dibuat | 2026-04-05 |
 | Sumber distilasi | `nw.prompt.fr.gmini.1.1.1.q.q.1.txt` — external publishing governance insights |
-| Dokumen Terkait | `30-MANAGING-STRATEGIST-ROLE-PACK.md`, `31-RBAC-PERMISSION-MATRIX.md`, `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md`, `14-OPERATIONAL-RUNBOOK.md` |
+| Dokumen Terkait | `30-MANAGING-STRATEGIST-ROLE-PACK.md`, `31-RBAC-PERMISSION-MATRIX.md`, `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md`, `14-OPERATIONAL-RUNBOOK.md`, `36-CONTENT-OPS-AND-CHANNEL-SOP.md` (SOP operasional), `37-INCIDENT-AND-CRISIS-COMMUNICATION-PLAYBOOK.md` (crisis playbook) |
 | Review | Saat Managing Strategist onboarding dimulai |
 
 ---

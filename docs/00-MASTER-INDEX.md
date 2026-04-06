@@ -1,7 +1,7 @@
 # 🏛️ SOVEREIGN BUSINESS ENGINE v4.0
-# MASTER INDEX — DAFTAR 34 DOKUMEN STRATEGIS + OPERASIONAL + MIGRATION OS + GOVERNANCE
+# MASTER INDEX — DAFTAR 37 DOKUMEN STRATEGIS + OPERASIONAL + MIGRATION OS + GOVERNANCE
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-06 (v8.0)
+### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-06 (v9.0)
 
 ---
 
@@ -84,9 +84,9 @@
 | 28 | **Migration Phase Plan** | `28-MIGRATION-PHASE-PLAN.md` | Urutan kerja 8 phase — evidence-based, incremental |
 | 29 | **AI Dev Handoff Pack** | `29-AI-DEV-HANDOFF-PACK.md` | Reading order + execution rules + response format untuk AI Dev |
 
-### 🔄 LAYER 7 — GOVERNANCE & ROLE ARCHITECTURE DOCS (Tambahan 2026-04-05)
+### 🔄 LAYER 7 — GOVERNANCE & ROLE ARCHITECTURE DOCS (Tambahan 2026-04-05, Extended 2026-04-06)
 
-> 🏛️ **Dokumen ini mendefinisikan arsitektur peran internal, RBAC, approval flow, profit-sharing milestones, dan external publishing governance.**
+> 🏛️ **Dokumen ini mendefinisikan arsitektur peran internal, RBAC, approval flow, profit-sharing milestones, external publishing governance, onboarding checklist, content ops SOP, dan crisis playbook.**
 > **Semua berstatus DRAFT INTERNAL FRAMEWORK — aktifkan secara bertahap sesuai proof.**
 
 | # | Dokumen | File | Fungsi |
@@ -96,6 +96,9 @@
 | 32 | **Human Approval & Escalation Flow** | `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` | Approval tiers, escalation rules, WA approval gate |
 | 33 | **Partnership & Profit-Sharing Milestones** | `33-PARTNERSHIP-AND-PROFIT-SHARING-MILESTONES.md` | Milestone framework sebelum sharing aktif |
 | 34 | **External Market & Publishing Governance** | `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` | Channel ownership, brand voice rules, content approval |
+| 35 | **Managing Strategist Onboarding & Activation Checklist** | `35-MANAGING-STRATEGIST-ONBOARDING-AND-ACTIVATION-CHECKLIST.md` | Pre-activation gates, phase 1-3 onboarding steps, KPI baseline, offboarding protocol |
+| 36 | **Content Ops & Channel SOP** | `36-CONTENT-OPS-AND-CHANNEL-SOP.md` | Instagram/WA SOP, content queue workflow, template management, approval matrix, weekly rhythm |
+| 37 | **Incident & Crisis Communication Playbook** | `37-INCIDENT-AND-CRISIS-COMMUNICATION-PLAYBOOK.md` | Severity levels, response protocols, channel freeze, corrective comms, post-incident review |
 
 ---
 
@@ -270,7 +273,7 @@ KEY INSIGHT dari exam takers:
 | Distilled Build Rules (16) | ✅ COMPLETE — 10 rules, 8 anti-patterns, CCA-F cheatsheet |
 | Task Prompt Templates (17) | ✅ COMPLETE — 6 templates, pre-filled Sprint 1-2 |
 | **Build Sprint Log (18)** | ✅ LIVE — Update harian saat build Sprint 1-5 |
-| **Decision Log ADR (19)** | ✅ LIVE — ADR-001 s/d ADR-013 (ADR-013: repo-first doc workflow) |
+| **Decision Log ADR (19)** | ✅ LIVE — ADR-001 s/d ADR-016 (ADR-013: repo-first, ADR-014/015/016: docs 35-37) |
 | **Credential Registry (20)** | ✅ LIVE — 15 credentials mapped, 2 missing (Fonnte + LLM) |
 | **Proof Tracker Live (21)** | ✅ LIVE — Menunggu bukti nyata Sprint 1 |
 | **Weekly Founder Review (22)** | ✅ LIVE — Week 0 entry selesai, Week 1 dimulai |
@@ -286,6 +289,9 @@ KEY INSIGHT dari exam takers:
 | **Human Approval & Escalation Flow (32)** | ✅ COMPLETE — Governance Layer (DRAFT) |
 | **Partnership & Profit-Sharing Milestones (33)** | ✅ COMPLETE — Governance Layer (DRAFT) |
 | **External Market & Publishing Governance (34)** | ✅ COMPLETE — Governance Layer (DRAFT) |
+| **MS Onboarding & Activation Checklist (35)** | ✅ COMPLETE — Governance Layer (DRAFT) |
+| **Content Ops & Channel SOP (36)** | ✅ COMPLETE — Governance Layer (DRAFT) |
+| **Incident & Crisis Communication Playbook (37)** | ✅ COMPLETE — Governance Layer (DRAFT) |
 
 ---
 
@@ -293,12 +299,13 @@ KEY INSIGHT dari exam takers:
 
 ```
 ══════════════════════════════════════════════════════
-  DOKUMENTASI: 34/34 SELESAI ✅ (22 strategic/ops + 7 migration OS + 5 governance)
+  DOKUMENTASI: 37/37 SELESAI ✅ (22 strategic/ops + 7 migration OS + 8 governance)
   MIGRATION OS: TERKUNCI ✅
-  GOVERNANCE LAYER: 30-34 DIBUAT ✅ (DRAFT INTERNAL FRAMEWORK)
+  GOVERNANCE LAYER: 30-37 DIBUAT ✅ (DRAFT INTERNAL FRAMEWORK)
   WA INTEGRATION: ✅ LIVE — Session 3f verified (fonnte_message_id 150273541)
   BUILD PHASE 3: SESSIONS 3a-3f ✅ COMPLETE — NEXT: Session 3g
   DOC AUDIT (2026-04-06): ✅ SELESAI — Docs 30-34 repo = canonical, ADR-013 ditambahkan
+  GOVERNANCE EXTENSION (2026-04-06): ✅ Docs 35-37 DITAMBAHKAN (ADR-014/015/016)
 ══════════════════════════════════════════════════════
 
 PRIORITAS HARI INI:
@@ -324,6 +331,9 @@ DOKUMEN AKTIF PER TUJUAN:
   ► DEMO INVESTOR        → 01, 02, 05, 10
   ► ROLE GOVERNANCE      → 30 (role pack), 31 (RBAC), 32 (escalation), 33 (profit-sharing)
   ► EXTERNAL MARKET      → 34 (publishing governance), 14 (runbook)
+  ► ONBOARDING MS        → 35 (activation checklist), 30 (role pack), 31 (RBAC)
+  ► CONTENT OPS          → 36 (channel SOP), 34 (governance), 32 (approval flow)
+  ► KRISIS/INSIDEN       → 37 (crisis playbook), 32 (escalation), 34 (governance)
   ► WA INTEGRATION       → docs/session-3f-summary.md, evidence/architecture/ADR-012
 
 INGAT SELALU:
@@ -342,7 +352,7 @@ INGAT SELALU:
 
 | # | Dokumen | Versi | Tanggal Update |
 |---|---------|-------|----------------|
-| INDEX | Master Index | 8.0 | 2026-04-06 |
+| INDEX | Master Index | 9.0 | 2026-04-06 |
 | 01 | North Star PRD | 1.0 | 2026-04-02 |
 | 02 | System Architecture Brief | 1.0 | 2026-04-02 |
 | 03 | Build Spec per Module | 1.0 | 2026-04-02 |
@@ -379,6 +389,9 @@ INGAT SELALU:
 | **32** | **Human Approval & Escalation Flow** | **1.0** | **2026-04-05** |
 | **33** | **Partnership & Profit-Sharing Milestones** | **1.0** | **2026-04-05** |
 | **34** | **External Market & Publishing Governance** | **1.0** | **2026-04-05** |
+| **35** | **Managing Strategist Onboarding & Activation Checklist** | **1.0** | **2026-04-06** |
+| **36** | **Content Ops & Channel SOP** | **1.0** | **2026-04-06** |
+| **37** | **Incident & Crisis Communication Playbook** | **1.0** | **2026-04-06** |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*

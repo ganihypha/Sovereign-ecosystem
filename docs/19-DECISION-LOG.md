@@ -166,9 +166,37 @@
 - **Prinsip yang dikunci:** (1) Repo selalu primary source of truth; (2) Uploaded files selalu secondary; (3) PAT/auth untuk push deferred sampai tahap akhir; (4) Tidak membuat doc baru hanya karena nomor tersedia.
 - **Review:** Setiap kali ada sesi upload dokumentasi baru.
 
----
+### ADR-014 – Governance Extension: Managing Strategist Onboarding & Activation Checklist (Doc 35)
+- **Tanggal:** 2026-04-06
+- **Status:** ACCEPTED
+- **Konteks:** Docs 30–34 mendefinisikan governance rules dan permission matrix, tetapi tidak ada dokumen yang menterjemahkan aturan tersebut menjadi urutan langkah operasional konkret untuk proses aktivasi Managing Strategist. Tanpa checklist, Founder berisiko mengimprovisasi saat hari aktivasi tiba — bertentangan dengan prinsip sovereign governance yang sudah dibangun.
+- **Justifikasi ADD (bukan MERGE):** (1) Layer yang distinct — bukan governance rules (docs 30-34) tapi execution checklist; (2) Material improvement — 3 pre-activation gates, 3 phases (observer/trial/full), offboarding protocol yang tidak ada di docs 30-34; (3) Reduced ambiguity — kapan boleh mulai onboarding, bagaimana bertahap, apa yang diperiksa sebelum lanjut; (4) Zero duplication — tidak menduplikasi content dari 30-34, hanya mengoperasionalisasikannya.
+- **Keputusan:** ADD `35-MANAGING-STRATEGIST-ONBOARDING-AND-ACTIVATION-CHECKLIST.md` sebagai dokumen baru di Layer 7
+- **Konsekuensi:** (+) Founder punya protokol bertahap yang jelas saat aktivasi tiba; (+) Akses diberikan secara incremental (observer → candidate → active); (+) Onboarding tidak bisa dibypass karena ada gates; (-) Menambah 1 dokumen yang perlu di-maintain.
+- **Cross-links:** `30-MANAGING-STRATEGIST-ROLE-PACK.md` → `35` (operasionalisasi role); `31-RBAC-PERMISSION-MATRIX.md` → `35` (permission diberikan per phase); `33-PARTNERSHIP-AND-PROFIT-SHARING-MILESTONES.md` → `35` (Gate 2 revenue readiness); `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` → `35` (Gate 3 governance readiness)
+- **Review:** Saat onboarding pertama dimulai.
 
-## BACKLOG KEPUTUSAN (perlu diputuskan nanti)
+### ADR-015 – Governance Extension: Content Ops & Channel SOP (Doc 36)
+- **Tanggal:** 2026-04-06
+- **Status:** ACCEPTED
+- **Konteks:** Doc 34 mendefinisikan governance rules untuk channel ownership dan content approval matrix, tetapi tidak ada SOP yang bisa dijalankan harian oleh Managing Strategist. Governance tanpa SOP = aturan yang tidak konsisten dieksekusi. Operasionalisasi publishing membutuhkan ritme yang jelas, template management workflow, dan logging discipline.
+- **Justifikasi ADD (bukan MERGE):** (1) Layer yang distinct — bukan governance (doc 34) tapi SOP operasional; (2) Material improvement — weekly publishing rhythm, content queue workflow 4 steps, WA template management, content log JSON schema yang tidak ada di doc 34; (3) Reduced ambiguity — siapa bikin, siapa approve, kapan, formatnya apa; (4) Zero duplication — doc 34 tetap sebagai governance layer, doc 36 adalah execution layer.
+- **Keputusan:** ADD `36-CONTENT-OPS-AND-CHANNEL-SOP.md` sebagai dokumen baru di Layer 7
+- **Konsekuensi:** (+) Managing Strategist punya ritme kerja yang konkret; (+) Content log terdefinisi sehingga audit bisa dilakukan; (+) Brand voice compliance bisa dimonitor; (-) Menambah 1 dokumen yang perlu di-update jika ritme channel berubah.
+- **Cross-links:** `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` → `36` (governance rules + SOP); `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` → `36` (approval tiers dalam content workflow); `37-INCIDENT-AND-CRISIS-COMMUNICATION-PLAYBOOK.md` → `36` (escalation dari content ops ke crisis); `14-OPERATIONAL-RUNBOOK.md` → `36` (runbook + content SOP)
+- **Review:** Saat Managing Strategist diaktifkan dan mulai menjalankan channel ops.
+
+### ADR-016 – Governance Extension: Incident & Crisis Communication Playbook (Doc 37)
+- **Tanggal:** 2026-04-06
+- **Status:** ACCEPTED
+- **Konteks:** Tidak ada protokol yang mendefinisikan apa yang harus dilakukan saat insiden atau krisis komunikasi terjadi di channel market-facing. Docs 32 mendefinisikan escalation tiers, doc 34 mendefinisikan channel governance, doc 36 mendefinisikan SOP ops harian — tetapi tidak ada dokumen yang mengkhususkan diri pada respons terstruktur terhadap insiden (complaint viral, kebocoran data, ancaman hukum, miskomunikasi yang menyebar).
+- **Justifikasi ADD (bukan MERGE):** (1) Layer yang distinct — bukan escalation tiers (doc 32) atau governance (doc 34) atau daily ops (doc 36) tapi crisis response playbook; (2) Material improvement — 3 severity levels, protokol per level, channel freeze procedure, corrective communication patterns, incident log format, post-incident review checklist; (3) Reduced ambiguity — apa bedanya Level 1 vs Level 2 vs Level 3, siapa melakukan apa dalam berapa jam; (4) Zero duplication — tidak ada dokumen lain yang mencakup ini.
+- **Keputusan:** ADD `37-INCIDENT-AND-CRISIS-COMMUNICATION-PLAYBOOK.md` sebagai dokumen baru di Layer 7
+- **Konsekuensi:** (+) Founder dan MS punya struktur respons yang bisa dieksekusi bahkan saat panik; (+) Setiap insiden terdokumentasi dengan format yang konsisten; (+) Post-incident review memungkinkan perbaikan docs yang relevan; (-) Perlu di-review dan di-drill secara berkala agar tidak jadi arsip yang tidak digunakan.
+- **Cross-links:** `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` → `37` (prinsip System Truth vs Market Expression); `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` → `37` (escalation format); `36-CONTENT-OPS-AND-CHANNEL-SOP.md` → `37` (eskalasi dari channel ops ke crisis); `19-DECISION-LOG.md` → `37` (post-incident ADR); `20-CREDENTIAL-REGISTRY.md` → `37` (credential audit saat breach)
+- **Review:** Setelah setiap insiden Level 2/3, dan setiap 6 bulan secara proaktif.
+
+---
 
 | ID | Topik | Konteks | Deadline |
 |----|-------|---------|----------|
@@ -179,5 +207,5 @@
 
 ---
 
-*Document Control: v1.1 – 2026-04-06 – Living Document (ADR-013 ditambahkan: repo-first doc workflow)*
+*Document Control: v1.2 – 2026-04-06 – Living Document (ADR-014/015/016 ditambahkan: governance extension docs 35–37)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

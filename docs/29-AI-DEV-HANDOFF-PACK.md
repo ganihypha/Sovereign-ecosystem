@@ -56,7 +56,7 @@ AI Dev WAJIB baca dokumen ini terlebih dahulu.
 Baca dalam urutan ini sebelum eksekusi:
 
 ```
-1. 00-MASTER-INDEX.md          → Pahami 29 dokumen, posisi sekarang, next action
+1. 00-MASTER-INDEX.md          → Pahami 37 dokumen, posisi sekarang, next action
 2. 26-CANONICAL-ARCHITECTURE-MAP.md  → Pahami target ecosystem + layer rules
 3. 23-REPO-INVENTORY.md        → Pahami repo mana yang jadi apa
 4. 24-DATABASE-INVENTORY-AND-MIGRATION-MAP.md → Pahami DB structure
@@ -423,6 +423,8 @@ WAJIB SEBELUM EKSEKUSI TASK APA PUN:
 | Versi | Tanggal | Perubahan |
 |-------|---------|-----------|
 | 1.0 | 2026-04-03 | AI Dev Handoff Pack v1.0 — reading order, rules, templates, response format |
+
+**Catatan Governance (update 2026-04-06):** Layer 7 telah diperluas menjadi 8 dokumen (30–37). Untuk konteks governance dan role architecture, rujuk ke docs 30–37 di MASTER-INDEX.
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️*
