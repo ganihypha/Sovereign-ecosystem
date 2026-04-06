@@ -2,7 +2,7 @@
 ## Sovereign Business Engine v4.0
 **Architect:** Haidar Faras Maulia | **Company:** PT Waskita Cakrawarti Digital
 **Status:** DRAFT FRAMEWORK — Berlaku segera setelah dibaca dan dipahami Founder
-**Version:** 1.0 | **Tanggal:** 2026-04-06
+**Version:** 1.1 | **Tanggal:** 2026-04-06 | **Updated:** 2026-04-06
 
 > ⚠️ **CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL**
 
@@ -207,6 +207,23 @@ Jika WA channel perlu di-freeze:
 
 ## 6. CORRECTIVE COMMUNICATION PATTERNS
 
+## 6.1 DO-NOT-SAY RULES
+
+Selama insiden aktif, pihak internal (Founder atau Managing Strategist) **tidak boleh:**
+
+- Menyalahkan pihak luar secara publik
+- Mengakui kesalahan spesifik sebelum investigasi selesai
+- Menjanjikan refund / kompensasi tanpa Founder approval
+- Membocorkan detail internal, sistem, data, atau percakapan privat
+- Berdebat panjang di komentar publik
+- Menyampaikan estimasi waktu penyelesaian yang belum pasti
+- Menggunakan bahasa defensif, menyerang, atau emosional
+- Menghapus komentar / konten tanpa assessment terlebih dahulu
+
+**Safe Principle:** Jika kalimat itu belum diverifikasi, belum diapprove Founder, atau berpotensi memicu implikasi lebih besar — kalimat itu tidak boleh dikirim.
+
+---
+
 Gunakan pola ini sebagai panduan saat menyusun respons publik:
 
 ### Pola A — Klarifikasi Miskomunikasi
@@ -290,6 +307,27 @@ Setiap insiden Level 2 dan Level 3 wajib dicatat:
 
 ---
 
+## 7.1 INCIDENT RESOLUTION CRITERIA
+
+Insiden tidak boleh dianggap selesai hanya karena thread sudah sepi atau tidak ada respons baru dari publik.
+
+### Minimum Resolution Criteria — Semua Wajib Terpenuhi:
+- [ ] Channel sudah stabil (tidak ada aktivitas insiden yang masih berjalan)
+- [ ] Tidak ada eskalasi baru dalam periode observasi yang wajar (minimum 24 jam untuk L2, 72 jam untuk L3)
+- [ ] Respons resmi / holding stance sudah jelas dan terdokumentasi
+- [ ] Root cause minimum sudah dipahami (walaupun belum 100% lengkap)
+- [ ] Semua aksi penting sudah dicatat di incident log
+- [ ] Pelajaran utama sudah ditulis
+- [ ] Jika perlu, doc terkait (34, 36, 37) sudah diupdate
+
+### Outcome Labels (Founder yang menentukan label akhir)
+- `resolved` — insiden selesai sepenuhnya
+- `monitoring` — selesai tapi masih perlu dipantau
+- `external_legal_review` — perlu konsultasi hukum
+- `followup_required` — ada tindakan lanjutan yang belum selesai
+
+---
+
 ## 8. POST-INCIDENT REVIEW
 
 Setelah setiap insiden Level 2 atau Level 3 resolved, Founder wajib melakukan:
@@ -320,6 +358,44 @@ POST-INCIDENT REVIEW CHECKLIST:
 
 ## 9. PREVENTION — MENGURANGI RISIKO INSIDEN
 
+---
+
+## 9.1 TABLETOP DRILL & READINESS REVIEW
+
+Playbook ini tidak boleh hanya dibaca satu kali. Perlu diuji secara berkala:
+
+### Minimum Cadence
+- Founder review playbook ini setiap **6 bulan**
+- Mini tabletop walkthrough minimal setiap **quarter** (3 bulan)
+- **Wajib 1 simulasi ringan** sebelum Managing Strategist memegang channel secara aktif:
+  - Skenario 1: post yang terpublish sebelum approved
+  - Skenario 2: komentar negatif yang mulai mendapat traksi > 5 engagement
+  - Skenario 3: inquiry sensitif dari pihak luar (media / kompetitor)
+
+### Tujuan Drill
+- Menguji apakah severity classification dipahami dengan benar
+- Menguji apakah freeze protocol bisa dijalankan tanpa panduan
+- Menguji apakah holding response tidak melanggar governance
+- Mengidentifikasi gap yang belum tercover sebelum insiden nyata terjadi
+
+---
+
+## 9.2 POST-INCIDENT OWNER ACTIONS
+
+Setelah insiden ditutup, Founder wajib menentukan owner untuk setiap follow-up berikut:
+
+| Kebutuhan | Owner | Deadline |
+|----------|-------|----------|
+| Update governance doc (34, 36, 37 jika ada gap) | Founder | Dalam 1 minggu |
+| Update SOP / template yang berkaitan | Founder / MS sesuai scope | Dalam 1 minggu |
+| Re-brief role boundaries ke MS | Founder | Dalam 3 hari |
+| Credential audit jika insiden melibatkan akses | Founder | Segera / dalam 24 jam |
+| Incident retrospective note di `19-DECISION-LOG.md` | Founder | Dalam 1 minggu |
+
+> Tanpa owner follow-up yang jelas, insiden dianggap belum benar-benar selesai secara sistem.
+
+---
+
 Langkah preventif yang harus berjalan rutin:
 
 | Aktivitas | Frekuensi | Siapa | Tujuan |
@@ -340,8 +416,8 @@ Langkah preventif yang harus berjalan rutin:
 | Versi | 1.0 |
 | Status | DRAFT FRAMEWORK |
 | Dibuat | 2026-04-06 |
-| Dokumen Terkait | `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` (governance), `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` (escalation tiers), `36-CONTENT-OPS-AND-CHANNEL-SOP.md` (content SOP), `14-OPERATIONAL-RUNBOOK.md` (operational runbook), `19-DECISION-LOG.md` (post-incident ADR), `20-CREDENTIAL-REGISTRY.md` (credential audit) |
-| Review | Setelah setiap insiden Level 2/3, dan setiap 6 bulan secara proaktif |
+| Dokumen Terkait | `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` (governance), `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` (escalation tiers), `36-CONTENT-OPS-AND-CHANNEL-SOP.md` (content SOP), `35-MANAGING-STRATEGIST-ONBOARDING-AND-ACTIVATION-CHECKLIST.md` (onboarding), `14-OPERATIONAL-RUNBOOK.md` (operational runbook), `19-DECISION-LOG.md` (post-incident ADR), `20-CREDENTIAL-REGISTRY.md` (credential audit) |
+| Review | Setelah setiap insiden Level 2/3, setiap 6 bulan secara proaktif, dan sebelum delegasi channel besar ke MS |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL*

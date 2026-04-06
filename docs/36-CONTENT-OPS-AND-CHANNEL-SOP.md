@@ -2,7 +2,7 @@
 ## Sovereign Business Engine v4.0
 **Architect:** Haidar Faras Maulia | **Company:** PT Waskita Cakrawarti Digital
 **Status:** DRAFT FRAMEWORK — Berlaku setelah Managing Strategist diaktifkan
-**Version:** 1.0 | **Tanggal:** 2026-04-06
+**Version:** 1.1 | **Tanggal:** 2026-04-06 | **Updated:** 2026-04-06
 
 > ⚠️ **CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL**
 > Dokumen ini mengoperasionalisasi governance dari `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md`
@@ -38,6 +38,29 @@ Dokumen ini mengubah aturan governance di `34-EXTERNAL-MARKET-AND-PUBLISHING-GOV
 
 > **Saat ini semua channel dipegang Founder.**
 > **SOP ini aktif saat Managing Strategist diaktifkan dan onboarding Phase 3 selesai.**
+
+---
+
+## 2.1 CANONICAL OPERATING LOCATIONS
+
+SOP ini tidak boleh bergantung pada tool pilihan yang berubah-ubah tanpa owner yang jelas.
+
+### Temporary Canonical Source of Truth
+Sampai sistem final (Supabase module) tersedia, gunakan struktur berikut:
+
+| Kebutuhan | Temporary Canonical Location | Owner | Future Canonical System |
+|-----------|-------------------------------|-------|-------------------------|
+| Content Queue | Google Sheet yang ditetapkan Founder — satu file aktif | Managing Strategist (isi), Founder (approve) | Internal content queue module |
+| Approved Template Registry | Google Sheet / doc registry yang ditetapkan Founder | Founder (approver), MS (propose) | Template registry system |
+| Content Log | Google Sheet sementara (format JSON-like per row) | Founder | Supabase `content_log` table |
+| WA Logs | `wa_logs` Supabase — canonical permanent | System / Founder oversight | Tetap canonical |
+| Approval Notes | Founder comment / cell note di content queue sheet | Founder | Approval module |
+
+### Rules
+1. Hanya boleh ada **satu canonical queue aktif** per periode.
+2. Hanya boleh ada **satu approved template registry aktif** — tidak boleh tersebar di beberapa file.
+3. Jika lokasi tool berpindah, Founder wajib menetapkan tanggal cut-over yang jelas dan dicatat.
+4. Tidak boleh ada approval yang tersebar di banyak tempat tanpa referensi silang yang jelas.
 
 ---
 
@@ -102,6 +125,26 @@ HARUS ESKALASI ke Founder:
   🔐 Media / jurnalis yang menghubungi
   🔐 DM yang mengarah ke potential high-value client
 ```
+
+### 3.3A COMMENT / DM MODERATION DECISION TREE
+
+Gunakan tabel berikut agar respons tidak bergantung pada intuisi spontan MS:
+
+| Tipe Masuk | Respons Awal | Siapa Handle | Aksi |
+|------------|--------------|--------------|------|
+| Pertanyaan produk umum | Jawab dengan template yang sudah approved | Managing Strategist | Direct handle |
+| Pertanyaan harga umum | Jawab sesuai pricing sheet approved | Managing Strategist | Direct handle |
+| Skeptis sopan / pertanyaan validitas | Jawab dengan fakta terverifikasi dari System Truth | Managing Strategist | Direct handle |
+| Testimoni positif | Ucapkan terima kasih | Managing Strategist | Direct handle |
+| Complaint publik yang berkembang | Jangan debat, dokumentasikan, stop respons lebih lanjut | Founder decision | **Escalate** |
+| Partnership inquiry | Tahan respons detail — jangan komit apapun | Founder | **Escalate** |
+| Media / jurnalis / outlet | Jangan jawab substantif | Founder | **Escalate segera** |
+| Spam / abuse / komentar serangan | Screenshot, hide jika aman, log | Founder aware | **Escalate-lite + log** |
+| Potensi high-value lead | Respons aman + singkat awal, lalu eskalasi | Founder | **Escalate** |
+
+**Golden Rule:** Jika Managing Strategist ragu apakah sebuah DM/comment masuk kategori aman — **default action adalah jangan improvisasi, eskalasi ke Founder.**
+
+---
 
 ### 3.4 — Brand Voice Quick Guide
 
@@ -171,6 +214,22 @@ MS boleh kirim langsung (Tier 0) tanpa approval tiap kali.
 Founder cukup approve template-nya sekali.
 ```
 
+### 4.2A FAILURE HANDLING — WA SEND EXCEPTIONS
+
+Jika terjadi kegagalan atau kondisi tidak normal pada workflow WA, gunakan aturan berikut:
+
+| Situasi | Tindakan Wajib |
+|---------|----------------|
+| Template approved tapi send gagal | Cek `wa_logs` untuk status, jangan re-send buta, catat status FAILED, lapor ke Founder jika berulang |
+| Variabel salah / nama salah terisi | **Jangan kirim.** Perbaiki variabel dulu, preview ulang, baru re-submit ke approval queue |
+| Founder belum approve > 24 jam kerja | Status tetap HOLD. **Tidak boleh kirim.** Catat delay di weekly report |
+| Lead sudah cold terlalu lama (> 14 hari tidak respons) | Masukkan ke weekly report, tandai sebagai cold, jangan improvisasi pesan baru di luar template |
+| Customer balas di luar script / template | Respons aman + singkat jika masih pertanyaan umum. Jika sensitif atau berpotensi eskalasi → eskalasi ke Founder |
+
+**Re-send Rule:** Tidak boleh ada re-send lebih dari **1 kali** tanpa pengecekan sebab kegagalan. Jika gagal 2 kali → hentikan dan lapor ke Founder.
+
+---
+
 ### 4.3 — WA Logging Discipline
 
 Semua WA outbound yang dikirim oleh atau atas nama MS harus:
@@ -209,6 +268,42 @@ Semua WA outbound yang dikirim oleh atau atas nama MS harus:
 
 ---
 
+## 5.1 LANDING PAGE COPY SOP
+
+Landing page termasuk channel market-facing yang wajib mengikuti prinsip System Truth (ref: `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` Section 7).
+
+### Minor Change — Managing Strategist boleh mengusulkan
+Yang dianggap **minor:**
+- Perbaikan grammar atau ejaan
+- Perapihan CTA yang tidak mengubah janji atau makna
+- Perbaikan struktur kalimat tanpa mengubah klaim
+- Update wording ringan yang tidak menyentuh pricing / capability claim
+
+**Handling:** MS mengusulkan dalam format change note tertulis → Founder wajib approve sebelum publish → catat di content log.
+
+### Major Change — Founder Only
+Yang dianggap **major:**
+- Perubahan headline utama atau tagline
+- Perubahan positioning atau value proposition
+- Perubahan pricing atau paket penawaran
+- Perubahan klaim hasil / ROI / capability yang dijanjikan
+- Penambahan fitur, janji, atau timeline baru
+- Perubahan partnership message atau afiliasi
+
+**Handling:** Founder pegang langsung. MS tidak boleh mengeksekusi perubahan major tanpa instruksi eksplisit.
+
+### Landing Page Change Workflow
+```
+1. MS mengusulkan change note (minor atau major)
+2. Founder menilai: minor atau major?
+3. Jika minor + approved → MS execute, log perubahan
+4. Jika major → Founder handle langsung
+5. Semua perubahan dicatat di content log
+6. Jika perubahan salah arah atau klaim bergeser → rollback ke copy sebelumnya
+```
+
+---
+
 ## 6. CONTENT LOG & AUDIT TRAIL
 
 Semua aktivitas publishing harus dicatat. Minimum log entry:
@@ -228,8 +323,31 @@ Semua aktivitas publishing harus dicatat. Minimum log entry:
 }
 ```
 
-**Lokasi log:** Supabase `content_log` table (future) atau Google Sheets sementara.
+**Lokasi log:** Supabase `content_log` table (future) atau Google Sheets sementara (canonical — lihat Section 2.1).
 **Audit cadence:** Founder review content log setiap Senin bersamaan dengan weekly review.
+
+---
+
+## 6.1 CONTENT OPS KPI
+
+Agar SOP ini dapat dievaluasi dan kinerja MS terukur, gunakan KPI minimum berikut:
+
+| KPI | Target Minimum | Review Cadence |
+|-----|----------------|----------------|
+| Content queue submitted on time | > 90% | Weekly |
+| Founder approval turnaround | < 24 jam kerja | Weekly |
+| Approved-to-published ratio | > 90% | Weekly |
+| Comment / DM response timeliness | Sesuai SLA yang ditetapkan | Weekly |
+| WA log completeness | 100% semua outbound tercatat | Weekly |
+| Template compliance | 100% hanya gunakan approved template | Weekly |
+| Incident trigger dari content ops | Serendah mungkin — target 0 major preventable incident/bulan | Monthly |
+
+### Review Rule
+Jika 2 KPI utama gagal selama 2 minggu berturut-turut, Founder wajib review apakah:
+- SOP perlu diperjelas
+- Scope terlalu besar untuk kapasitas MS
+- Approval bottleneck ada di sisi Founder (bukan MS)
+- MS perlu re-briefing atau scope dikurangi
 
 ---
 
@@ -283,6 +401,19 @@ Kirim via WA langsung ke Founder.
 
 ---
 
+## 8.1 APPROVAL DELAY RULE
+
+Jika Founder belum memberikan keputusan approval dalam waktu target (< 24 jam kerja):
+
+- Konten tetap berstatus **HOLD** — tidak boleh diposting otomatis
+- Managing Strategist tidak boleh menafsirkan **diam sebagai persetujuan**
+- Item yang tertunda dicatat dalam weekly report section "Pending Approvals"
+- Jika keterlambatan approval mulai mengganggu ritme konten secara konsisten, Founder dan MS wajib menyepakati perbaikan alur (apakah approval window perlu diperlebar atau jadwal posting perlu disesuaikan)
+
+> **Silence is not approval. Absence of rejection is not approval. Only explicit approval counts.**
+
+---
+
 ## 9. TIDAK DALAM SCOPE DOC INI
 
 Doc ini **tidak** mendefinisikan:
@@ -294,6 +425,28 @@ Doc ini **tidak** mendefinisikan:
 
 ---
 
+## APPENDIX A — MINIMUM TEMPLATE REGISTRY STRUCTURE
+
+Registry template minimum harus memiliki field berikut untuk setiap template yang diajukan:
+
+| ID | Nama Template | Use Case | Channel | Status | Approved By | Tanggal Approve | Last Review |
+|----|---------------|----------|---------|--------|-------------|-----------------|-------------|
+| T-001 | General Inquiry Reply | Pertanyaan produk umum dari follower | Instagram DM / WA | APPROVED | Founder | — | — |
+| T-002 | Pricing Reply | Pertanyaan harga dari prospek | Instagram DM / WA | APPROVED | Founder | — | — |
+| T-003 | Reseller Onboarding Reply | Cara daftar reseller | WA | APPROVED | Founder | — | — |
+| T-004 | Follow-up Warm Lead | Lead hangat yang belum respons 3–5 hari | WA | APPROVED | Founder | — | — |
+| T-005 | Follow-up Inactive Lead | Lead yang belum respons > 14 hari | WA | APPROVED | Founder | — | — |
+| T-006 | Thank-you / Testimonial Reply | Balasan testimoni positif | Instagram comment / WA | APPROVED | Founder | — | — |
+| T-007 | Escalation Holding Reply | Saat escalation sedang diproses Founder | WA / Instagram | APPROVED | Founder | — | — |
+| T-008 | Partnership Deferral Reply | Merespons inquiry partnership dengan netral | Instagram DM / WA | APPROVED | Founder | — | — |
+
+**Rules:**
+- Jika template belum ada di registry dengan status **APPROVED**, template tidak boleh dipakai
+- Template baru diajukan oleh MS → Founder approve → baru masuk registry dengan status APPROVED
+- Template yang perlu direvisi di-mark **REVISION** — tidak boleh dipakai sampai kembali ke APPROVED
+
+---
+
 ## DOCUMENT CONTROL
 
 | Field | Value |
@@ -301,8 +454,8 @@ Doc ini **tidak** mendefinisikan:
 | Versi | 1.0 |
 | Status | DRAFT FRAMEWORK |
 | Dibuat | 2026-04-06 |
-| Dokumen Terkait | `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` (governance rules), `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` (approval tiers), `31-RBAC-PERMISSION-MATRIX.md` (permission), `14-OPERATIONAL-RUNBOOK.md` (runbook), `37-INCIDENT-AND-CRISIS-COMMUNICATION-PLAYBOOK.md` (crisis) |
-| Review | Saat Managing Strategist diaktifkan dan mulai menjalankan channel ops |
+| Dokumen Terkait | `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` (governance rules), `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` (approval tiers), `31-RBAC-PERMISSION-MATRIX.md` (permission), `14-OPERATIONAL-RUNBOOK.md` (runbook), `37-INCIDENT-AND-CRISIS-COMMUNICATION-PLAYBOOK.md` (crisis), `35-MANAGING-STRATEGIST-ONBOARDING-AND-ACTIVATION-CHECKLIST.md` (onboarding) |
+| Review | Saat Managing Strategist diaktifkan, 30 hari pertama pelaksanaan, lalu review bulanan |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL*

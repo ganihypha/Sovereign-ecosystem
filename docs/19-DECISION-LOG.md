@@ -196,6 +196,24 @@
 - **Cross-links:** `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` → `37` (prinsip System Truth vs Market Expression); `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` → `37` (escalation format); `36-CONTENT-OPS-AND-CHANNEL-SOP.md` → `37` (eskalasi dari channel ops ke crisis); `19-DECISION-LOG.md` → `37` (post-incident ADR); `20-CREDENTIAL-REGISTRY.md` → `37` (credential audit saat breach)
 - **Review:** Setelah setiap insiden Level 2/3, dan setiap 6 bulan secara proaktif.
 
+### ADR-017 – Upgrade Docs 35–37 ke v1.1: Pendalaman Operasional Governance Layer
+- **Tanggal:** 2026-04-06
+- **Status:** ACCEPTED
+- **Konteks:** Docs 35–37 diterbitkan sebagai v1.0 pada sesi sebelumnya sebagai kerangka dasar governance execution layer. Setelah deep review terhadap `doc.35.37.upgrade.enhance.1.1.1.1.txt` dan `prompt.final.apply.patch.1.1.1.1.txt`, ditemukan bahwa ketiga dokumen memerlukan pendalaman operasional agar dapat dieksekusi secara nyata di lapangan. v1.0 mendefinisikan *apa* yang perlu dilakukan; v1.1 mendefinisikan *bagaimana* secara konkret.
+- **Pilihan yang dipertimbangkan:**
+  - (A) HOLD — biarkan v1.0, patch saat Managing Strategist diaktifkan secara nyata
+  - (B) MERGE — gabungkan konten upgrade ke doc 32/34 yang sudah ada
+  - (C) UPDATE — patch in-place ke v1.1 dengan section baru per dokumen
+- **Keputusan:** C – UPDATE in-place ke v1.1
+- **Alasan:** (1) Fondasi v1.0 sudah solid, tidak perlu restrukturisasi; (2) Section baru bersifat operasional complement, bukan kontradiksi; (3) MERGE ke doc 32/34 akan merusak separation of concerns yang sudah ada; (4) HOLD tidak acceptable — dokumen harus production-ready sebelum MS diaktifkan.
+- **Perubahan per dokumen:**
+  - **Doc 35 v1.1:** + Activation Evidence Pack (5 item terverifikasi), + Access Provisioning Table (10 row sistem/akses/level), + Shadowing Agenda Week 1 (jadwal harian Senin–Sabtu), + End-of-Trial Decision Rubric (5 kriteria scoring 1–5), + First 30 Days Success Criteria (5 KPI terukur), + Role Acknowledgement & Sign-Off (blok tanda tangan digital), + Deactivation Recovery Note (jalur reaktivasi setelah offboarding)
+  - **Doc 36 v1.1:** + Canonical Operating Locations (tabel URL/akses per platform), + Comment/DM Moderation Decision Tree (5-node decision logic), + WA Failure Handling (flowchart 3-step fallback), + Landing Page Copy SOP (6-tahap proses update), + Content Ops KPI (5 metrik mingguan terukur), + Approval Delay Rule (eskalasi otomatis >4 jam), + Appendix A Template Registry (6 template ID + metadata)
+  - **Doc 37 v1.1:** + Severity Decision Rule (flowchart 3-pertanyaan rapid triage), + Incident Command Structure (tabel Founder/MS per fase), + Evidence Preservation Checklist (7 item artefak), + Do-Not-Say Rules (6 larangan komunikasi), + Incident Resolution Criteria (5 kondisi closure formal), + Tabletop Drill & Readiness Review (skenario + cadence), + Post-Incident Owner Actions (tabel 8 aksi pasca-insiden)
+- **Konsekuensi:** (+) Ketiga dokumen siap digunakan sebagai panduan operasional nyata; (+) Managing Strategist punya referensi konkret di setiap fase; (+) Founder punya audit trail yang lebih detail; (-) Setiap dokumen bertambah panjang ~40–60%, perlu dijaga agar tidak menjadi bloated saat iterasi berikutnya.
+- **Cross-links diperbarui:** `00-MASTER-INDEX.md` (v10.0, catatan v1.1 upgrade), `30-MANAGING-STRATEGIST-ROLE-PACK.md` (ref ke Doc 35 v1.1), `31-RBAC-PERMISSION-MATRIX.md` (ref ke Doc 35 provisioning table), `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md` (ref ke Doc 36 approval delay + Doc 37 command structure), `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` (ref ke Doc 37 severity rule)
+- **Review:** Saat Managing Strategist diaktifkan pertama kali (Phase 1 → Phase 2 → Phase 3) dan setelah insiden Level 2/3 pertama.
+
 ---
 
 | ID | Topik | Konteks | Deadline |
@@ -207,5 +225,5 @@
 
 ---
 
-*Document Control: v1.2 – 2026-04-06 – Living Document (ADR-014/015/016 ditambahkan: governance extension docs 35–37)*
+*Document Control: v1.3 – 2026-04-06 – Living Document (ADR-017 ditambahkan: upgrade docs 35–37 ke v1.1 dengan 7 section operasional baru per dokumen)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

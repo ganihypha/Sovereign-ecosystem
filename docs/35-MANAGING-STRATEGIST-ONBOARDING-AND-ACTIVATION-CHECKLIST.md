@@ -2,7 +2,7 @@
 ## Sovereign Business Engine v4.0
 **Architect:** Haidar Faras Maulia | **Company:** PT Waskita Cakrawarti Digital
 **Status:** DRAFT INTERNAL FRAMEWORK — Digunakan saat activation trigger terpenuhi
-**Version:** 1.0 | **Tanggal:** 2026-04-06
+**Version:** 1.1 | **Tanggal:** 2026-04-06 | **Updated:** 2026-04-06
 
 > ⚠️ **CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL**
 > Dokumen ini adalah checklist operasional untuk proses onboarding Managing Strategist.
@@ -59,6 +59,34 @@ Sebelum proses onboarding dimulai, Founder wajib verifikasi semua kondisi beriku
 
 ---
 
+## 2.4 ACTIVATION EVIDENCE PACK — BUKTI WAJIB SEBELUM GATE DINYATAKAN LUNAS
+
+Setiap gate pada Section 2 tidak boleh dinyatakan "lunas" hanya berdasarkan ingatan Founder.
+Semua gate wajib memiliki bukti minimum yang dapat diperiksa ulang.
+
+### Evidence Pack Minimum
+
+| Gate | Bukti Minimum | Bentuk Bukti | Disimpan Oleh |
+|------|---------------|--------------|---------------|
+| System Readiness | Dashboard berjalan, log stabil, SOP dasar pernah dipakai | Screenshot dashboard, log sample, catatan runbook | Founder |
+| Revenue Readiness | Minimal 1 klien aktif + 1 pembayaran real | Screenshot Supabase / export `revenue_log` | Founder |
+| Governance Readiness | Docs 30–34 sudah dibaca ulang dan dinyatakan aligned | Founder note / checklist review date | Founder |
+
+### Evidence Checklist
+
+Sebelum aktivasi dimulai, Founder wajib memastikan evidence pack berisi minimal:
+- [ ] Screenshot dashboard operasional yang aktif
+- [ ] Bukti `wa_logs` stabil > 2 minggu (minimal ada entry `CONFIRMED` konsisten)
+- [ ] Bukti ada minimal 1 klien aktif (`customers` table: `status: active`)
+- [ ] Bukti ada minimal 1 pembayaran real (`revenue_log` ada entry nyata)
+- [ ] Catatan bahwa docs 30–34 sudah direview ulang dan masih aligned
+- [ ] Baseline founder daily ops time selama 2 minggu terakhir (catat angka aktual)
+- [ ] Catatan singkat alasan mengapa aktivasi dianggap layak dimulai sekarang
+
+> Tanpa evidence pack lengkap, gate dianggap belum lunas penuh. Proses onboarding tidak boleh dimulai.
+
+---
+
 ## 3. PHASE 1 — OBSERVER ONBOARDING (Minggu 1–2)
 
 Role saat ini: `managing_strategist_candidate` — read-only observer.
@@ -83,7 +111,27 @@ Founder menjelaskan kepada kandidat:
 
 ---
 
-### Step 2 — Akses Observer Terbatas
+### Step 2 — Akses Observer Terbatas + Access Provisioning Table
+
+#### Step 2A — ACCESS PROVISIONING TABLE
+
+Semua akses yang diberikan selama onboarding harus tercatat eksplisit. Tidak ada akses yang dianggap aktif tanpa catatan.
+
+| Resource | Observer | Candidate / Trial | Active Managing Strategist | Granted By | Revoked By | Bukti Pemberian |
+|----------|----------|-------------------|----------------------------|------------|------------|------------------|
+| Dashboard ops view | View only | View + limited edit | Sesuai RBAC aktif | Founder | Founder | Catatan aktivasi / screenshot |
+| Weekly review template | Read | Fill draft | Fill + submit | Founder | Founder | Link / shared file note |
+| Runbook section 1–4 | Read | Read | Read + execute | Founder | Founder | Shared file note |
+| Lead tracker | No access | Limited update + notes | Limited update | Founder | Founder | Role note |
+| WA approved template send | No access | Limited use (Founder approve per template) | Limited use | Founder | Founder | Approval record |
+| Credential / secrets | No | No | No | Founder only | Founder only | N/A — tidak pernah diberikan |
+
+**Provisioning Rules:**
+1. Tidak ada akses yang dianggap aktif kalau belum dicatat.
+2. Tidak ada akses sensitif yang diberikan secara verbal saja.
+3. Semua revoke harus dilakukan maksimal pada hari yang sama saat role diturunkan/dinonaktifkan.
+
+---
 
 Founder memberikan akses **read-only** ke:
 
@@ -100,6 +148,38 @@ Founder memberikan akses **read-only** ke:
 - Akses GitHub repo
 - Credential atau token apapun
 - WA Fonnte trigger
+
+---
+
+### Step 3A — SHADOWING AGENDA (MINGGU 1)
+
+Observer tidak hanya "mengamati" secara umum, tetapi mengikuti urutan shadowing yang jelas selama 5 hari pertama:
+
+**Hari 1 — Operational Overview**
+- [ ] Melihat struktur dashboard dan memahami navigasi utama
+- [ ] Memahami ritme daily ops Founder secara keseluruhan
+- [ ] Mencatat istilah, alur, dan pertanyaan dasar yang muncul
+
+**Hari 2 — Lead & Follow-Up Rhythm**
+- [ ] Mengamati cara Founder cek lead pipeline
+- [ ] Mengamati cara follow-up diputuskan (siapa yang diprioritaskan, mengapa)
+- [ ] Mencatat perbedaan antara lead dingin / hangat / prioritas
+
+**Hari 3 — Customer Continuity & Onboarding**
+- [ ] Mengamati alur onboarding customer baru
+- [ ] Mengamati area yang sering menjadi bottleneck
+- [ ] Mencatat titik yang butuh ketelitian tinggi
+
+**Hari 4 — Content / Channel Review**
+- [ ] Mengamati bagaimana Founder menilai konten / copy sebelum publish
+- [ ] Mengamati approval mindset — apa yang di-approve cepat vs lambat vs ditahan
+- [ ] Mencatat contoh hal yang langsung dieksekusi vs harus di-escalate
+
+**Hari 5 — Reflection & Clarification**
+- [ ] Kandidat menyusun 1 halaman ringkasan observasi (bebas format)
+- [ ] Kandidat menyusun daftar pertanyaan prioritas untuk Founder
+- [ ] Submit ke Founder sebelum akhir Hari 5
+- [ ] Founder review dan menilai: apakah observer siap lanjut ke trial?
 
 ---
 
@@ -203,6 +283,25 @@ Founder melakukan review 1:1 dengan kandidat:
 
 ---
 
+## 4.1 END-OF-TRIAL DECISION RUBRIC
+
+Founder tidak boleh memberi keputusan trial hanya berdasarkan "feeling cocok". Gunakan rubric minimum berikut:
+
+| Area | Minimum Acceptable | Good | Red Flag |
+|------|--------------------|------|----------|
+| Checklist consistency | > 80% | > 90% | < 80% |
+| Boundary respect | Tidak melanggar scope | Proaktif menjaga scope tanpa diingatkan | Mendorong akses di luar scope |
+| Escalation quality | Eskalasi cukup jelas | Eskalasi tepat + ringkas + kontekstual | Under/over-escalate berulang |
+| Communication tone | Aman & sopan | Sesuai brand voice penuh | Terlalu informal / terlalu kaku |
+| Initiative quality | Tidak menambah chaos | Membantu Founder melihat prioritas | Menambah kompleksitas tanpa manfaat |
+
+### Keputusan Trial
+- **PASS** → lanjut ke Phase 3
+- **EXTEND** → trial diperpanjang 2 minggu, wajib ada area perbaikan tertulis yang jelas
+- **STOP** → aktivasi dibatalkan, alasan terdokumentasi singkat di `19-DECISION-LOG.md`
+
+---
+
 ## 5. PHASE 3 — FULL ACTIVATION
 
 Role: `managing_strategist` — aktif penuh sesuai `31-RBAC-PERMISSION-MATRIX.md`.
@@ -267,6 +366,28 @@ KPI yang dimonitor oleh Founder selama bulan pertama aktivasi:
 
 ---
 
+## 5.1 FIRST 30 DAYS SUCCESS CRITERIA
+
+Bulan pertama aktivasi penuh adalah fase validasi peran, bukan fase kenyamanan. Founder menggunakan standar berikut:
+
+### Founder Review Standard — Managing Strategist Dianggap Lulus Bulan Pertama Jika:
+- [ ] Checklist completion > 90%
+- [ ] Tidak ada over-commit ke market tanpa Founder approval
+- [ ] Tidak ada pelanggaran founder-only boundary (credentials, deployment, pricing)
+- [ ] Follow-up WA consistency > 90% dari yang dijadwalkan
+- [ ] Weekly report dikirim tepat waktu setiap minggu
+- [ ] Founder daily ops time turun dari baseline yang dicatat di Evidence Pack
+- [ ] Tidak ada insiden serius Level 2/3 yang disebabkan kelalaian operasional
+
+### Jika Belum Lulus
+Founder dapat:
+- Memperpanjang masa validasi 2–4 minggu dengan area perbaikan yang spesifik
+- Menurunkan sementara scope channel / task yang didelegasikan
+- Mengulang briefing boundaries (ref: Section 6)
+- Menunda semua pembahasan role upgrade lanjutan ke `strategic_operations_partner`
+
+---
+
 ## 6. GOVERNANCE BOUNDARIES REMINDER
 
 Setiap kali ada pergantian kandidat atau role upgrade, Founder wajib re-brief hal berikut:
@@ -289,15 +410,46 @@ NON-NEGOTIABLE BOUNDARIES:
 
 ---
 
+## 6.1 ROLE ACKNOWLEDGEMENT & SIGN-OFF
+
+Sebelum Phase 2 (Trial Activation) dimulai, kandidat wajib secara eksplisit menyatakan telah membaca dan memahami hal berikut:
+
+- [ ] Founder adalah sovereign controller — tidak ada override tanpa approval
+- [ ] Tidak ada akses credential / secrets dalam kondisi apapun
+- [ ] Tidak ada production deployment
+- [ ] Tidak ada DB schema decision
+- [ ] Tidak ada market promise di luar approved System Truth
+- [ ] Semua eskalasi harus mengikuti jalur resmi (`32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md`)
+- [ ] Profit-sharing bukan hak otomatis — hanya aktif setelah Stage 1 milestone terpenuhi
+- [ ] Role dapat diturunkan atau dihentikan kapan saja jika struktur tidak dijaga
+
+**Founder Sign-off:** _________________________________ Tanggal: ___________
+**Candidate Sign-off:** ________________________________ Tanggal: ___________
+
+> Dokumen ini tidak memiliki kekuatan hukum sendiri, namun berfungsi sebagai governance record bahwa onboarding dilakukan dengan transparansi penuh.
+
+---
+
 ## 7. OFFBOARDING / DEACTIVATION PROTOCOL
 
 Jika role perlu dinonaktifkan (karena performa, keputusan bisnis, atau mutual decision):
 
-- [ ] Founder revoke akses platform ke `managing_strategist_candidate` atau lebih rendah
-- [ ] Catat keputusan di `19-DECISION-LOG.md`
-- [ ] Pastikan tidak ada credential atau akses sensitif yang tersisa
-- [ ] Audit `wa_logs` untuk pastikan tidak ada outreach yang sedang berjalan
-- [ ] Komunikasikan ke kandidat dengan jelas dan tertulis alasan deaktivasi
+### Access & Asset Recovery Checklist
+- [ ] Revoke akses dashboard / tracker / tool operasional ke level lebih rendah atau nol
+- [ ] Audit semua **draft konten** yang belum publish — tentukan owner baru atau hapus
+- [ ] Audit semua **queue approval** yang masih pending — Founder take-over atau cancel
+- [ ] Audit semua **follow-up WA** yang sedang berjalan — pastikan tidak ada yang menggantung
+- [ ] Audit semua **file / sheet / workspace sementara** yang pernah dibagikan — cabut akses
+- [ ] Pastikan tidak ada credential, token, atau akses sensitif yang pernah diberikan atau tersisa
+- [ ] Catat keputusan deaktivasi di `19-DECISION-LOG.md`
+- [ ] Komunikasikan alasan deaktivasi secara jelas dan tertulis kepada kandidat
+
+### Recovery Note
+Jika terdapat pekerjaan yang sedang berjalan saat deaktivasi:
+- Founder mengambil alih langsung semua channel yang pernah didelegasikan, atau
+- Founder menunjuk temporary owner untuk membereskan item yang tertinggal
+
+> **Tidak boleh ada aktivitas market-facing yang tertinggal tanpa owner yang jelas.**
 
 ---
 
@@ -308,8 +460,8 @@ Jika role perlu dinonaktifkan (karena performa, keputusan bisnis, atau mutual de
 | Versi | 1.0 |
 | Status | DRAFT INTERNAL FRAMEWORK |
 | Dibuat | 2026-04-06 |
-| Dokumen Terkait | `30-MANAGING-STRATEGIST-ROLE-PACK.md`, `31-RBAC-PERMISSION-MATRIX.md`, `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md`, `33-PARTNERSHIP-AND-PROFIT-SHARING-MILESTONES.md`, `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md` |
-| Review | Saat activation trigger (Stage 0 → Stage 1) terpenuhi dan onboarding dimulai |
+| Dokumen Terkait | `30-MANAGING-STRATEGIST-ROLE-PACK.md`, `31-RBAC-PERMISSION-MATRIX.md`, `32-HUMAN-APPROVAL-AND-ESCALATION-FLOW.md`, `33-PARTNERSHIP-AND-PROFIT-SHARING-MILESTONES.md`, `34-EXTERNAL-MARKET-AND-PUBLISHING-GOVERNANCE.md`, `36-CONTENT-OPS-AND-CHANNEL-SOP.md`, `37-INCIDENT-AND-CRISIS-COMMUNICATION-PLAYBOOK.md` |
+| Review | Saat activation trigger (Stage 0 → Stage 1) terpenuhi, saat trial selesai (PASS/EXTEND/STOP), dan 30 hari setelah full activation |
 
 ---
 *⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL*
