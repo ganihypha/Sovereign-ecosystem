@@ -99,27 +99,29 @@ Cara list secrets yang sudah ada:
 
 ### 3. FONNTE (WhatsApp Gateway)
 ```
-Status       : 🔴 MISSING – BLOCKING Sprint 1 Task 1.2
+Status       : ✅ CONFIGURED — LIVE (Session 3f verified 2026-04-05)
 Website      : https://fonnte.com
-Pricing      : ~Rp 60K/bulan (100 device, unlimited msg)
+Device       : Sovereign-ecosystem (6281558098096) — status: connect ✅
+E2E Test     : ✅ CONFIRMED — fonnte_message_id: 150273541 (delivery_status: CONFIRMED)
 
-Langkah setup:
-  1. Daftar di https://fonnte.com
-  2. Tambah device (scan QR code WA)
-  3. Copy token dari dashboard
-  4. Simpan ke .dev.vars: FONNTE_TOKEN=<token>
-  5. Push ke CF Secrets: npx wrangler pages secret put FONNTE_TOKEN
+Keys yang sudah dikonfigurasi di Cloudflare Secrets (sovereign-tower):
+  - FONNTE_ACCOUNT_TOKEN = ✅ Present — digunakan untuk /get-devices check
+  - FONNTE_DEVICE_TOKEN  = ✅ Present — digunakan untuk /send (device-specific token)
+    Note: FONNTE_DEVICE_TOKEN ≠ FONNTE_ACCOUNT_TOKEN — keduanya berbeda dan keduanya wajib ada
 
-Key yang perlu disimpan:
-  - FONNTE_TOKEN = [didapat dari fonnte.com dashboard]
-  - FONNTE_DEVICE = [nomor WA yang dipakai, format: 628xxx]
+Routes yang sudah live:
+  GET  /api/wa/status  → cek device connect + wa_logs ready
+  GET  /api/wa/logs    → list wa_logs entries
+  POST /api/wa/test    → test send + log ke wa_logs
+  POST /api/wa/send    → production send + log ke wa_logs (dry_run option available)
 
-Test endpoint:
-  curl -X POST https://api.fonnte.com/send \
-    -H "Authorization: <FONNTE_TOKEN>" \
-    -d "target=628xxx&message=test"
+wa_logs table: ✅ LIVE di Supabase — 3 entries (1 sent, 2 failed pre-fix)
 
-Fallback jika down: Manual outreach via WA Web, catat di 18-BUILD-SPRINT-LOG.md
+Cara update secret ke CF Pages (jika perlu rotate):
+  npx wrangler pages secret put FONNTE_ACCOUNT_TOKEN --project-name sovereign-tower
+  npx wrangler pages secret put FONNTE_DEVICE_TOKEN --project-name sovereign-tower
+
+Referensi: ADR-012 | Session 3f summary | wa-adapter.ts
 ```
 
 ### 4. LLM PROVIDER (GROQ → OpenAI Migration Path)
@@ -282,5 +284,5 @@ npx wrangler pages secret list --project-name $PROJECT
 
 ---
 
-*Document Control: v1.0 – 2026-04-03 – Living Document*
+*Document Control: v1.1 – 2026-04-06 – Living Document (Fonnte section updated: MISSING → CONFIGURED + LIVE, Session 3f verified, FONNTE_ACCOUNT_TOKEN + FONNTE_DEVICE_TOKEN both confirmed)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

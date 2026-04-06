@@ -23,16 +23,18 @@
 
 ## PROOF DASHBOARD (Summary)
 
+> **Last updated:** 2026-04-06 — Session 3f verified. Sovereign Tower live at https://sovereign-tower.pages.dev (commit: 47d947f)
+
 | Kategori | Target | Terkumpul | Status |
 |----------|--------|-----------|--------|
-| Build Proof (fitur live) | 15 routes | 0 | 🔴 EMPTY |
-| WA Automation Proof | 10 msg sent | 0 | 🔴 EMPTY |
-| Order Capture Proof | 5 orders | 0 | 🔴 EMPTY |
-| AI Agent Proof | 3 agents | 0 | 🔴 EMPTY |
-| Dashboard Proof | 5 screenshots | 0 | 🔴 EMPTY |
-| Client Outcome Proof | 1 klien | 0 | 🔴 EMPTY |
-| Revenue Proof | Rp 1 jt | Rp 0 | 🔴 EMPTY |
-| CCA-F Proof | Score pass | 0 | 🔴 EMPTY |
+| Build Proof (fitur live) | 15 routes | 12 routes | 🟡 PARTIAL — Phase 3a–3f done |
+| WA Automation Proof | 10 msg sent | 1 E2E confirmed | 🟡 PARTIAL — fonnte_message_id: 150273541 |
+| Order Capture Proof | 5 orders | 0 | 🔴 EMPTY — Sprint 2+ task |
+| AI Agent Proof | 3 agents | 0 | 🔴 EMPTY — Sprint 2–4 task |
+| Dashboard Proof | 5 screenshots | — | 🟡 LIVE (sovereign-tower.pages.dev accessible) |
+| Client Outcome Proof | 1 klien | 0 | 🔴 EMPTY — pre-activation |
+| Revenue Proof | Rp 1 jt | Rp 0 | 🔴 EMPTY — pre-revenue |
+| CCA-F Proof | Score pass | 0 | 🔴 EMPTY — reading week 1–2 |
 
 ---
 
@@ -51,19 +53,15 @@
 
 ### Log Build Proof:
 
-*(Belum ada – Sprint 1 belum dimulai)*
-
-#### [Template – isi saat route pertama live]
-```
-#### POST /api/wa/send – [YYYY-MM-DD]
-- Status: ✅ LIVE
-- Test: curl -X POST https://sovereign-orchestrator.pages.dev/api/wa/send \
-    -H "Content-Type: application/json" \
-    -d '{"target":"628xxx","message":"test"}'
-- Output: {"success":true,"messageId":"abc123"}
-- Commit: [hash]
-- Screenshot: [path]
-```
+#### Sovereign Tower – Phase 3 (Sessions 3a–3f) – 2026-04-05
+- Deployment URL: https://sovereign-tower.pages.dev
+- Build ID: `4911cc0d.sovereign-tower.pages.dev`
+- Commit: `47d947f` (fix: use FONNTE_DEVICE_TOKEN for send, ACCOUNT_TOKEN for device-check)
+- Status: ✅ LIVE — E2E verified
+- Routes live (12): `GET /health`, `GET /api/today-dashboard`, `GET /api/revenue-ops`, `GET /api/build-ops`, `GET /api/ai-resource-manager`, `GET /api/proof-center`, `GET /api/decision-center`, `GET/POST /api/founder-review`, `GET /api/wa/status`, `GET /api/wa/logs`, `POST /api/wa/test`, `POST /api/wa/send`
+- Source files: `apps/sovereign-tower/src/lib/wa-adapter.ts`, `routes/wa.ts`
+- Session ref: `docs/session-3f-summary.md`, `evidence/architecture/ADR-012`
+- Evidence: ADR-012-wa-routes-activation.md verified
 
 ---
 
@@ -82,7 +80,15 @@
 
 ### Log WA Proof:
 
-*(Belum ada – FONNTE_TOKEN belum dikonfigurasi)*
+#### WA Test #1 – 2026-04-05 (Session 3f)
+- Target: [nomor tes Founder – tidak dipublikasikan]
+- Template: POST /api/wa/send E2E test
+- Status: ✅ TERKIRIM
+- Response Fonnte: `fonnte_message_id: 150273541`
+- Supabase wa_logs: 3 entries (1 sent ✅, 2 failed pre-fix 🔴)
+- Credential used: FONNTE_DEVICE_TOKEN (send), FONNTE_ACCOUNT_TOKEN (device-check)
+- Commit: `47d947f`
+- Session ref: `docs/session-3f-summary.md`
 
 ---
 
@@ -283,5 +289,5 @@ Saat klien pertama onboard, pastikan collect:
 
 ---
 
-*Document Control: v1.0 – 2026-04-03 – Living Document*
+*Document Control: v1.1 – 2026-04-06 – Living Document (updated: Session 3f build proof + WA E2E proof added)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

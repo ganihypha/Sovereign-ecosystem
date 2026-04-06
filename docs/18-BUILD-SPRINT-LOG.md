@@ -26,13 +26,17 @@
 
 ## SPRINT OVERVIEW
 
-| Sprint | Minggu | Fokus | Status |
-|--------|--------|-------|--------|
-| Sprint 1 | W1-W2 | DB Tables + WA Routes (Fonnte) | ⏳ BELUM MULAI |
-| Sprint 2 | W3-W5 | ScoutScorer Agent + Scout API | ⏳ BELUM MULAI |
-| Sprint 3 | W6-W8 | MessageComposer + Closer Routes | ⏳ BELUM MULAI |
-| Sprint 4 | W9-W11 | InsightGenerator + CrewAI | ⏳ BELUM MULAI |
-| Sprint 5 | W12 | Revenue Tracking + Mobile Polish | ⏳ BELUM MULAI |
+> **State terkini (2026-04-06):** Sessions 3a–3f DONE. Session 3g = NEXT.
+> Sovereign Tower sudah live di https://sovereign-tower.pages.dev (build_session: 3f, commit: 47d947f)
+
+| Sprint / Phase | Minggu | Fokus | Status |
+|----------------|--------|-------|--------|
+| Phase 3a–3f (Tower Build) | W0-W1 | Scaffold, wiring, DB, modules, WA/Fonnte | ✅ DONE — LIVE (verified 2026-04-05) |
+| **Phase 3g (NEXT)** | W1+ | Inbound WA webhook + human-gate queue + broadcast | ⏳ NEXT — lihat current-handoff.md |
+| Sprint 2 — ScoutScorer Agent | W3-W5 | ScoutScorer Agent + Scout API | 🔴 NOT STARTED — setelah 3g selesai |
+| Sprint 3 | W6-W8 | MessageComposer + Closer Routes | 🔴 NOT STARTED |
+| Sprint 4 | W9-W11 | InsightGenerator + CrewAI | 🔴 NOT STARTED |
+| Sprint 5 | W12 | Revenue Tracking + Mobile Polish | 🔴 NOT STARTED |
 
 ---
 
@@ -273,13 +277,17 @@ Bukti: URL live + semua route 200 OK
 
 ## METRICS SPRINT
 
-| Metric | Target | Aktual |
-|--------|--------|--------|
-| Tasks completed Sprint 1 | 3/3 | 0/3 |
-| Routes live | 9 | 0 |
-| WA messages sent (test) | 10 | 0 |
-| Orders captured (test) | 5 | 0 |
-| AI agents running | 0 | 0 |
+> **Note:** Metrics di bawah adalah target original Sprint 1–5. Phase 3 (sessions 3a–3f) adalah migration + build phase yang sudah selesai sebelum sprint framework ini dijalankan. Update aktual mengikuti session progress.
+
+| Metric | Target | Aktual (s/d 3f) |
+|--------|--------|------------------|
+| Phase 3 sessions selesai | 3a–3g | 3a–3f ✅ DONE (3g NEXT) |
+| Routes live (sovereign-tower) | — | 12 routes live ✅ |
+| WA E2E delivery confirmed | 1 | 1 ✅ (fonnte_message_id: 150273541) |
+| wa_logs entries | — | 3 ✅ (1 sent, 2 failed pre-fix) |
+| weekly_reviews DB wired | ✅ | ✅ DONE (migration 006, id:1) |
+| Orders captured (test) | 5 | 0 — Sprint 2+ task |
+| AI agents running | 0 | 0 — Sprint 2–4 task |
 | Revenue tracked (IDR) | Rp 0 | Rp 0 |
 
 ---
@@ -288,10 +296,12 @@ Bukti: URL live + semua route 200 OK
 
 | ID | Blocker | Dampak | PIC | Deadline | Status |
 |----|---------|--------|-----|----------|--------|
-| B-001 | FONNTE_TOKEN belum ada | Sprint 1 Task 1.2 tidak bisa jalan | Founder | ASAP | 🔴 OPEN |
-| B-002 | OPENAI_API_KEY belum ada | Sprint 2-4 semua blocked | Founder | ASAP | 🔴 OPEN |
+| B-001 | FONNTE_TOKEN belum ada | Sprint 1 Task 1.2 tidak bisa jalan | Founder | ASAP | ✅ RESOLVED (2026-04-05) |
+| B-002 | OPENAI_API_KEY belum ada | Sprint 2-4 semua blocked | Founder | Sprint 2 | 🔴 OPEN — needed for ScoutScorer Agent |
+
+**⚠️ NO CRITICAL BLOCKERS untuk Session 3g.** GROQ_API_KEY sudah configured (dipakai Sprint 2 awal sebagai substitusi OpenAI).
 
 ---
 
-*Document Control: v1.0 – 2026-04-03 – Living Document*
+*Document Control: v1.1 – 2026-04-06 – Living Document (synced with Session 3f verified state — Phase 3 status, metrics, blockers updated)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*
