@@ -249,7 +249,7 @@ KEY INSIGHT dari exam takers:
 | Phase 3d (Module Wiring) | ✅ DONE | Sprint 1 Foundation |
 | Phase 3e (Verification + Weekly Reviews) | ✅ DONE | Sprint 1 Foundation |
 | **Phase 3f (WA/Fonnte Activation)** | ✅ **DONE — LIVE** | Session 3f |
-| Phase 3g (Inbound WA, Human-Gate Queue, Broadcast) | ✅ IMPLEMENTED (2026-04-07) — awaiting deploy | Session 3g |
+| Phase 3g (Inbound WA, Human-Gate Queue, Broadcast) | ✅ VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07) | Session 3g, docs/session-3g-summary.md |
 | Phase 4 (Scout Agent Intelligence) | 🔴 NOT STARTED | Sprint 2-3 |
 | Phase 5 (DB Consolidation) | 🔴 NOT STARTED | Sprint 4-5 |
 | Phase 6 (Agent Orchestration) | 🔴 NOT STARTED | Sprint 6-7 |
@@ -303,19 +303,21 @@ KEY INSIGHT dari exam takers:
   MIGRATION OS: TERKUNCI ✅
   GOVERNANCE LAYER: 30-37 DIBUAT ✅ (DRAFT INTERNAL FRAMEWORK)
   WA INTEGRATION: ✅ LIVE — Session 3f verified (fonnte_message_id 150273541)
-  BUILD PHASE 3: SESSIONS 3a-3f ✅ COMPLETE — SESSION 3g ✅ IMPLEMENTED (2026-04-07)
+  BUILD PHASE 3: SESSIONS 3a-3g ✅ ALL COMPLETE AND VERIFIED (3g E2E CONFIRMED 2026-04-07)
   DOC AUDIT (2026-04-06): ✅ SELESAI — Docs 30-34 repo = canonical, ADR-013 ditambahkan
   GOVERNANCE EXTENSION (2026-04-06): ✅ Docs 35-37 DITAMBAHKAN (ADR-014/015/016)
   GOVERNANCE PATCH v1.1 (2026-04-06): ✅ Docs 35-37 DIUPGRADE ke v1.1 (ADR-017 — operator-proof, evidence-based, delegation-ready)
   CANONICAL POLISH v1.1 (2026-04-06): ✅ FINAL CLEANUP SPRINT SELESAI — version consistency fixed (header+DocControl=1.1), Doc 36 ambiguity removed (3 strings), Doc 37 diperkuat dengan 3 section eksplisit baru (3.1 Severity Decision Rule, 3.2 Incident Command Structure, 3.3 Evidence Preservation Checklist)
-  SESSION 3G (2026-04-07): ✅ IMPLEMENTED — inbound webhook, human-gate queue, broadcast gating (ADR-019)
+  SESSION 3G (2026-04-07): ✅ VERIFIED AND READY TO CLOSE — inbound webhook, human-gate queue, broadcast gating (ADR-019)
+  ✅ E2E: webhook log 5385d646, approve/reject confirmed, broadcast 2/2 CONFIRMED msg_id: [150532885, 150532888]
+  ✅ CF Deploy: 51cbb787.sovereign-tower.pages.dev | FONNTE_DEVICE_TOKEN corrected + CF secret updated
 ══════════════════════════════════════════════════════
 
 PRIORITAS HARI INI:
 
-1. ✅ SESSION 3g DONE — Deploy ke Cloudflare Pages (pnpm run deploy di apps/sovereign-tower)
-   → Configure Fonnte webhook URL: https://sovereign-tower.pages.dev/api/wa/webhook?token=<FONNTE_DEVICE_TOKEN>
-   → Test: kirim WA ke device, cek GET /api/wa/logs
+1. ✅ SESSION 3g FULLY VERIFIED — Deploy done (51cbb787), E2E CONFIRMED, FONNTE_DEVICE_TOKEN fixed
+   ⚠️ REMAINING MANUAL STEP: Configure Fonnte webhook URL at Fonnte dashboard
+   URL: https://sovereign-tower.pages.dev/api/wa/webhook?token=VsPot2DeB8CL2eLbVGMF
 2. 🔨 SPRINT 2: ScoutScorer Agent — GROQ_API_KEY sudah configured, gunakan ai_tasks table
 3. 📖 CCA-F PARALEL: Mulai D1 Agentic Architecture (LangGraph docs)
    CCA-F Link: https://anthropic.skilljar.com/claude-certified-architect-foundations-access-request

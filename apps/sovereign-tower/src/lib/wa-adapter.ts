@@ -600,7 +600,9 @@ export async function approveQueueItem(
       requires_approval: false, // gate cleared
       approved_at: new Date().toISOString(),
     }
-    if (approvedByUserId) {
+    // Only set approved_by if it's a valid UUID (DB column is UUID FK to users)
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (approvedByUserId && UUID_REGEX.test(approvedByUserId)) {
       updatePayload.approved_by = approvedByUserId
     }
     const { error } = await (db
@@ -633,7 +635,9 @@ export async function rejectQueueItem(
       requires_approval: false, // gate decision made
       approved_at: new Date().toISOString(),
     }
-    if (approvedByUserId) {
+    // Only set approved_by if it's a valid UUID (DB column is UUID FK to users)
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (approvedByUserId && UUID_REGEX.test(approvedByUserId)) {
       updatePayload.approved_by = approvedByUserId
     }
     const { error } = await (db

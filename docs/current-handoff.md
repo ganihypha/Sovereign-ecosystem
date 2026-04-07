@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-07 | Session 3g = IMPLEMENTED | TypeScript PASS | Build 257.91 kB
+### Update: 2026-04-07 | Session 3g = VERIFIED AND READY TO CLOSE | E2E CONFIRMED | Build 258.06 kB
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -11,7 +11,7 @@
 ✅  STATUS: SESSION 3D = COMPLETE AND SYNCED
 ✅  STATUS: SESSION 3E = VERIFIED AND READY TO CLOSE (Truth Gate PASSED 2026-04-05)
 ✅  STATUS: SESSION 3F = VERIFIED AND READY TO CLOSE (WA E2E CONFIRMED 2026-04-05)
-✅  STATUS: SESSION 3G = IMPLEMENTED (2026-04-07) — TypeScript PASS, Build 257.91 kB
+✅  STATUS: SESSION 3G = VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SESSION 3D   ✅ COMPLETE AND SYNCED (2026-04-05)
@@ -27,23 +27,30 @@ SESSION 3E   ✅ VERIFIED AND READY TO CLOSE (Micro-Fix PASSED 2026-04-05)
   - TypeScript zero errors ✅ | Build: 238.51 kB ✅
   - GitHub: 775d9af ✅ SYNCED | Cloudflare: b87d5982.sovereign-tower.pages.dev
 
-SESSION 3G   ✅ IMPLEMENTED (2026-04-07)
-  - POST /api/wa/webhook — public, token-gated (FONNTE_DEVICE_TOKEN), Fonnte inbound webhook
-  - GET  /api/wa/queue  — human-gate queue (wa_logs WHERE requires_approval=true AND status=pending)
-  - POST /api/wa/queue/:id/approve — founder approves queue item (NOT auto-send by design)
-  - POST /api/wa/queue/:id/reject  — founder rejects queue item (status → rejected_by_founder)
-  - POST /api/wa/broadcast — 5-layer gated broadcast (max 10 targets, founder_confirmed:true required)
-  - Middleware exception: /api/wa/webhook excluded from JWT+founderOnly guard
-  - wa-adapter.ts extended: validateWebhookToken, insertInboundWaLog, getGateQueue,
-    approveQueueItem, rejectQueueItem, checkBroadcastGate, executeBroadcast
-  - No new DB table needed — reuses wa_logs (direction, requires_approval, approved_by, approved_at)
-  - ADR-019 created ✅
-  - TypeScript: zero errors ✅ | Build: 257.91 kB ✅
+SESSION 3G   ✅ VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07)
+  - POST /api/wa/webhook — CONFIRMED: logged inbound, token-gated (WEBHOOK_TOKEN_INVALID on bad token)
+    • log_id: 5385d646 (production), 985ee444 (local) ✅
+  - GET  /api/wa/queue  — CONFIRMED: returns pending items from wa_logs ✅
+  - POST /api/wa/queue/:id/approve — CONFIRMED: status→sent, gate cleared, no auto-send ✅
+    • Approved: 417c965e, 32124471 ✅
+  - POST /api/wa/queue/:id/reject  — CONFIRMED: status→rejected_by_founder, audit preserved ✅
+    • Rejected: b30c73ef ✅
+  - POST /api/wa/broadcast — CONFIRMED: gate enforced + all confirmed ✅
+    • Gate BLOCKED on missing founder_confirmed: BROADCAST_NOT_CONFIRMED ✅
+    • Gate BLOCKED on >10 targets: BROADCAST_EXCEEDS_LIMIT ✅
+    • Live broadcast 2/2 CONFIRMED: fonnte_message_id: [150532885, 150532888] ✅
+  - FIX: FONNTE_DEVICE_TOKEN corrected (VsPot2DeB8CL2eLbVGMF — missing 'F' fixed) ✅
+  - FIX: approved_by UUID validation added (skip non-UUID JWT sub values) ✅
+  - TypeScript: zero errors ✅ | Build: 258.06 kB ✅
+  - Cloudflare Pages: 51cbb787.sovereign-tower.pages.dev ✅ LIVE
+  - CF Secret FONNTE_DEVICE_TOKEN updated ✅
 
-PENDING 3G   ⚠️ DEPLOY STEP (Founder must do):
-  - Deploy to Cloudflare Pages: pnpm run deploy (dari apps/sovereign-tower/)
-  - Configure Fonnte webhook URL: https://sovereign-tower.pages.dev/api/wa/webhook?token=<FONNTE_DEVICE_TOKEN>
-  - Test inbound: send WA message to device (6281558098096), check GET /api/wa/logs
+PENDING 3G   ✅ ALL RESOLVED
+  - ✅ Deploy to Cloudflare Pages: DONE (51cbb787.sovereign-tower.pages.dev)
+  - ✅ FONNTE_DEVICE_TOKEN corrected (VsPot2DeB8CL2eLbVGMF) + CF secret updated
+  - ⚠️ Fonnte webhook URL config: configure at https://fonnte.com/settings
+    URL: https://sovereign-tower.pages.dev/api/wa/webhook?token=VsPot2DeB8CL2eLbVGMF
+    (Manual step — requires founder action at Fonnte dashboard)
 
 SESSION 3F   ✅ VERIFIED AND READY TO CLOSE (2026-04-05)
   - wa-adapter.ts: Fonnte HTTP client, wa_logs helpers, waSendAndLog() ✅
@@ -118,9 +125,9 @@ docs/
 | **WA logs** | `/api/wa/logs` | wa_logs read | ✅ LIVE (3 entries) |
 | **WA test** | `/api/wa/test` | wa_logs write + Fonnte send | ✅ CONFIRMED (msg_id: 150273541) |
 | **WA send** | `/api/wa/send` | wa_logs write + Fonnte send | ✅ READY (same path as test) |
-| **WA webhook** | `/api/wa/webhook` | wa_logs inbound write | ✅ IMPLEMENTED (3g) — awaiting deploy |
-| **WA queue** | `/api/wa/queue` | wa_logs requires_approval=true | ✅ IMPLEMENTED (3g) — awaiting deploy |
-| **WA broadcast** | `/api/wa/broadcast` | wa_logs + Fonnte multi-send | ✅ IMPLEMENTED (3g) — awaiting deploy |
+| **WA webhook** | `/api/wa/webhook` | wa_logs inbound write | ✅ VERIFIED (3g) — E2E CONFIRMED log_id: 5385d646 |
+| **WA queue** | `/api/wa/queue` | wa_logs requires_approval=true | ✅ VERIFIED (3g) — approve + reject E2E confirmed |
+| **WA broadcast** | `/api/wa/broadcast` | wa_logs + Fonnte multi-send | ✅ VERIFIED (3g) — 2/2 CONFIRMED msg_id: [150532885, 150532888] |
 
 ---
 
@@ -133,41 +140,50 @@ docs/
 | SUPABASE_ANON_KEY | ✅ Present | ✅ |
 | JWT_SECRET | ✅ Present | ✅ Auth working |
 | FONNTE_ACCOUNT_TOKEN | ✅ Present | ✅ get-devices returns device list |
-| FONNTE_DEVICE_TOKEN | ✅ UPDATED (session 3f) | ✅ /send CONFIRMED delivery |
+| FONNTE_DEVICE_TOKEN | ✅ UPDATED (session 3g — corrected to VsPot2DeB8CL2eLbVGMF) | ✅ /send CONFIRMED delivery msg_id: 150532863 |
 | GROQ_API_KEY | ✅ Present | — (not used yet) |
 | GROQ_CONSOLE | ✅ Present | — (not used yet) |
 
 ---
 
-## 🚀 SESSION 3G — ✅ IMPLEMENTED (AWAITING DEPLOY)
+## 🚀 SESSION 3G — ✅ VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07)
 
 ```
-STATUS: IMPLEMENTED — TypeScript PASS, Build 257.91 kB
-NEXT: Deploy + Fonnte webhook URL config (founder action)
+STATUS: VERIFIED AND READY TO CLOSE
+E2E: ALL ROUTES CONFIRMED
+Cloudflare: 51cbb787.sovereign-tower.pages.dev (Session 3g live)
+Build: 258.06 kB | TypeScript: zero errors
 
-SESSION 3G COMPLETED SCOPE:
-1. Inbound WA webhook receiver (/api/wa/webhook) ✅
-   - Receive WA messages from Fonnte webhook
-   - Parse and log to wa_logs (direction: inbound)
-   - Token-gated via ?token= (FONNTE_DEVICE_TOKEN)
-   - Always returns 200 after token pass (prevents retry storm)
+SESSION 3G VERIFIED SCOPE:
+1. Inbound WA webhook receiver (/api/wa/webhook) ✅ E2E CONFIRMED
+   - POST with valid token → 200 received + logged (log_id: 5385d646 prod)
+   - POST with invalid token → 401 WEBHOOK_TOKEN_INVALID
+   - Always returns 200 after token pass (no retry storm)
+   - DB write: direction=inbound, status=delivered, requires_approval=false
 
-2. Human-gate queue (/api/wa/queue + approve/reject) ✅
-   - GET /api/wa/queue: list items requires_approval=true AND status=pending
-   - POST /api/wa/queue/:id/approve: gate cleared, NOT auto-send
-   - POST /api/wa/queue/:id/reject: status → rejected_by_founder
+2. Human-gate queue (/api/wa/queue + approve/reject) ✅ E2E CONFIRMED
+   - GET /api/wa/queue: returns pending items (dry_run item confirmed)
+   - POST /api/wa/queue/:id/approve: gate cleared, NOT auto-send ✅
+   - POST /api/wa/queue/:id/reject: status → rejected_by_founder ✅
+   - approved_by UUID validation: non-UUID sub gracefully skipped
    - No new DB table — reuses wa_logs columns
 
-3. Broadcast gating (/api/wa/broadcast) ✅
-   - 5-layer gate: JWT + founderOnly + founder_confirmed:true + max 10 + valid phones
-   - Sequential execution (not parallel)
-   - Per-target logging + per-target result response
+3. Broadcast gating (/api/wa/broadcast) ✅ E2E CONFIRMED
+   - Gate check: BROADCAST_NOT_CONFIRMED when founder_confirmed missing ✅
+   - Gate check: BROADCAST_EXCEEDS_LIMIT when >10 targets ✅
+   - Live broadcast 2/2: CONFIRMED — msg_id: [150532885, 150532888] ✅
+   - Per-target logging + per-target result
    - BROADCAST_MAX_TARGETS = 10 (hardcoded)
 
-DEPLOY STEP (Founder must execute):
-  cd apps/sovereign-tower && pnpm run deploy
-  Then: configure Fonnte webhook URL
-  URL: https://sovereign-tower.pages.dev/api/wa/webhook?token=<FONNTE_DEVICE_TOKEN>
+FIXES APPLIED (Session 3g Verification):
+  - FONNTE_DEVICE_TOKEN: corrected from VsPot2DeB8CL2eLbVGM → VsPot2DeB8CL2eLbVGMF (missing 'F')
+  - approved_by: UUID validation added in approveQueueItem + rejectQueueItem
+  - CF secret: FONNTE_DEVICE_TOKEN updated via Cloudflare Pages API
+
+REMAINING MANUAL STEP (Founder):
+  - Configure Fonnte webhook URL at https://fonnte.com/settings:
+    URL: https://sovereign-tower.pages.dev/api/wa/webhook?token=VsPot2DeB8CL2eLbVGMF
+  - (All code/infrastructure is ready — only Fonnte dashboard config remaining)
 ```
 
 ## 🚀 SESSION 4A SCOPE (NEXT)
@@ -206,11 +222,15 @@ NEXT AFTER 3G DEPLOY IS VERIFIED:
 | B-006 | GitHub push SYNC-PENDING | ✅ RESOLVED | commits 0aa51c2 + 47d947f pushed |
 | B-007 | Cloudflare Pages deploy | ✅ RESOLVED | 4911cc0d.sovereign-tower.pages.dev |
 
-**⚠️ NO ACTIVE BLOCKERS — Session 3f VERIFIED AND READY TO CLOSE**
+| B-008 | FONNTE_DEVICE_TOKEN truncated | ✅ RESOLVED | Token corrected (VsPot2DeB8CL2eLbVGMF) + CF secret updated |
+| B-009 | approved_by UUID violation | ✅ RESOLVED | UUID validation added in wa-adapter |
+
+**⚠️ NO ACTIVE BLOCKERS — Session 3g VERIFIED AND READY TO CLOSE**
 
 ---
 
-*Updated: 2026-04-07 — Session 3g IMPLEMENTED + PUSHED (inbound webhook + human-gate queue + broadcast gating)*
-*GitHub: 117cb67 (latest — Session 3g) | Cloudflare: 4911cc0d.sovereign-tower.pages.dev | Production: sovereign-tower.pages.dev*
-*WA E2E: ✅ CONFIRMED delivery — fonnte_message_id: [150273541] — wa_logs: 3 entries*
-*Session 3g: TypeScript PASS ✅ | Build 257.91 kB ✅ | NEXT: deploy + Fonnte webhook URL config*
+*Updated: 2026-04-07 — Session 3g VERIFIED AND READY TO CLOSE (inbound webhook + human-gate queue + broadcast gating)*
+*GitHub: to be updated after final commit | Cloudflare: 51cbb787.sovereign-tower.pages.dev | Production: sovereign-tower.pages.dev*
+*WA E2E 3g: ✅ CONFIRMED — webhook log_id: 5385d646, approve/reject confirmed, broadcast 2/2 msg_id: [150532885, 150532888]*
+*FONNTE_DEVICE_TOKEN fix: VsPot2DeB8CL2eLbVGMF (corrected, CF secret updated)*
+*Remaining: configure Fonnte webhook URL at Fonnte dashboard (manual founder step)*

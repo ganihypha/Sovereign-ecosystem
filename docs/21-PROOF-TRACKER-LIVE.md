@@ -23,12 +23,12 @@
 
 ## PROOF DASHBOARD (Summary)
 
-> **Last updated:** 2026-04-07 — Session 3g IMPLEMENTED. TypeScript PASS, Build 257.91 kB. Sovereign Tower live at https://sovereign-tower.pages.dev
+> **Last updated:** 2026-04-07 — Session 3g VERIFIED AND READY TO CLOSE. E2E CONFIRMED. Build 258.06 kB. Sovereign Tower live at https://sovereign-tower.pages.dev (deployment: 51cbb787)
 
 | Kategori | Target | Terkumpul | Status |
 |----------|--------|-----------|--------|
-| Build Proof (fitur live) | 15 routes | 17 routes | 🟡 PARTIAL — Phase 3a–3g done (3g awaiting deploy) |
-| WA Automation Proof | 10 msg sent | 1 E2E confirmed | 🟡 PARTIAL — fonnte_message_id: 150273541 |
+| Build Proof (fitur live) | 15 routes | 17 routes | ✅ DONE — Phase 3a–3g ALL VERIFIED (3g E2E CONFIRMED 2026-04-07) |
+| WA Automation Proof | 10 msg sent | 3 E2E confirmed | ✅ 3g broadcast 2/2 CONFIRMED — fonnte_message_id: [150532885, 150532888] |
 | Order Capture Proof | 5 orders | 0 | 🔴 EMPTY — Sprint 2+ task |
 | AI Agent Proof | 3 agents | 0 | 🔴 EMPTY — Sprint 2–4 task |
 | Dashboard Proof | 5 screenshots | — | 🟡 LIVE (sovereign-tower.pages.dev accessible) |
@@ -55,11 +55,19 @@
 
 #### Sovereign Tower – Session 3g – 2026-04-07
 - TypeScript: zero errors ✅
-- Build: 257.91 kB ✅
+- Build: 258.06 kB ✅ | Deployment: 51cbb787.sovereign-tower.pages.dev
 - New routes: POST /api/wa/webhook (public), GET /api/wa/queue, POST /api/wa/queue/:id/approve, POST /api/wa/queue/:id/reject, POST /api/wa/broadcast
 - No new DB migration — reuses wa_logs schema
 - ADR-019 created
-- Status: IMPLEMENTED — awaiting deploy + Fonnte webhook URL config
+- FIX: FONNTE_DEVICE_TOKEN corrected (VsPot2DeB8CL2eLbVGMF) + CF secret updated
+- FIX: approved_by UUID validation added
+- E2E Evidence:
+  - Webhook: log_id 5385d646 (production inbound) ✅
+  - Approve: ids 417c965e, 32124471 ✅ | Reject: id b30c73ef ✅
+  - Broadcast: 2/2 CONFIRMED fonnte_message_id: [150532885, 150532888] ✅
+  - Gate BLOCKED on missing founder_confirmed ✅
+  - Gate BLOCKED on >10 targets ✅
+- Status: ✅ VERIFIED AND READY TO CLOSE
 
 #### Sovereign Tower – Phase 3 (Sessions 3a–3f) – 2026-04-05
 - Deployment URL: https://sovereign-tower.pages.dev
@@ -297,5 +305,5 @@ Saat klien pertama onboard, pastikan collect:
 
 ---
 
-*Document Control: v1.2 – 2026-04-07 – Living Document (Session 3g IMPLEMENTED: inbound webhook + human-gate queue + broadcast gating, 17 routes total)*
+*Document Control: v1.3 – 2026-04-07 – Living Document (Session 3g VERIFIED AND READY TO CLOSE: E2E CONFIRMED, broadcast 2/2 CONFIRMED msg_id: [150532885, 150532888], FONNTE_DEVICE_TOKEN fix applied)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

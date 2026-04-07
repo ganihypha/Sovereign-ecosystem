@@ -26,14 +26,14 @@
 
 ## SPRINT OVERVIEW
 
-> **State terkini (2026-04-06):** Sessions 3a–3f DONE. Session 3g = NEXT.
-> Sovereign Tower sudah live di https://sovereign-tower.pages.dev (build_session: 3f, commit: 47d947f)
+> **State terkini (2026-04-07):** Sessions 3a–3g DONE. Session 3g VERIFIED AND READY TO CLOSE.
+> Sovereign Tower live di https://sovereign-tower.pages.dev (build_session: 3g, deployment: 51cbb787)
 
 | Sprint / Phase | Minggu | Fokus | Status |
 |----------------|--------|-------|--------|
 | Phase 3a–3f (Tower Build) | W0-W1 | Scaffold, wiring, DB, modules, WA/Fonnte | ✅ DONE — LIVE (verified 2026-04-05) |
-| **Phase 3g** | W1+ | Inbound WA webhook + human-gate queue + broadcast | ✅ IMPLEMENTED (2026-04-07) — awaiting deploy |
-| Sprint 2 — ScoutScorer Agent | W2+ | ScoutScorer Agent + Scout API | 🟡 NEXT — after 3g deployed |
+| **Phase 3g** | W1+ | Inbound WA webhook + human-gate queue + broadcast | ✅ VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07) |
+| Sprint 2 — ScoutScorer Agent | W2+ | ScoutScorer Agent + Scout API | 🟡 NEXT |
 | Sprint 3 | W6-W8 | MessageComposer + Closer Routes | 🔴 NOT STARTED |
 | Sprint 4 | W9-W11 | InsightGenerator + CrewAI | 🔴 NOT STARTED |
 | Sprint 5 | W12 | Revenue Tracking + Mobile Polish | 🔴 NOT STARTED |
@@ -253,7 +253,7 @@ Bukti: URL live + semua route 200 OK
 - Next: Session 3g (inbound webhook, human-gate queue, broadcast)
 
 ## Session 3g — Inbound Webhook + Human-Gate Queue + Broadcast Gating
-- Status: [x] IMPLEMENTED (2026-04-07) — awaiting deploy
+- Status: [x] VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07)
 - Output:
   - wa-adapter.ts extended: +validateWebhookToken, +insertInboundWaLog, +getGateQueue,
     +approveQueueItem, +rejectQueueItem, +checkBroadcastGate, +executeBroadcast,
@@ -262,11 +262,18 @@ Bukti: URL live + semua route 200 OK
   - app.ts: middleware exception for /api/wa/webhook (public webhook route)
   - app-config.ts: TOWER_BUILD_SESSION '3g', +WA_WEBHOOK, +WA_QUEUE, +WA_BROADCAST
   - ADR-019 created
+  - FIX: FONNTE_DEVICE_TOKEN corrected (VsPot2DeB8CL2eLbVGMF) + CF secret updated
+  - FIX: approved_by UUID validation added
 - TypeScript: zero errors ✅
-- Build: 257.91 kB ✅
+- Build: 258.06 kB ✅ | Deployment: 51cbb787.sovereign-tower.pages.dev
 - No new DB migration: reuses wa_logs (direction, requires_approval, approved_by, approved_at)
-- Fonnte webhook URL (Founder must configure): https://sovereign-tower.pages.dev/api/wa/webhook?token=<FONNTE_DEVICE_TOKEN>
-- Next: Deploy → test inbound → Sprint 2 ScoutScorer
+- E2E Evidence:
+  - Webhook: log_id: 5385d646 (production) ✅
+  - Approve: ids 417c965e, 32124471 ✅ | Reject: id b30c73ef ✅
+  - Broadcast: 2/2 CONFIRMED fonnte_message_id: [150532885, 150532888] ✅
+- Fonnte webhook URL (Founder must configure at Fonnte dashboard):
+  https://sovereign-tower.pages.dev/api/wa/webhook?token=VsPot2DeB8CL2eLbVGMF
+- Bukti: docs/session-3g-summary.md, evidence/architecture/ADR-019-session-3g-inbound-webhook-human-gate-broadcast.md
 ```
 
 ---
@@ -297,7 +304,7 @@ Bukti: URL live + semua route 200 OK
 
 | Metric | Target | Aktual (s/d 3f) |
 |--------|--------|------------------|
-| Phase 3 sessions selesai | 3a–3g | 3a–3f ✅ DONE (3g NEXT) |
+| Phase 3 sessions selesai | 3a–3g | 3a–3g ✅ ALL DONE (E2E CONFIRMED) |
 | Routes live (sovereign-tower) | — | 12 routes live ✅ |
 | WA E2E delivery confirmed | 1 | 1 ✅ (fonnte_message_id: 150273541) |
 | wa_logs entries | — | 3 ✅ (1 sent, 2 failed pre-fix) |
@@ -319,5 +326,5 @@ Bukti: URL live + semua route 200 OK
 
 ---
 
-*Document Control: v1.2 – 2026-04-07 – Living Document (Session 3g IMPLEMENTED: inbound webhook, human-gate queue, broadcast gating — TypeScript PASS, Build 257.91 kB)*
+*Document Control: v1.3 – 2026-04-07 – Living Document (Session 3g VERIFIED AND READY TO CLOSE: E2E CONFIRMED, Build 258.06 kB, broadcast 2/2 CONFIRMED msg_id: [150532885, 150532888], FONNTE_DEVICE_TOKEN fix applied)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*
