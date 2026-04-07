@@ -9,11 +9,13 @@
 //   - Human gate: requires_approval = false (scoring only, no action)
 //   - No auto-send, no broadcast, no WA trigger from this route
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Hono } from 'hono'
 import type { TowerEnv } from '../lib/app-config'
 import type { SovereignAuthVariables } from '@sovereign/auth'
 import { errorResponse } from '../lib/app-config'
-import { createDbClient } from '../lib/db-adapter'
+import { tryCreateDbClient, hasDbCredentials } from '../lib/db-adapter'
 
 type AgentContext = {
   Bindings: TowerEnv
@@ -28,7 +30,7 @@ export const agentsRouter = new Hono<AgentContext>()
 
 const SCOUT_SCORER_AGENT = 'scout_scorer' as const
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const GROQ_MODEL = 'llama3-8b-8192'
+const GROQ_MODEL = 'llama-3.1-8b-instant'
 const SCORE_MIN = 0
 const SCORE_MAX = 100
 
@@ -153,13 +155,22 @@ function parseGroqScore(content: string): ScoreResult {
  */
 agentsRouter.post('/scout-score', async (c) => {
   const env = c.env
-  const db = createDbClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY ?? env.SUPABASE_ANON_KEY)
 
   // -------------------------------------------------------------------------
-  // 1. Validate GROQ key
+  // 1. Validate GROQ key + DB credentials
   // -------------------------------------------------------------------------
   if (!env.GROQ_API_KEY) {
     return c.json(errorResponse('GROQ_API_KEY_MISSING', 'GROQ_API_KEY not configured'), 503)
+  }
+
+  if (!hasDbCredentials(env)) {
+    return c.json(errorResponse('DB_NOT_CONFIGURED', 'Database credentials not configured'), 503)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = tryCreateDbClient(env) as any
+  if (!db) {
+    return c.json(errorResponse('DB_INIT_FAILED', 'Failed to initialize database client'), 503)
   }
 
   // -------------------------------------------------------------------------
@@ -186,7 +197,7 @@ agentsRouter.post('/scout-score', async (c) => {
   // -------------------------------------------------------------------------
   // 3. Fetch lead from DB
   // -------------------------------------------------------------------------
-  const { data: leadData, error: leadError } = await db
+  const { data: leadData, error: leadError } = await (db as any)
     .from('leads')
     .select('id, name, status, source, instagram_handle, phone, email, notes, tags, ai_score, created_at')
     .eq('id', lead_id)
@@ -197,8 +208,6 @@ agentsRouter.post('/scout-score', async (c) => {
   }
 
   const lead = leadData as LeadRow
-  const taskStartedAt = new Date().toISOString()
-
   // -------------------------------------------------------------------------
   // 4. Call GROQ API
   // -------------------------------------------------------------------------
@@ -232,7 +241,7 @@ agentsRouter.post('/scout-score', async (c) => {
     tokensUsed = groqResponse.usage?.total_tokens ?? 0
   } catch (err) {
     // Log failed ai_task before returning error
-    await db.from('ai_tasks').insert({
+    await (db as any).from('ai_tasks').insert({
       agent: SCOUT_SCORER_AGENT,
       status: 'failed',
       input: { lead_id },
@@ -241,7 +250,6 @@ agentsRouter.post('/scout-score', async (c) => {
       triggered_by: 'founder',
       requires_approval: false,
       related_lead_id: lead_id,
-      started_at: taskStartedAt,
       completed_at: new Date().toISOString(),
     })
 
@@ -258,7 +266,7 @@ agentsRouter.post('/scout-score', async (c) => {
   // -------------------------------------------------------------------------
   // 6. Update lead.ai_score + ai_score_reasoning in DB
   // -------------------------------------------------------------------------
-  const { error: updateError } = await db
+  const { error: updateError } = await (db as any)
     .from('leads')
     .update({
       ai_score: score,
@@ -275,7 +283,7 @@ agentsRouter.post('/scout-score', async (c) => {
   // -------------------------------------------------------------------------
   // 7. Write ai_tasks record (completed)
   // -------------------------------------------------------------------------
-  const { data: taskData, error: taskError } = await db
+  const { data: taskData, error: taskError } = await (db as any)
     .from('ai_tasks')
     .insert({
       agent: SCOUT_SCORER_AGENT,
@@ -287,7 +295,6 @@ agentsRouter.post('/scout-score', async (c) => {
       triggered_by: 'founder',
       requires_approval: false,
       related_lead_id: lead_id,
-      started_at: taskStartedAt,
       completed_at: taskCompletedAt,
     })
     .select('id')
