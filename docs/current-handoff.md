@@ -230,7 +230,7 @@ NEXT AFTER 3G DEPLOY IS VERIFIED:
 ---
 
 *Updated: 2026-04-07 — Session 3g VERIFIED AND READY TO CLOSE (inbound webhook + human-gate queue + broadcast gating)*
-*GitHub: to be updated after final commit | Cloudflare: 51cbb787.sovereign-tower.pages.dev | Production: sovereign-tower.pages.dev*
+*GitHub: 8a78902 (verify(3g): VERIFIED AND READY TO CLOSE) | Cloudflare: 51cbb787.sovereign-tower.pages.dev | Production: sovereign-tower.pages.dev*
 *WA E2E 3g: ✅ CONFIRMED — webhook log_id: 5385d646, approve/reject confirmed, broadcast 2/2 msg_id: [150532885, 150532888]*
 *FONNTE_DEVICE_TOKEN fix: VsPot2DeB8CL2eLbVGMF (corrected, CF secret updated)*
 *Remaining: configure Fonnte webhook URL at Fonnte dashboard (manual founder step)*
