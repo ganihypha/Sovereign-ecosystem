@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-06 | Session 3f = CLOSED | Docs 35–37 canonical polish sprint = DONE (commit: 9e5bb3f)
+### Update: 2026-04-07 | Session 3g = IMPLEMENTED | TypeScript PASS | Build 257.91 kB
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -11,6 +11,7 @@
 ✅  STATUS: SESSION 3D = COMPLETE AND SYNCED
 ✅  STATUS: SESSION 3E = VERIFIED AND READY TO CLOSE (Truth Gate PASSED 2026-04-05)
 ✅  STATUS: SESSION 3F = VERIFIED AND READY TO CLOSE (WA E2E CONFIRMED 2026-04-05)
+✅  STATUS: SESSION 3G = IMPLEMENTED (2026-04-07) — TypeScript PASS, Build 257.91 kB
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SESSION 3D   ✅ COMPLETE AND SYNCED (2026-04-05)
@@ -25,6 +26,24 @@ SESSION 3E   ✅ VERIFIED AND READY TO CLOSE (Micro-Fix PASSED 2026-04-05)
   - weekly_reviews table ✅ LIVE in Supabase (migration 006 applied)
   - TypeScript zero errors ✅ | Build: 238.51 kB ✅
   - GitHub: 775d9af ✅ SYNCED | Cloudflare: b87d5982.sovereign-tower.pages.dev
+
+SESSION 3G   ✅ IMPLEMENTED (2026-04-07)
+  - POST /api/wa/webhook — public, token-gated (FONNTE_DEVICE_TOKEN), Fonnte inbound webhook
+  - GET  /api/wa/queue  — human-gate queue (wa_logs WHERE requires_approval=true AND status=pending)
+  - POST /api/wa/queue/:id/approve — founder approves queue item (NOT auto-send by design)
+  - POST /api/wa/queue/:id/reject  — founder rejects queue item (status → rejected_by_founder)
+  - POST /api/wa/broadcast — 5-layer gated broadcast (max 10 targets, founder_confirmed:true required)
+  - Middleware exception: /api/wa/webhook excluded from JWT+founderOnly guard
+  - wa-adapter.ts extended: validateWebhookToken, insertInboundWaLog, getGateQueue,
+    approveQueueItem, rejectQueueItem, checkBroadcastGate, executeBroadcast
+  - No new DB table needed — reuses wa_logs (direction, requires_approval, approved_by, approved_at)
+  - ADR-019 created ✅
+  - TypeScript: zero errors ✅ | Build: 257.91 kB ✅
+
+PENDING 3G   ⚠️ DEPLOY STEP (Founder must do):
+  - Deploy to Cloudflare Pages: pnpm run deploy (dari apps/sovereign-tower/)
+  - Configure Fonnte webhook URL: https://sovereign-tower.pages.dev/api/wa/webhook?token=<FONNTE_DEVICE_TOKEN>
+  - Test inbound: send WA message to device (6281558098096), check GET /api/wa/logs
 
 SESSION 3F   ✅ VERIFIED AND READY TO CLOSE (2026-04-05)
   - wa-adapter.ts: Fonnte HTTP client, wa_logs helpers, waSendAndLog() ✅
@@ -99,6 +118,9 @@ docs/
 | **WA logs** | `/api/wa/logs` | wa_logs read | ✅ LIVE (3 entries) |
 | **WA test** | `/api/wa/test` | wa_logs write + Fonnte send | ✅ CONFIRMED (msg_id: 150273541) |
 | **WA send** | `/api/wa/send` | wa_logs write + Fonnte send | ✅ READY (same path as test) |
+| **WA webhook** | `/api/wa/webhook` | wa_logs inbound write | ✅ IMPLEMENTED (3g) — awaiting deploy |
+| **WA queue** | `/api/wa/queue` | wa_logs requires_approval=true | ✅ IMPLEMENTED (3g) — awaiting deploy |
+| **WA broadcast** | `/api/wa/broadcast` | wa_logs + Fonnte multi-send | ✅ IMPLEMENTED (3g) — awaiting deploy |
 
 ---
 
@@ -117,23 +139,46 @@ docs/
 
 ---
 
-## 🚀 SESSION 3G SCOPE (NEXT)
+## 🚀 SESSION 3G — ✅ IMPLEMENTED (AWAITING DEPLOY)
 
 ```
-PRE-CONDITION: 3f DONE ✅ — WA routes active, E2E delivery confirmed
+STATUS: IMPLEMENTED — TypeScript PASS, Build 257.91 kB
+NEXT: Deploy + Fonnte webhook URL config (founder action)
 
-PRODUCTION URL: https://sovereign-tower.pages.dev
-LATEST BUILD: 4911cc0d.sovereign-tower.pages.dev (build_session: 3f)
-
-SCOPE 3g:
-1. Inbound WA webhook receiver (/api/wa/webhook)
+SESSION 3G COMPLETED SCOPE:
+1. Inbound WA webhook receiver (/api/wa/webhook) ✅
    - Receive WA messages from Fonnte webhook
    - Parse and log to wa_logs (direction: inbound)
-2. Agent-triggered WA with human gate queue
-   - requires_approval: true flow
-   - Founder approval endpoint (/api/wa/approve/:id)
-3. Broadcast with founder approval flow (gated)
-4. Full delivery receipt tracking (requires webhook setup)
+   - Token-gated via ?token= (FONNTE_DEVICE_TOKEN)
+   - Always returns 200 after token pass (prevents retry storm)
+
+2. Human-gate queue (/api/wa/queue + approve/reject) ✅
+   - GET /api/wa/queue: list items requires_approval=true AND status=pending
+   - POST /api/wa/queue/:id/approve: gate cleared, NOT auto-send
+   - POST /api/wa/queue/:id/reject: status → rejected_by_founder
+   - No new DB table — reuses wa_logs columns
+
+3. Broadcast gating (/api/wa/broadcast) ✅
+   - 5-layer gate: JWT + founderOnly + founder_confirmed:true + max 10 + valid phones
+   - Sequential execution (not parallel)
+   - Per-target logging + per-target result response
+   - BROADCAST_MAX_TARGETS = 10 (hardcoded)
+
+DEPLOY STEP (Founder must execute):
+  cd apps/sovereign-tower && pnpm run deploy
+  Then: configure Fonnte webhook URL
+  URL: https://sovereign-tower.pages.dev/api/wa/webhook?token=<FONNTE_DEVICE_TOKEN>
+```
+
+## 🚀 SESSION 4A SCOPE (NEXT)
+
+```
+NEXT AFTER 3G DEPLOY IS VERIFIED:
+- Sprint 2: ScoutScorer Agent
+  → GROQ_API_KEY sudah configured (substitusi OpenAI awal)
+  → Use existing ai_tasks table (migration 002-ai-tasks.sql)
+  → Build scoring logic untuk leads dari DB
+  → Route: POST /api/agents/scout-score
 ```
 
 ---
@@ -165,7 +210,7 @@ SCOPE 3g:
 
 ---
 
-*Updated: 2026-04-06 — Session 3f CLOSED + Docs 35–37 canonical v1.1 polish sprint DONE (ADR-018 in 19-DECISION-LOG)*
-*GitHub: 9e5bb3f (latest — docs polish) | Cloudflare: 4911cc0d.sovereign-tower.pages.dev | Production: sovereign-tower.pages.dev*
+*Updated: 2026-04-07 — Session 3g IMPLEMENTED (inbound webhook + human-gate queue + broadcast gating)*
+*GitHub: [pending commit] | Cloudflare: 4911cc0d.sovereign-tower.pages.dev | Production: sovereign-tower.pages.dev*
 *WA E2E: ✅ CONFIRMED delivery — fonnte_message_id: [150273541] — wa_logs: 3 entries*
-*NEXT: Session 3g — Inbound WA webhook + human-gate queue + broadcast gating (see SESSION 3G SCOPE above)*
+*Session 3g: TypeScript PASS ✅ | Build 257.91 kB ✅ | NEXT: deploy + Fonnte webhook URL config*

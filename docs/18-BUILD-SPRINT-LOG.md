@@ -32,8 +32,8 @@
 | Sprint / Phase | Minggu | Fokus | Status |
 |----------------|--------|-------|--------|
 | Phase 3a–3f (Tower Build) | W0-W1 | Scaffold, wiring, DB, modules, WA/Fonnte | ✅ DONE — LIVE (verified 2026-04-05) |
-| **Phase 3g (NEXT)** | W1+ | Inbound WA webhook + human-gate queue + broadcast | ⏳ NEXT — lihat current-handoff.md |
-| Sprint 2 — ScoutScorer Agent | W3-W5 | ScoutScorer Agent + Scout API | 🔴 NOT STARTED — setelah 3g selesai |
+| **Phase 3g** | W1+ | Inbound WA webhook + human-gate queue + broadcast | ✅ IMPLEMENTED (2026-04-07) — awaiting deploy |
+| Sprint 2 — ScoutScorer Agent | W2+ | ScoutScorer Agent + Scout API | 🟡 NEXT — after 3g deployed |
 | Sprint 3 | W6-W8 | MessageComposer + Closer Routes | 🔴 NOT STARTED |
 | Sprint 4 | W9-W11 | InsightGenerator + CrewAI | 🔴 NOT STARTED |
 | Sprint 5 | W12 | Revenue Tracking + Mobile Polish | 🔴 NOT STARTED |
@@ -251,6 +251,22 @@ Bukti: URL live + semua route 200 OK
 - wa_logs: 3 entries (1 sent, 2 failed pre-fix)
 - Bukti: session-3f-summary.md, commit 47d947f + 8d5f19f
 - Next: Session 3g (inbound webhook, human-gate queue, broadcast)
+
+## Session 3g — Inbound Webhook + Human-Gate Queue + Broadcast Gating
+- Status: [x] IMPLEMENTED (2026-04-07) — awaiting deploy
+- Output:
+  - wa-adapter.ts extended: +validateWebhookToken, +insertInboundWaLog, +getGateQueue,
+    +approveQueueItem, +rejectQueueItem, +checkBroadcastGate, +executeBroadcast,
+    +FonnteInboundPayload, +BROADCAST_MAX_TARGETS
+  - wa.ts: +5 new routes (webhook, queue, queue/:id/approve, queue/:id/reject, broadcast)
+  - app.ts: middleware exception for /api/wa/webhook (public webhook route)
+  - app-config.ts: TOWER_BUILD_SESSION '3g', +WA_WEBHOOK, +WA_QUEUE, +WA_BROADCAST
+  - ADR-019 created
+- TypeScript: zero errors ✅
+- Build: 257.91 kB ✅
+- No new DB migration: reuses wa_logs (direction, requires_approval, approved_by, approved_at)
+- Fonnte webhook URL (Founder must configure): https://sovereign-tower.pages.dev/api/wa/webhook?token=<FONNTE_DEVICE_TOKEN>
+- Next: Deploy → test inbound → Sprint 2 ScoutScorer
 ```
 
 ---
@@ -303,5 +319,5 @@ Bukti: URL live + semua route 200 OK
 
 ---
 
-*Document Control: v1.1 – 2026-04-06 – Living Document (synced with Session 3f verified state — Phase 3 status, metrics, blockers updated)*
+*Document Control: v1.2 – 2026-04-07 – Living Document (Session 3g IMPLEMENTED: inbound webhook, human-gate queue, broadcast gating — TypeScript PASS, Build 257.91 kB)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

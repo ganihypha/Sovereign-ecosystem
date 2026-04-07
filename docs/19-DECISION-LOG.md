@@ -236,7 +236,29 @@
 
 ---
 
-| ID | Topik | Konteks | Deadline |
+### ADR-019 — Session 3g: Inbound WA Webhook + Human-Gate Queue + Broadcast Gating
+- **Tanggal:** 2026-04-07
+- **Status:** ACCEPTED
+- **Konteks:** Session 3f mengaktifkan outbound WA send. Session 3g melengkapi WA operational loop: (1) terima pesan masuk dari Fonnte via webhook; (2) queue sistem untuk item yang butuh founder review sebelum dikirim; (3) broadcast terkontrol dengan 5-layer gate.
+- **Pilihan yang dipertimbangkan:**
+  - (A) Buat table baru `wa_queue` terpisah dari `wa_logs`
+  - (B) Reuse `wa_logs` table (direction + requires_approval + approved_by columns sudah ada)
+  - (C) Buat webhook endpoint terpisah di luar /api/*
+- **Keputusan:** B untuk queue (reuse wa_logs), /api/wa/webhook dengan middleware exception untuk public route
+- **Alasan:** wa_logs sudah punya semua kolom yang dibutuhkan (direction, requires_approval, approved_by, approved_at). Tidak perlu table baru. Webhook di /api/ path lebih clean tapi perlu exception di middleware.
+- **Implementasi:**
+  - `POST /api/wa/webhook?token=` — public, token-gated via FONNTE_DEVICE_TOKEN query param
+  - `GET /api/wa/queue` — list wa_logs WHERE requires_approval=true AND status=pending
+  - `POST /api/wa/queue/:id/approve` — founder approves (status → 'sent', NOT auto-send)
+  - `POST /api/wa/queue/:id/reject` — founder rejects (status → 'rejected_by_founder')
+  - `POST /api/wa/broadcast` — 5-layer gate: JWT + founderOnly + founder_confirmed:true + max 10 targets + valid phones
+  - Middleware exception di app.ts: /api/wa/webhook dikecualikan dari jwtMiddleware + founderOnly
+  - TypeScript: zero errors | Build: 257.91 kB ✅
+- **Konsekuensi:** (+) Inbound WA flow lengkap — full bidirectional capability; (+) Human gate operasional — founder control penuh; (+) Broadcast tidak bisa run tanpa 5 kondisi terpenuhi; (+) wa_logs menjadi complete audit trail untuk inbound + outbound + queue state; (+) Tidak perlu migration baru; (-) Approve tidak auto-send (by design — narrowest safe scope).
+- **BROADCAST_MAX_TARGETS = 10** — hardcoded limit. Perubahan butuh ADR baru.
+- **Review:** Setelah Fonnte webhook URL dikonfigurasi dan ada inbound message pertama. Setelah broadcast pertama dijalankan.
+
+ | Konteks | Deadline |
 |----|-------|---------|----------|
 | PENDING-001 | Apakah perlu mobile app native? | Dashboard saat ini web-only, klien minta app | Post-Sprint 5 |
 | PENDING-002 | Stripe vs Xendit untuk payment? | Monetisasi klien perlu payment gateway | Sprint 5 |
@@ -245,5 +267,5 @@
 
 ---
 
-*Document Control: v1.4 – 2026-04-06 – Living Document (ADR-018 ditambahkan: final canonical polish sprint docs 35–37 — version fix, Doc 36 ambiguity removal, Doc 37 command sections 3.1/3.2/3.3)*
+*Document Control: v1.5 – 2026-04-07 – Living Document (ADR-019 ditambahkan: Session 3g — inbound WA webhook, human-gate queue, broadcast gating)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

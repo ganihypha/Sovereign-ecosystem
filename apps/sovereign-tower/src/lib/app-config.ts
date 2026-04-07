@@ -12,7 +12,7 @@
 
 export const TOWER_APP_NAME = 'Sovereign Tower' as const
 export const TOWER_APP_VERSION = '0.1.0' as const
-export const TOWER_BUILD_SESSION = '3f' as const
+export const TOWER_BUILD_SESSION = '3g' as const
 export const TOWER_PHASE = 'phase-3' as const
 export const TOWER_DESCRIPTION = 'Private founder-only command center — Sovereign Business Engine v4.0'
 
@@ -111,6 +111,10 @@ export const TOWER_ROUTES = {
   WA_LOGS: '/api/wa/logs',
   WA_TEST: '/api/wa/test',
   WA_SEND: '/api/wa/send',
+  // WA Routes (Session 3g — Inbound webhook + human-gate queue + broadcast)
+  WA_WEBHOOK: '/api/wa/webhook',   // PUBLIC — Fonnte webhook endpoint
+  WA_QUEUE: '/api/wa/queue',
+  WA_BROADCAST: '/api/wa/broadcast',
 } as const
 
 export type TowerRoute = (typeof TOWER_ROUTES)[keyof typeof TOWER_ROUTES]

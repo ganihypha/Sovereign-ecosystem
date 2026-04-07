@@ -74,13 +74,27 @@ export function createApp(): TowerApp {
   //   - Production: wrangler secret put JWT_SECRET
 
   // JWT Middleware — verifikasi Bearer token untuk semua /api/* routes
-  app.use('/api/*', (c, next) =>
-    jwtMiddleware({ JWT_SECRET: c.env.JWT_SECRET })(c, next)
-  )
+  // ⚠️ Session 3g EXCEPTION: /api/wa/webhook adalah PUBLIC route (Fonnte webhook)
+  //    Diproteksi via ?token= query param (validateWebhookToken), bukan JWT
+  //    Semua route /api/* lainnya tetap full JWT + founderOnly
+  app.use('/api/*', async (c, next) => {
+    // Skip JWT for webhook route (public, token-gated separately)
+    if (c.req.method === 'POST' && c.req.path === '/api/wa/webhook') {
+      return next()
+    }
+    return jwtMiddleware({ JWT_SECRET: c.env.JWT_SECRET })(c, next)
+  })
 
   // Founder-only guard — enforce role === 'founder' untuk semua protected routes
   // /health/* tetap public (tidak dalam /api/*)
-  app.use('/api/*', founderOnly())
+  // /api/wa/webhook tetap public (webhook dari Fonnte)
+  app.use('/api/*', async (c, next) => {
+    // Skip founderOnly for webhook route
+    if (c.req.method === 'POST' && c.req.path === '/api/wa/webhook') {
+      return next()
+    }
+    return founderOnly()(c, next)
+  })
 
   // ─────────────────────────────────────────────────────────────────────────
   // ROUTES
@@ -105,7 +119,7 @@ export function createApp(): TowerApp {
       app: TOWER_APP_NAME,
       version: TOWER_APP_VERSION,
       description: 'Private Founder-Only Command Center — Sovereign Business Engine v4.0',
-      session: '3f',
+      session: '3g',
       phase: 'phase-3',
       access: 'FOUNDER ONLY — requires valid JWT (HS256 signed)',
       auth: {
@@ -116,6 +130,9 @@ export function createApp(): TowerApp {
       },
       endpoints: {
         public: ['GET /health', 'GET /health/status'],
+        public_webhook: [
+          'POST /api/wa/webhook  (Fonnte inbound webhook — token-gated via ?token=)',
+        ],
         founder_protected: [
           'GET /api/founder/profile',
           'GET /api/founder/tower-status',
@@ -134,6 +151,11 @@ export function createApp(): TowerApp {
           'GET /api/wa/logs',
           'POST /api/wa/test',
           'POST /api/wa/send',
+          // Session 3g
+          'GET /api/wa/queue',
+          'POST /api/wa/queue/:id/approve',
+          'POST /api/wa/queue/:id/reject',
+          'POST /api/wa/broadcast',
         ],
       },
       db_wiring: {
@@ -150,7 +172,7 @@ export function createApp(): TowerApp {
         ],
         note: 'DB wiring progressive. Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in env.',
       },
-      notice: 'Session 3f: WA/Fonnte activation — /api/wa/status, /api/wa/logs, /api/wa/test, /api/wa/send (founder-controlled, logged to wa_logs).',
+      notice: 'Session 3g: Inbound WA webhook + human-gate queue + broadcast gating. POST /api/wa/webhook (public, token-gated), GET /api/wa/queue, /queue/:id/approve, /queue/:id/reject, POST /api/wa/broadcast (max 10 targets, founder_confirmed required).',
     })
   })
 

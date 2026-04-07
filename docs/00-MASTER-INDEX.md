@@ -1,7 +1,7 @@
 # 🏛️ SOVEREIGN BUSINESS ENGINE v4.0
 # MASTER INDEX — DAFTAR 37 DOKUMEN STRATEGIS + OPERASIONAL + MIGRATION OS + GOVERNANCE
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
-### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-06 (v10.1)
+### Arsitek: Haidar Faras Maulia | Tanggal: 2026-04-02 | Update: 2026-04-07 (v10.2)
 
 ---
 
@@ -249,7 +249,7 @@ KEY INSIGHT dari exam takers:
 | Phase 3d (Module Wiring) | ✅ DONE | Sprint 1 Foundation |
 | Phase 3e (Verification + Weekly Reviews) | ✅ DONE | Sprint 1 Foundation |
 | **Phase 3f (WA/Fonnte Activation)** | ✅ **DONE — LIVE** | Session 3f |
-| Phase 3g (Inbound WA, Human-Gate Queue) | ⏳ NEXT | Session 3g |
+| Phase 3g (Inbound WA, Human-Gate Queue, Broadcast) | ✅ IMPLEMENTED (2026-04-07) — awaiting deploy | Session 3g |
 | Phase 4 (Scout Agent Intelligence) | 🔴 NOT STARTED | Sprint 2-3 |
 | Phase 5 (DB Consolidation) | 🔴 NOT STARTED | Sprint 4-5 |
 | Phase 6 (Agent Orchestration) | 🔴 NOT STARTED | Sprint 6-7 |
@@ -273,7 +273,7 @@ KEY INSIGHT dari exam takers:
 | Distilled Build Rules (16) | ✅ COMPLETE — 10 rules, 8 anti-patterns, CCA-F cheatsheet |
 | Task Prompt Templates (17) | ✅ COMPLETE — 6 templates, pre-filled Sprint 1-2 |
 | **Build Sprint Log (18)** | ✅ LIVE — Update harian saat build Sprint 1-5 |
-| **Decision Log ADR (19)** | ✅ LIVE — ADR-001 s/d ADR-017 (ADR-017: docs 35-37 diupgrade ke v1.1) |
+| **Decision Log ADR (19)** | ✅ LIVE — ADR-001 s/d ADR-019 (ADR-019: Session 3g inbound webhook + gate queue + broadcast) |
 | **Credential Registry (20)** | ✅ LIVE — 15 credentials mapped, 2 missing (Fonnte + LLM) |
 | **Proof Tracker Live (21)** | ✅ LIVE — Menunggu bukti nyata Sprint 1 |
 | **Weekly Founder Review (22)** | ✅ LIVE — Week 0 entry selesai, Week 1 dimulai |
@@ -303,18 +303,20 @@ KEY INSIGHT dari exam takers:
   MIGRATION OS: TERKUNCI ✅
   GOVERNANCE LAYER: 30-37 DIBUAT ✅ (DRAFT INTERNAL FRAMEWORK)
   WA INTEGRATION: ✅ LIVE — Session 3f verified (fonnte_message_id 150273541)
-  BUILD PHASE 3: SESSIONS 3a-3f ✅ COMPLETE — NEXT: Session 3g
+  BUILD PHASE 3: SESSIONS 3a-3f ✅ COMPLETE — SESSION 3g ✅ IMPLEMENTED (2026-04-07)
   DOC AUDIT (2026-04-06): ✅ SELESAI — Docs 30-34 repo = canonical, ADR-013 ditambahkan
   GOVERNANCE EXTENSION (2026-04-06): ✅ Docs 35-37 DITAMBAHKAN (ADR-014/015/016)
   GOVERNANCE PATCH v1.1 (2026-04-06): ✅ Docs 35-37 DIUPGRADE ke v1.1 (ADR-017 — operator-proof, evidence-based, delegation-ready)
   CANONICAL POLISH v1.1 (2026-04-06): ✅ FINAL CLEANUP SPRINT SELESAI — version consistency fixed (header+DocControl=1.1), Doc 36 ambiguity removed (3 strings), Doc 37 diperkuat dengan 3 section eksplisit baru (3.1 Severity Decision Rule, 3.2 Incident Command Structure, 3.3 Evidence Preservation Checklist)
+  SESSION 3G (2026-04-07): ✅ IMPLEMENTED — inbound webhook, human-gate queue, broadcast gating (ADR-019)
 ══════════════════════════════════════════════════════
 
 PRIORITAS HARI INI:
 
-1. 🔨 SESSION 3g: Inbound WA webhook + human-gate queue + broadcast gated
-   → Buka docs/current-handoff.md → lihat scope Session 3g
-2. 🔨 SPRINT 2: ScoutScorer Agent — tunggu Sprint 1 foundation stabil dulu
+1. ✅ SESSION 3g DONE — Deploy ke Cloudflare Pages (pnpm run deploy di apps/sovereign-tower)
+   → Configure Fonnte webhook URL: https://sovereign-tower.pages.dev/api/wa/webhook?token=<FONNTE_DEVICE_TOKEN>
+   → Test: kirim WA ke device, cek GET /api/wa/logs
+2. 🔨 SPRINT 2: ScoutScorer Agent — GROQ_API_KEY sudah configured, gunakan ai_tasks table
 3. 📖 CCA-F PARALEL: Mulai D1 Agentic Architecture (LangGraph docs)
    CCA-F Link: https://anthropic.skilljar.com/claude-certified-architect-foundations-access-request
 4. 💰 SALES: Gunakan 10-14 sebagai sales kit — WA send sudah live
@@ -337,6 +339,7 @@ DOKUMEN AKTIF PER TUJUAN:
   ► CONTENT OPS          → 36 (channel SOP), 34 (governance), 32 (approval flow)
   ► KRISIS/INSIDEN       → 37 (crisis playbook), 32 (escalation), 34 (governance)
   ► WA INTEGRATION       → docs/session-3f-summary.md, evidence/architecture/ADR-012
+  ► WA SESSION 3G        → evidence/architecture/ADR-019, docs/current-handoff.md
 
 INGAT SELALU:
   ► Bukan pedagang fashion

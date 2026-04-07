@@ -23,11 +23,11 @@
 
 ## PROOF DASHBOARD (Summary)
 
-> **Last updated:** 2026-04-06 — Session 3f verified. Sovereign Tower live at https://sovereign-tower.pages.dev (commit: 47d947f)
+> **Last updated:** 2026-04-07 — Session 3g IMPLEMENTED. TypeScript PASS, Build 257.91 kB. Sovereign Tower live at https://sovereign-tower.pages.dev
 
 | Kategori | Target | Terkumpul | Status |
 |----------|--------|-----------|--------|
-| Build Proof (fitur live) | 15 routes | 12 routes | 🟡 PARTIAL — Phase 3a–3f done |
+| Build Proof (fitur live) | 15 routes | 17 routes | 🟡 PARTIAL — Phase 3a–3g done (3g awaiting deploy) |
 | WA Automation Proof | 10 msg sent | 1 E2E confirmed | 🟡 PARTIAL — fonnte_message_id: 150273541 |
 | Order Capture Proof | 5 orders | 0 | 🔴 EMPTY — Sprint 2+ task |
 | AI Agent Proof | 3 agents | 0 | 🔴 EMPTY — Sprint 2–4 task |
@@ -52,6 +52,14 @@
 ```
 
 ### Log Build Proof:
+
+#### Sovereign Tower – Session 3g – 2026-04-07
+- TypeScript: zero errors ✅
+- Build: 257.91 kB ✅
+- New routes: POST /api/wa/webhook (public), GET /api/wa/queue, POST /api/wa/queue/:id/approve, POST /api/wa/queue/:id/reject, POST /api/wa/broadcast
+- No new DB migration — reuses wa_logs schema
+- ADR-019 created
+- Status: IMPLEMENTED — awaiting deploy + Fonnte webhook URL config
 
 #### Sovereign Tower – Phase 3 (Sessions 3a–3f) – 2026-04-05
 - Deployment URL: https://sovereign-tower.pages.dev
@@ -289,5 +297,5 @@ Saat klien pertama onboard, pastikan collect:
 
 ---
 
-*Document Control: v1.1 – 2026-04-06 – Living Document (updated: Session 3f build proof + WA E2E proof added)*
+*Document Control: v1.2 – 2026-04-07 – Living Document (Session 3g IMPLEMENTED: inbound webhook + human-gate queue + broadcast gating, 17 routes total)*
 *CLASSIFIED – FOUNDER ACCESS ONLY*

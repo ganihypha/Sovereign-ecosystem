@@ -1,5 +1,5 @@
 // sovereign-tower — src/lib/wa-adapter.ts
-// Fonnte WhatsApp Adapter — Session 3f
+// Fonnte WhatsApp Adapter — Session 3f + 3g
 // Live implementation yang wrap Fonnte API untuk sovereign-tower
 //
 // ⚠️ SECURITY RULES (non-negotiable):
@@ -15,7 +15,15 @@
 //   - GET  /api/wa/status   → device status check
 //   - GET  /api/wa/logs     → read wa_logs (recent entries)
 //
+// Scope Session 3g (ADDED):
+//   - POST /api/wa/webhook         → inbound WA events from Fonnte (public, webhook-token gated)
+//   - GET  /api/wa/queue           → human-gate queue (pending items requiring founder review)
+//   - POST /api/wa/queue/:id/approve  → founder approves queued item
+//   - POST /api/wa/queue/:id/reject   → founder rejects queued item
+//   - POST /api/wa/broadcast       → gated broadcast (founder-only, requires explicit approval flag)
+//
 // ADR-012: WA adapter wraps Fonnte, tidak expose ke public, always logged to wa_logs
+// ADR-019: Session 3g — inbound webhook, human-gate queue, broadcast gating
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -456,4 +464,358 @@ export async function waSendAndLog(params: WaSendAndLogParams): Promise<WaSendAn
     final_status: finalStatus,
     error: sendResult.success ? undefined : sendResult.error,
   }
+}
+
+// =============================================================================
+// SESSION 3G — INBOUND WEBHOOK HELPERS
+// =============================================================================
+
+/**
+ * Fonnte inbound webhook payload shape.
+ * Fonnte sends POST to our webhook URL when a message is received.
+ * Ref: https://fonnte.com/docs/webhook
+ */
+export interface FonnteInboundPayload {
+  /** Nomor WA pengirim (format: 628xxx@s.whatsapp.net atau 628xxx) */
+  sender?: string
+  /** Nomor WA device/target kita */
+  device?: string
+  /** Isi pesan masuk */
+  message?: string
+  /** Tipe pesan: text | image | audio | document | video | sticker | location | contact */
+  type?: string
+  /** Timestamp dari Fonnte */
+  timestamp?: number | string
+  /** Nama sender (jika tersedia) */
+  name?: string
+  /** Additional Fonnte fields */
+  [key: string]: unknown
+}
+
+/**
+ * Validate Fonnte inbound webhook token
+ * Fonnte kirim token via query param ?token=<FONNTE_DEVICE_TOKEN>
+ * Ini adalah satu-satunya gate untuk public webhook endpoint.
+ * Returns true jika token match, false jika tidak.
+ */
+export function validateWebhookToken(incomingToken: string | undefined, env: TowerEnv): boolean {
+  if (!incomingToken) return false
+  const expected = env.FONNTE_DEVICE_TOKEN || env.FONNTE_TOKEN || env.FONNTE_ACCOUNT_TOKEN || null
+  if (!expected) return false
+  // Trim whitespace (tokens dari .dev.vars kadang ada leading space)
+  return incomingToken.trim() === expected.trim()
+}
+
+/**
+ * Normalize sender dari format Fonnte
+ * Fonnte kadang kirim '628xxx@s.whatsapp.net', kadang '628xxx'
+ */
+export function normalizeSenderPhone(sender: string): string {
+  // Remove @s.whatsapp.net, @c.us, dll
+  const cleaned = sender.replace(/@[a-z.]+$/i, '').trim()
+  return cleaned
+}
+
+/**
+ * Insert inbound wa_log dari webhook payload
+ * direction: 'inbound', status: 'pending', requires_approval: false (inbound tidak perlu approval)
+ */
+export async function insertInboundWaLog(
+  db: DbClient,
+  payload: {
+    phone: string
+    message_body: string
+    fonnte_raw?: Record<string, unknown>
+  }
+): Promise<any | null> {
+  return insertWaLog(db, {
+    direction: 'inbound',
+    phone: payload.phone,
+    message_body: payload.message_body,
+    status: 'delivered', // inbound sudah delivered (kita yang menerima)
+    requires_approval: false,
+    sent_by: 'system', // system = auto-received
+    fonnte_message_id: null,
+    sent_at: new Date().toISOString(),
+  })
+}
+
+// =============================================================================
+// SESSION 3G — HUMAN-GATE QUEUE HELPERS
+// =============================================================================
+
+/**
+ * Get human-gate queue: wa_logs yang requires_approval=true dan status='pending'
+ * Ini adalah queue yang harus di-review founder sebelum dikirim
+ */
+export async function getGateQueue(
+  db: DbClient,
+  limit = 20
+): Promise<any[]> {
+  try {
+    const { data, error } = await db
+      .from('wa_logs')
+      .select('id, direction, phone, message_body, status, requires_approval, sent_by, created_at, approved_at, approved_by')
+      .eq('requires_approval', true)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true }) // oldest first = FIFO queue
+      .limit(limit)
+    if (error || !data) return []
+    return data as any[]
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Get single queue item by id
+ */
+export async function getQueueItemById(db: DbClient, id: string): Promise<any | null> {
+  try {
+    const { data, error } = await db
+      .from('wa_logs')
+      .select('id, direction, phone, message_body, status, requires_approval, sent_by, created_at, approved_at, approved_by, fonnte_message_id')
+      .eq('id', id)
+      .single()
+    if (error || !data) return null
+    return data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Approve queue item: update status ke 'pending' → 'sent' + set approved_at
+ * Note: approval hanya update status — actual send dilakukan via /api/wa/send setelah approve
+ * Narrowest safe approach: approve = mark as approved, tidak auto-send
+ */
+export async function approveQueueItem(
+  db: DbClient,
+  id: string,
+  approvedByUserId?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const updatePayload: any = {
+      status: 'sent',
+      requires_approval: false, // gate cleared
+      approved_at: new Date().toISOString(),
+    }
+    if (approvedByUserId) {
+      updatePayload.approved_by = approvedByUserId
+    }
+    const { error } = await (db
+      .from('wa_logs') as any)
+      .update(updatePayload)
+      .eq('id', id)
+      .eq('requires_approval', true) // safety: only approve items that are actually pending gate
+      .eq('status', 'pending')
+    if (error) {
+      return { success: false, error: error.message }
+    }
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'unknown error' }
+  }
+}
+
+/**
+ * Reject queue item: update status ke 'rejected_by_founder'
+ * Item akan tidak dikirim, audit trail tetap tersimpan
+ */
+export async function rejectQueueItem(
+  db: DbClient,
+  id: string,
+  approvedByUserId?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const updatePayload: any = {
+      status: 'rejected_by_founder',
+      requires_approval: false, // gate decision made
+      approved_at: new Date().toISOString(),
+    }
+    if (approvedByUserId) {
+      updatePayload.approved_by = approvedByUserId
+    }
+    const { error } = await (db
+      .from('wa_logs') as any)
+      .update(updatePayload)
+      .eq('id', id)
+      .eq('status', 'pending') // safety: only reject pending items
+    if (error) {
+      return { success: false, error: error.message }
+    }
+    return { success: true }
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'unknown error' }
+  }
+}
+
+// =============================================================================
+// SESSION 3G — BROADCAST GATING HELPERS
+// =============================================================================
+
+/**
+ * Max targets for broadcast — hardcoded safety limit
+ * Perubahan nilai ini harus via ADR baru
+ */
+export const BROADCAST_MAX_TARGETS = 10 as const
+
+/**
+ * Broadcast gate check — semua kondisi harus terpenuhi sebelum broadcast diizinkan:
+ * 1. founder_confirmed: true harus ada di body
+ * 2. targets array harus ada dan tidak kosong
+ * 3. targets tidak boleh melebihi BROADCAST_MAX_TARGETS
+ * 4. semua target harus valid phone numbers
+ *
+ * Returns: { allowed: boolean, reason?: string, invalid_targets?: string[] }
+ */
+export function checkBroadcastGate(params: {
+  founder_confirmed?: boolean
+  targets?: unknown[]
+  message?: unknown
+}): {
+  allowed: boolean
+  reason?: string
+  invalid_targets?: string[]
+} {
+  const { founder_confirmed, targets, message } = params
+
+  // Gate 1: explicit founder confirmation required
+  if (founder_confirmed !== true) {
+    return {
+      allowed: false,
+      reason: 'BROADCAST_NOT_CONFIRMED: founder_confirmed must be exactly true in request body — no implicit broadcast',
+    }
+  }
+
+  // Gate 2: targets must exist
+  if (!targets || !Array.isArray(targets) || targets.length === 0) {
+    return {
+      allowed: false,
+      reason: 'BROADCAST_NO_TARGETS: targets array is required and must not be empty',
+    }
+  }
+
+  // Gate 3: max targets limit
+  if (targets.length > BROADCAST_MAX_TARGETS) {
+    return {
+      allowed: false,
+      reason: `BROADCAST_EXCEEDS_LIMIT: targets.length (${targets.length}) exceeds max allowed (${BROADCAST_MAX_TARGETS}) — split into smaller batches`,
+    }
+  }
+
+  // Gate 4: all targets must be valid phones
+  const invalidTargets: string[] = []
+  for (const t of targets) {
+    if (typeof t !== 'string' || !isValidPhone(t)) {
+      invalidTargets.push(typeof t === 'string' ? t.slice(0, 15) : '[invalid type]')
+    }
+  }
+  if (invalidTargets.length > 0) {
+    return {
+      allowed: false,
+      reason: `BROADCAST_INVALID_PHONES: ${invalidTargets.length} invalid phone number(s) found`,
+      invalid_targets: invalidTargets,
+    }
+  }
+
+  // Gate 5: message validation
+  if (!message || typeof message !== 'string' || (message as string).trim().length === 0) {
+    return {
+      allowed: false,
+      reason: 'BROADCAST_NO_MESSAGE: message is required and must not be empty',
+    }
+  }
+
+  if ((message as string).length > 4000) {
+    return {
+      allowed: false,
+      reason: 'BROADCAST_MESSAGE_TOO_LONG: message max 4000 chars for broadcast',
+    }
+  }
+
+  return { allowed: true }
+}
+
+/**
+ * Execute broadcast: kirim ke setiap target satu per satu (sequential, logged)
+ * Tidak ada parallel fire — safety by design
+ * Returns: array of per-target result
+ */
+export async function executeBroadcast(params: {
+  env: TowerEnv
+  db: DbClient | null
+  targets: string[]
+  message: string
+  sent_by: 'founder' | 'agent' | 'system'
+}): Promise<Array<{
+  phone: string
+  log_id: string | null
+  delivery_status: 'CONFIRMED' | 'ATTEMPTED_NOT_CONFIRMED' | 'FAILED'
+  fonnte_message_id: string | null
+  error?: string
+}>> {
+  const { env, db, targets, message, sent_by } = params
+  const results: Array<{
+    phone: string
+    log_id: string | null
+    delivery_status: 'CONFIRMED' | 'ATTEMPTED_NOT_CONFIRMED' | 'FAILED'
+    fonnte_message_id: string | null
+    error?: string
+  }> = []
+
+  const token = getFonnteDeviceToken(env)
+  if (!token) {
+    // Return all as failed — no token available
+    return targets.map(phone => ({
+      phone,
+      log_id: null,
+      delivery_status: 'FAILED' as const,
+      fonnte_message_id: null,
+      error: 'FONNTE_DEVICE_TOKEN not configured',
+    }))
+  }
+
+  for (const rawPhone of targets) {
+    const phone = normalizePhone(rawPhone)
+    let logId: string | null = null
+
+    // Log first — audit trail before send
+    if (db) {
+      const logEntry = await insertWaLog(db, {
+        direction: 'outbound',
+        phone,
+        message_body: message,
+        status: 'pending',
+        requires_approval: false, // already gated — founder confirmed broadcast
+        sent_by,
+      })
+      logId = logEntry?.id ?? null
+    }
+
+    // Send to this target
+    const sendResult = await fonnteSendMessage(token, phone, message)
+    const finalStatus: WaLogStatus = sendResult.success ? 'sent' : 'failed'
+
+    // Update log
+    if (db && logId) {
+      await updateWaLogStatus(db, logId, {
+        status: finalStatus,
+        fonnte_message_id: sendResult.fonnte_message_id ?? null,
+        sent_at: sendResult.success ? new Date().toISOString() : null,
+      })
+    }
+
+    results.push({
+      phone: rawPhone,
+      log_id: logId,
+      delivery_status: sendResult.success
+        ? 'CONFIRMED'
+        : 'ATTEMPTED_NOT_CONFIRMED',
+      fonnte_message_id: sendResult.fonnte_message_id ?? null,
+      error: sendResult.success ? undefined : sendResult.error,
+    })
+  }
+
+  return results
 }
