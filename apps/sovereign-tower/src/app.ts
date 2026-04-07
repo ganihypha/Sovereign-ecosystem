@@ -18,6 +18,7 @@ import { founderRouter } from './routes/founder'
 import { modulesRouter } from './routes/modules'
 import { dashboardRouter } from './routes/dashboard'
 import { waRouter } from './routes/wa'
+import { agentsRouter } from './routes/agents'
 
 // =============================================================================
 // APP FACTORY
@@ -108,6 +109,7 @@ export function createApp(): TowerApp {
   app.route('/api/modules', modulesRouter)
   app.route('/api/dashboard', dashboardRouter)
   app.route('/api/wa', waRouter)
+  app.route('/api/agents', agentsRouter)
 
   // ─────────────────────────────────────────────────────────────────────────
   // ROOT + FALLBACK
@@ -172,7 +174,7 @@ export function createApp(): TowerApp {
         ],
         note: 'DB wiring progressive. Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in env.',
       },
-      notice: 'Session 3g: Inbound WA webhook + human-gate queue + broadcast gating. POST /api/wa/webhook (public, token-gated), GET /api/wa/queue, /queue/:id/approve, /queue/:id/reject, POST /api/wa/broadcast (max 10 targets, founder_confirmed required).',
+      notice: 'Session 4a: ScoutScorer Agent added. POST /api/agents/scout-score (GROQ scoring), GET /api/agents/scout-score/status. Session 3g WA routes preserved: webhook, queue, broadcast.',
     })
   })
 
@@ -200,3 +202,4 @@ export function createApp(): TowerApp {
 }
 
 export type SovereignTowerApp = ReturnType<typeof createApp>
+
