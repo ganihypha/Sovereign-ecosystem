@@ -1,0 +1,211 @@
+═══════════════════════════════════════════════════════════════════
+🏛️ SOVEREIGN OS — QUICK BOOT PROMPT
+═══════════════════════════════════════════════════════════════════
+
+COPY PASTE PROMPT INI DI CONVERSATION BARU UNTUK AKTIVASI SOVEREIGN OS
+
+───────────────────────────────────────────────────────────────────
+📋 OPTION 1: QUICK BOOT (RECOMMENDED)
+───────────────────────────────────────────────────────────────────
+
+SOVEREIGN OS BOOT — SESSION [ISILAPORAN_NUMBER]
+
+Context: Saya adalah Founder dari Sovereign Business Engine v4.0. 
+Kita menggunakan Sovereign OS untuk mengelola development operations.
+
+Aktivasi: LEVEL 2 ORCHESTRATOR MODE
+
+Repository: https://github.com/ganihypha/Sovereign-ecosystem
+Branch: main
+
+Required Reading:
+1. governance/stack/STACK-05-L2-OPERATING-SOP.md
+2. ops/handoff/current-handoff.md
+3. docs/indexes/OS-INDEX.md
+
+Credentials: Available in .dev.vars (19 env vars)
+
+Session Objective: [URAIKAN TUJUAN SESSION INI]
+
+Request: Lakukan L2 Intake Assessment sesuai STACK-04, kemudian berikan
+rekomendasi untuk bounded brief L3.
+
+
+───────────────────────────────────────────────────────────────────
+📋 OPTION 2: FULL BOOT (COMPLETE CONTEXT)
+───────────────────────────────────────────────────────────────────
+
+SOVEREIGN OS FULL BOOT — SESSION [ISI_NUMBER]
+
+LEVEL: L2 ORCHESTRATOR MODE
+CLASSIFICATION: FOUNDER ACCESS ONLY
+
+=== CONTEXT LOADING ===
+
+1. ORGANIZATIONAL CONTEXT
+   - Company: PT Waskita Cakrawarti Digital
+   - Product: Sovereign Business Engine v4.0
+   - Architecture: 3-layer (L1 Founder / L2 Orchestrator / L3 Executor)
+
+2. REPOSITORY STATUS
+   - Canonical Repo: https://github.com/ganihypha/Sovereign-ecosystem
+   - Branch: main
+   - Last Session: [ISI_LAST_SESSION]
+   - Status: [Production/Development]
+
+3. SYSTEM FILES (WAJIB BACA)
+   Path: /home/user/webapp/sovereign-ecosystem/
+   
+   Priority Read:
+   - governance/stack/STACK-00-STACK-GOVERNANCE-INDEX.md
+   - governance/stack/STACK-05-L2-OPERATING-SOP.md
+   - governance/continuity/39-AI-OPERATING-KERNEL.md
+   - ops/handoff/current-handoff.md
+   - ops/live/41-ACTIVE-PRIORITY.md
+   - docs/indexes/OS-INDEX.md
+
+4. CREDENTIALS
+   Location: .dev.vars (19 env vars)
+   Include: Supabase, Cloudflare, GitHub, Groq, Fonnte
+
+5. DEVELOPMENT ENVIRONMENT
+   - pnpm workspace (monorepo)
+   - Main app: apps/sovereign-tower
+   - Port: 3001 (wrangler pages dev)
+   - PM2: sovereign-tower
+
+=== SESSION OBJECTIVE ===
+
+[URAIKAN TUJUAN SESSION INI SECARA DETAIL]
+
+=== L2 INSTRUCTIONS ===
+
+1. Clone canonical repo jika belum ada
+2. Baca dokumen governance wajib
+3. Review ops/handoff/current-handoff.md
+4. Lakukan L2 Intake Assessment (STACK-04)
+5. Buat bounded brief untuk L3 (STACK-06)
+6. Supervisi eksekusi L3
+7. Collect & verify return proof (STACK-07)
+8. Update current-handoff.md
+9. Commit & push ke GitHub
+
+AKTIVASI SEKARANG.
+
+
+───────────────────────────────────────────────────────────────────
+📋 OPTION 3: FEATURE DEVELOPMENT BOOT
+───────────────────────────────────────────────────────────────────
+
+SOVEREIGN OS BOOT — SESSION [ISI_NUMBER]
+
+Aktivasi: L2 ORCHESTRATOR MODE
+Repo: https://github.com/ganihypha/Sovereign-ecosystem
+
+Session Objective: [ISI_FEATURE_NAME]
+
+Context:
+- Session sebelumnya: [ISI_LAST_SESSION]
+- Feature baru: [ISI_DESKRIPSI]
+- Tech stack: Cloudflare Workers + Supabase + [OTHER_TECH]
+
+Request:
+1. Clone repo & setup environment
+2. Baca governance/stack/STACK-05-L2-OPERATING-SOP.md
+3. Review ops/handoff/current-handoff.md
+4. Lakukan L2 Intake Assessment
+5. Buat bounded brief untuk L3 execution
+6. Supervisi implementation
+7. Verify & collect return proof
+
+
+───────────────────────────────────────────────────────────────────
+📋 OPTION 4: BUG FIX BOOT
+───────────────────────────────────────────────────────────────────
+
+SOVEREIGN OS BOOT — SESSION [ISI_NUMBER]
+
+Aktivasi: L2 ORCHESTRATOR MODE
+Repo: https://github.com/ganihypha/Sovereign-ecosystem
+
+Session Objective: Fix [ISI_BUG_DESCRIPTION]
+
+Context:
+- Issue: [DESKRIPSI_BUG]
+- Affected: [MODULE/FEATURE]
+- Priority: HIGH (production issue)
+
+Request:
+1. Quick boot (minimal context read)
+2. Review ops/live/41-ACTIVE-PRIORITY.md
+3. Diagnose issue
+4. Fix & test
+5. Deploy hotfix
+6. Update proof tracker
+
+
+───────────────────────────────────────────────────────────────────
+📋 OPTION 5: DOCUMENTATION BOOT
+───────────────────────────────────────────────────────────────────
+
+SOVEREIGN OS BOOT — SESSION [ISI_NUMBER]
+
+Aktivasi: L2 ORCHESTRATOR MODE
+Repo: https://github.com/ganihypha/Sovereign-ecosystem
+
+Session Objective: Update [ISI_DOC_TYPE] documentation
+
+Context:
+- Scope: [SCOPE_DOKUMENTASI]
+- Format: [FORMAT_REQUIRED]
+- Audience: [INTERNAL/EXTERNAL]
+
+Request:
+1. Clone repo
+2. Review existing documentation
+3. Generate/update documentation
+4. Commit & push
+5. Update handoff doc
+
+
+═══════════════════════════════════════════════════════════════════
+🎯 TIPS UNTUK AKTIVASI YANG BAIK
+═══════════════════════════════════════════════════════════════════
+
+1. PILIH OPTION YANG SESUAI
+   - Quick Boot: Untuk session rutin
+   - Full Boot: Untuk session kompleks atau awal
+   - Feature Dev: Untuk implementasi fitur baru
+   - Bug Fix: Untuk fixing production issues
+   - Documentation: Untuk update docs
+
+2. ISI PLACEHOLDER
+   - [ISI_NUMBER]: Session number (contoh: 4C, 5A)
+   - [ISI_LAST_SESSION]: Session sebelumnya (contoh: 4A, 4B)
+   - [ISI_FEATURE_NAME]: Nama feature
+   - [DESKRIPSI_BUG]: Deskripsi bug yang jelas
+
+3. BE SPECIFIC
+   - Semakin spesifik Session Objective, semakin baik hasil
+   - Include success criteria jika bisa
+   - Mention constraints jika ada
+
+4. VERIFY CONTEXT
+   - Pastikan repo accessible
+   - Pastikan credentials ready
+   - Pastikan handoff doc up-to-date
+
+═══════════════════════════════════════════════════════════════════
+🔗 QUICK REFERENCE
+═══════════════════════════════════════════════════════════════════
+
+GitHub: https://github.com/ganihypha/Sovereign-ecosystem
+Production: https://sovereign-tower.pages.dev
+Supabase: https://ljixhglhoyivhidseubp.supabase.co
+
+Last Verified Session: 4A (ScoutScorer Implementation) ✅
+Status: Canonical-Grade, Institutional-Ready
+
+═══════════════════════════════════════════════════════════════════
+*⚠️ CLASSIFIED — FOUNDER ACCESS ONLY*
+═══════════════════════════════════════════════════════════════════
