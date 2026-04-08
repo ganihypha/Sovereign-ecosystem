@@ -530,3 +530,255 @@ agentsRouter.post('/scout-score/batch', async (c) => {
     completed_at: batchCompletedAt,
   })
 })
+
+// =============================================================================
+// SESSION 4C: INSIGHT GENERATOR AGENT
+// =============================================================================
+
+/**
+ * POST /api/agents/insights
+ * 
+ * Generate actionable insights from scored leads.
+ * Analyzes score distribution and provides:
+ * - Score summary (total leads, avg score, distribution)
+ * - Top opportunities (high-scoring leads)
+ * - Weak leads (low-scoring leads)
+ * - Recommended next actions
+ * 
+ * Optional query params:
+ * - ?limit=50 (max leads to analyze, default 100)
+ * - ?min_score=0 (filter minimum score)
+ * - ?status=new (filter by lead status)
+ * 
+ * Response:
+ * {
+ *   ok: true,
+ *   summary: {
+ *     total_leads: number,
+ *     scored_leads: number,
+ *     avg_score: number,
+ *     score_distribution: { high: number, medium: number, low: number }
+ *   },
+ *   top_opportunities: Lead[],
+ *   weak_leads: Lead[],
+ *   insights: {
+ *     summary: string,
+ *     recommended_actions: string[]
+ *   },
+ *   generated_at: string
+ * }
+ */
+agentsRouter.post('/insights', async (c) => {
+  const env = c.env
+  const generatedAt = new Date().toISOString()
+
+  // -------------------------------------------------------------------------
+  // 1. Validate DB credentials
+  // -------------------------------------------------------------------------
+  if (!hasDbCredentials(env)) {
+    return c.json(errorResponse('DB_NOT_CONFIGURED', 'Database credentials not configured'), 503)
+  }
+
+  const db = tryCreateDbClient(env) as any
+  if (!db) {
+    return c.json(errorResponse('DB_INIT_FAILED', 'Failed to initialize database client'), 503)
+  }
+
+  // Validate GROQ key for AI insights generation
+  if (!env.GROQ_API_KEY) {
+    return c.json(errorResponse('GROQ_API_KEY_MISSING', 'GROQ_API_KEY not configured'), 503)
+  }
+
+  // -------------------------------------------------------------------------
+  // 2. Parse query parameters
+  // -------------------------------------------------------------------------
+  const limit = Math.min(parseInt(c.req.query('limit') ?? '100'), 200)
+  const minScore = parseInt(c.req.query('min_score') ?? '0')
+  const statusFilter = c.req.query('status') ?? null
+
+  // -------------------------------------------------------------------------
+  // 3. Fetch scored leads from database
+  // -------------------------------------------------------------------------
+  let query = db
+    .from('leads')
+    .select('id, name, status, source, instagram_handle, phone, email, ai_score, ai_score_reasoning, created_at')
+    .not('ai_score', 'is', null)
+    .order('ai_score', { ascending: false })
+    .limit(limit)
+
+  if (minScore > 0) {
+    query = query.gte('ai_score', minScore)
+  }
+
+  if (statusFilter) {
+    query = query.eq('status', statusFilter)
+  }
+
+  const { data: leadsData, error: leadsError } = await query
+
+  if (leadsError) {
+    return c.json(errorResponse('DB_QUERY_FAILED', `Failed to fetch leads: ${leadsError.message}`), 500)
+  }
+
+  const leads = (leadsData ?? []) as any[]
+
+  if (leads.length === 0) {
+    return c.json({
+      ok: true,
+      summary: {
+        total_leads: 0,
+        scored_leads: 0,
+        avg_score: 0,
+        score_distribution: { high: 0, medium: 0, low: 0 }
+      },
+      top_opportunities: [],
+      weak_leads: [],
+      insights: {
+        summary: 'No scored leads found matching criteria.',
+        recommended_actions: ['Score more leads using POST /api/agents/scout-score/batch']
+      },
+      generated_at: generatedAt
+    })
+  }
+
+  // -------------------------------------------------------------------------
+  // 4. Calculate summary statistics
+  // -------------------------------------------------------------------------
+  const totalLeads = leads.length
+  const scores = leads.map(l => l.ai_score).filter(s => typeof s === 'number')
+  const avgScore = scores.reduce((sum, s) => sum + s, 0) / scores.length
+
+  const scoreDistribution = {
+    high: leads.filter(l => l.ai_score >= 70).length,
+    medium: leads.filter(l => l.ai_score >= 40 && l.ai_score < 70).length,
+    low: leads.filter(l => l.ai_score < 40).length
+  }
+
+  // -------------------------------------------------------------------------
+  // 5. Identify top opportunities and weak leads
+  // -------------------------------------------------------------------------
+  const topOpportunities = leads.filter(l => l.ai_score >= 70).slice(0, 5)
+  const weakLeads = leads.filter(l => l.ai_score < 40).slice(0, 5)
+
+  // -------------------------------------------------------------------------
+  // 6. Generate AI insights using GROQ
+  // -------------------------------------------------------------------------
+  const leadsSummaryForAI = leads.slice(0, 20).map(l => ({
+    name: l.name,
+    score: l.ai_score,
+    status: l.status,
+    source: l.source,
+    reasoning: l.ai_score_reasoning?.substring(0, 100)
+  }))
+
+  const insightPrompt = `You are a lead intelligence analyst. Based on this lead scoring data, provide:
+1. A concise 2-sentence summary of the lead quality landscape
+2. Top 3 recommended next actions for the founder/operator
+
+Lead Data Summary:
+- Total Scored Leads: ${totalLeads}
+- Average Score: ${avgScore.toFixed(1)}/100
+- Distribution: ${scoreDistribution.high} high (70+), ${scoreDistribution.medium} medium (40-69), ${scoreDistribution.low} low (<40)
+- Top ${leadsSummaryForAI.length} leads sample: ${JSON.stringify(leadsSummaryForAI, null, 2)}
+
+Provide response in JSON format:
+{
+  "summary": "2-sentence analysis",
+  "recommended_actions": ["action 1", "action 2", "action 3"]
+}`
+
+  let aiInsights = {
+    summary: `Lead pool shows average quality of ${avgScore.toFixed(1)}/100. Focus on ${scoreDistribution.high} high-scoring leads for immediate conversion opportunities.`,
+    recommended_actions: [
+      `Prioritize contact with ${topOpportunities.length} high-scoring leads (70+ score)`,
+      `Review and improve engagement for ${scoreDistribution.medium} medium-scoring leads`,
+      `Filter or re-qualify ${scoreDistribution.low} low-scoring leads`
+    ]
+  }
+
+  try {
+    const groqResponse = await fetch(GROQ_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: 'You are a lead intelligence analyst. Always respond with valid JSON.' },
+          { role: 'user', content: insightPrompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 500
+      })
+    })
+
+    if (groqResponse.ok) {
+      const groqData = await groqResponse.json() as any
+      const aiContent = groqData.choices?.[0]?.message?.content
+      if (aiContent) {
+        try {
+          // Try to parse JSON response
+          const parsed = JSON.parse(aiContent)
+          if (parsed.summary && parsed.recommended_actions) {
+            aiInsights = parsed
+          }
+        } catch {
+          // If not valid JSON, use AI response as summary text
+          aiInsights.summary = aiContent.substring(0, 300)
+        }
+      }
+    }
+  } catch (error) {
+    // Use fallback insights if GROQ fails
+    console.error('GROQ insight generation failed:', error)
+  }
+
+  // -------------------------------------------------------------------------
+  // 7. Log AI task for audit trail
+  // -------------------------------------------------------------------------
+  try {
+    await db.from('ai_tasks').insert({
+      id: crypto.randomUUID(),
+      agent: 'insight_generator',
+      prompt: insightPrompt.substring(0, 500),
+      result: JSON.stringify(aiInsights),
+      status: 'completed',
+      created_at: new Date().toISOString()
+    })
+  } catch {
+    // Non-critical: insight generation succeeded even if logging failed
+  }
+
+  // -------------------------------------------------------------------------
+  // 8. Return insight report
+  // -------------------------------------------------------------------------
+  return c.json({
+    ok: true,
+    summary: {
+      total_leads: totalLeads,
+      scored_leads: scores.length,
+      avg_score: parseFloat(avgScore.toFixed(2)),
+      score_distribution: scoreDistribution
+    },
+    top_opportunities: topOpportunities.map(l => ({
+      id: l.id,
+      name: l.name,
+      score: l.ai_score,
+      status: l.status,
+      source: l.source,
+      contact: l.phone || l.email || l.instagram_handle,
+      reasoning: l.ai_score_reasoning
+    })),
+    weak_leads: weakLeads.map(l => ({
+      id: l.id,
+      name: l.name,
+      score: l.ai_score,
+      status: l.status,
+      reasoning: l.ai_score_reasoning?.substring(0, 100)
+    })),
+    insights: aiInsights,
+    generated_at: generatedAt
+  })
+})
