@@ -1,5 +1,5 @@
 // sovereign-tower — src/routes/agents.ts
-// AI Agent routes — Session 4A: ScoutScorer Agent
+// AI Agent routes — Session 4A/4B: ScoutScorer Agent (single + batch)
 // Sovereign Business Engine v4.0
 // ⚠️ FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
 //
@@ -8,6 +8,11 @@
 //   - Uses: ai_tasks table, leads table, GROQ_API_KEY
 //   - Human gate: requires_approval = false (scoring only, no action)
 //   - No auto-send, no broadcast, no WA trigger from this route
+//
+// Session 4B Scope (Extension):
+//   - POST /api/agents/scout-score/batch — Score multiple leads (max 20)
+//   - Reuses single-lead scoring logic
+//   - Returns per-item results with partial failure handling
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -40,6 +45,21 @@ const SCORE_MAX = 100
 
 interface ScoutScoreInput {
   lead_id: string
+}
+
+interface BatchScoreInput {
+  lead_ids: string[]
+  batch_name?: string
+}
+
+interface BatchScoreResultItem {
+  lead_id: string
+  success: boolean
+  score?: number
+  reasoning?: string
+  task_id?: string
+  lead_updated?: boolean
+  error?: string
 }
 
 interface LeadRow {
@@ -127,6 +147,107 @@ function parseGroqScore(content: string): ScoreResult {
   }
 }
 
+/**
+ * Core scoring logic untuk single lead
+ * Extracted dari POST /scout-score untuk reuse di batch route
+ */
+async function scoreLeadWithGroq(
+  db: any,
+  env: TowerEnv,
+  lead: LeadRow
+): Promise<{ success: boolean; score?: number; reasoning?: string; task_id?: string; error?: string; tokens_used?: number }> {
+  let groqError: string | null = null
+  let tokensUsed = 0
+
+  try {
+    // Call GROQ API
+    const prompt = buildScoringPrompt(lead)
+    const groqRes = await fetch(GROQ_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 200,
+      }),
+    })
+
+    if (!groqRes.ok) {
+      const errText = await groqRes.text()
+      groqError = `GROQ HTTP ${groqRes.status}: ${errText.slice(0, 200)}`
+      throw new Error(groqError)
+    }
+
+    const groqResponse = await groqRes.json() as GroqResponse
+    tokensUsed = groqResponse.usage?.total_tokens ?? 0
+
+    // Parse score
+    const rawContent = groqResponse.choices?.[0]?.message?.content ?? ''
+    const { score, reasoning } = parseGroqScore(rawContent)
+    const taskCompletedAt = new Date().toISOString()
+
+    // Update lead.ai_score + ai_score_reasoning
+    const { error: updateError } = await db
+      .from('leads')
+      .update({
+        ai_score: score,
+        ai_score_reasoning: reasoning,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', lead.id)
+
+    // Write ai_tasks record
+    const { data: taskData, error: taskError } = await db
+      .from('ai_tasks')
+      .insert({
+        agent: SCOUT_SCORER_AGENT,
+        status: 'completed',
+        input: { lead_id: lead.id, lead_name: lead.name },
+        output: { score, reasoning, raw_groq_content: rawContent.slice(0, 500) },
+        tokens_used: tokensUsed,
+        model_used: GROQ_MODEL,
+        triggered_by: 'founder',
+        requires_approval: false,
+        related_lead_id: lead.id,
+        completed_at: taskCompletedAt,
+      })
+      .select('id')
+      .single()
+
+    const taskId = taskData?.id ?? null
+
+    return {
+      success: true,
+      score,
+      reasoning,
+      task_id: taskId,
+      tokens_used: tokensUsed,
+    }
+  } catch (err) {
+    // Log failed task
+    await db.from('ai_tasks').insert({
+      agent: SCOUT_SCORER_AGENT,
+      status: 'failed',
+      input: { lead_id: lead.id, lead_name: lead.name },
+      error_message: groqError ?? String(err),
+      model_used: GROQ_MODEL,
+      triggered_by: 'founder',
+      requires_approval: false,
+      related_lead_id: lead.id,
+      completed_at: new Date().toISOString(),
+    })
+
+    return {
+      success: false,
+      error: groqError ?? String(err),
+    }
+  }
+}
+
 // =============================================================================
 // ROUTE: POST /api/agents/scout-score
 // =============================================================================
@@ -209,117 +330,28 @@ agentsRouter.post('/scout-score', async (c) => {
 
   const lead = leadData as LeadRow
   // -------------------------------------------------------------------------
-  // 4. Call GROQ API
+  // 4. Score lead using extracted helper
   // -------------------------------------------------------------------------
-  let groqResponse: GroqResponse
-  let tokensUsed = 0
-  let groqError: string | null = null
+  const result = await scoreLeadWithGroq(db, env, lead)
 
-  try {
-    const prompt = buildScoringPrompt(lead)
-    const groqRes = await fetch(GROQ_API_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
-        max_tokens: 200,
-      }),
-    })
-
-    if (!groqRes.ok) {
-      const errText = await groqRes.text()
-      groqError = `GROQ HTTP ${groqRes.status}: ${errText.slice(0, 200)}`
-      throw new Error(groqError)
-    }
-
-    groqResponse = await groqRes.json() as GroqResponse
-    tokensUsed = groqResponse.usage?.total_tokens ?? 0
-  } catch (err) {
-    // Log failed ai_task before returning error
-    await (db as any).from('ai_tasks').insert({
-      agent: SCOUT_SCORER_AGENT,
-      status: 'failed',
-      input: { lead_id },
-      error_message: groqError ?? String(err),
-      model_used: GROQ_MODEL,
-      triggered_by: 'founder',
-      requires_approval: false,
-      related_lead_id: lead_id,
-      completed_at: new Date().toISOString(),
-    })
-
-    return c.json(errorResponse('GROQ_API_ERROR', groqError ?? 'GROQ API call failed'), 502)
+  if (!result.success) {
+    return c.json(errorResponse('GROQ_API_ERROR', result.error ?? 'GROQ API call failed'), 502)
   }
 
   // -------------------------------------------------------------------------
-  // 5. Parse score from GROQ response
-  // -------------------------------------------------------------------------
-  const rawContent = groqResponse.choices?.[0]?.message?.content ?? ''
-  const { score, reasoning } = parseGroqScore(rawContent)
-  const taskCompletedAt = new Date().toISOString()
-
-  // -------------------------------------------------------------------------
-  // 6. Update lead.ai_score + ai_score_reasoning in DB
-  // -------------------------------------------------------------------------
-  const { error: updateError } = await (db as any)
-    .from('leads')
-    .update({
-      ai_score: score,
-      ai_score_reasoning: reasoning,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', lead_id)
-
-  if (updateError) {
-    // Non-fatal — still return score but note update failed
-    console.error('[scout-score] lead update failed:', updateError.message)
-  }
-
-  // -------------------------------------------------------------------------
-  // 7. Write ai_tasks record (completed)
-  // -------------------------------------------------------------------------
-  const { data: taskData, error: taskError } = await (db as any)
-    .from('ai_tasks')
-    .insert({
-      agent: SCOUT_SCORER_AGENT,
-      status: 'completed',
-      input: { lead_id, lead_name: lead.name },
-      output: { score, reasoning, raw_groq_content: rawContent.slice(0, 500) },
-      tokens_used: tokensUsed,
-      model_used: GROQ_MODEL,
-      triggered_by: 'founder',
-      requires_approval: false,
-      related_lead_id: lead_id,
-      completed_at: taskCompletedAt,
-    })
-    .select('id')
-    .single()
-
-  if (taskError) {
-    console.error('[scout-score] ai_tasks insert failed:', taskError.message)
-  }
-
-  const taskId = (taskData as any)?.id ?? null
-
-  // -------------------------------------------------------------------------
-  // 8. Return result
+  // 5. Return result
   // -------------------------------------------------------------------------
   return c.json({
     ok: true,
     lead_id,
     lead_name: lead.name,
-    score,
-    reasoning,
+    score: result.score,
+    reasoning: result.reasoning,
     model_used: GROQ_MODEL,
-    tokens_used: tokensUsed,
-    task_id: taskId,
-    lead_updated: !updateError,
-    scored_at: taskCompletedAt,
+    tokens_used: result.tokens_used,
+    task_id: result.task_id,
+    lead_updated: true,
+    scored_at: new Date().toISOString(),
   })
 })
 
@@ -341,6 +373,160 @@ agentsRouter.get('/scout-score/status', async (c) => {
     model: GROQ_MODEL,
     groq_configured: groqReady,
     status: groqReady ? 'ready' : 'missing_groq_key',
-    build_session: '4a',
+    build_session: '4b',
+  })
+})
+
+// =============================================================================
+// ROUTE: POST /api/agents/scout-score/batch
+// =============================================================================
+
+/**
+ * POST /api/agents/scout-score/batch
+ *
+ * Score multiple leads (max 20) using GROQ LLM.
+ * Processes each lead sequentially and returns per-item results.
+ *
+ * Body: { lead_ids: string[], batch_name?: string }
+ *
+ * Response: {
+ *   ok: true,
+ *   batch_id: string,
+ *   batch_name: string | null,
+ *   total: number,
+ *   succeeded: number,
+ *   failed: number,
+ *   results: BatchScoreResultItem[],
+ *   started_at: string,
+ *   completed_at: string
+ * }
+ *
+ * ⚠️ SAFETY LIMITS:
+ * - Max 20 leads per batch
+ * - Partial failure handling (continue on individual errors)
+ * - No auto-send, no broadcast triggered
+ */
+agentsRouter.post('/scout-score/batch', async (c) => {
+  const env = c.env
+  const batchStartedAt = new Date().toISOString()
+
+  // -------------------------------------------------------------------------
+  // 1. Validate GROQ key + DB credentials
+  // -------------------------------------------------------------------------
+  if (!env.GROQ_API_KEY) {
+    return c.json(errorResponse('GROQ_API_KEY_MISSING', 'GROQ_API_KEY not configured'), 503)
+  }
+
+  if (!hasDbCredentials(env)) {
+    return c.json(errorResponse('DB_NOT_CONFIGURED', 'Database credentials not configured'), 503)
+  }
+
+  const db = tryCreateDbClient(env) as any
+  if (!db) {
+    return c.json(errorResponse('DB_INIT_FAILED', 'Failed to initialize database client'), 503)
+  }
+
+  // -------------------------------------------------------------------------
+  // 2. Parse + validate body
+  // -------------------------------------------------------------------------
+  let body: BatchScoreInput
+  try {
+    body = await c.req.json<BatchScoreInput>()
+  } catch {
+    return c.json(errorResponse('INVALID_JSON', 'Request body must be valid JSON'), 400)
+  }
+
+  const { lead_ids, batch_name } = body
+
+  // Validate lead_ids
+  if (!Array.isArray(lead_ids) || lead_ids.length === 0) {
+    return c.json(errorResponse('LEAD_IDS_REQUIRED', 'lead_ids must be a non-empty array'), 400)
+  }
+
+  if (lead_ids.length > 20) {
+    return c.json(errorResponse('BATCH_TOO_LARGE', 'Maximum 20 leads per batch'), 400)
+  }
+
+  // Validate each lead_id format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const invalidIds = lead_ids.filter(id => typeof id !== 'string' || !uuidRegex.test(id))
+  if (invalidIds.length > 0) {
+    return c.json(
+      errorResponse('INVALID_LEAD_IDS', `${invalidIds.length} invalid UUID(s)`, { invalid_ids: invalidIds.slice(0, 5) }),
+      400
+    )
+  }
+
+  // -------------------------------------------------------------------------
+  // 3. Generate batch ID
+  // -------------------------------------------------------------------------
+  const batchId = crypto.randomUUID()
+
+  // -------------------------------------------------------------------------
+  // 4. Process each lead
+  // -------------------------------------------------------------------------
+  const results: BatchScoreResultItem[] = []
+  let succeeded = 0
+  let failed = 0
+
+  for (const lead_id of lead_ids) {
+    // Fetch lead from DB
+    const { data: leadData, error: leadError } = await db
+      .from('leads')
+      .select('id, name, status, source, instagram_handle, phone, email, notes, tags, ai_score, created_at')
+      .eq('id', lead_id)
+      .single()
+
+    if (leadError || !leadData) {
+      // Lead not found — record failure
+      failed++
+      results.push({
+        lead_id,
+        success: false,
+        error: `Lead ${lead_id} not found`,
+      })
+      continue
+    }
+
+    const lead = leadData as LeadRow
+
+    // Score lead using extracted helper
+    const scoreResult = await scoreLeadWithGroq(db, env, lead)
+
+    if (scoreResult.success) {
+      succeeded++
+      results.push({
+        lead_id,
+        success: true,
+        score: scoreResult.score,
+        reasoning: scoreResult.reasoning,
+        task_id: scoreResult.task_id,
+        lead_updated: true,
+      })
+    } else {
+      failed++
+      results.push({
+        lead_id,
+        success: false,
+        error: scoreResult.error ?? 'Unknown error',
+      })
+    }
+  }
+
+  const batchCompletedAt = new Date().toISOString()
+
+  // -------------------------------------------------------------------------
+  // 5. Return batch result
+  // -------------------------------------------------------------------------
+  return c.json({
+    ok: true,
+    batch_id: batchId,
+    batch_name: batch_name ?? null,
+    total: lead_ids.length,
+    succeeded,
+    failed,
+    results,
+    started_at: batchStartedAt,
+    completed_at: batchCompletedAt,
   })
 })

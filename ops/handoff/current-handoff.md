@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-07 | Session 3g = VERIFIED AND READY TO CLOSE | E2E CONFIRMED | Build 258.06 kB
+### Update: 2026-04-08 | Session 4B = IMPLEMENTED (PENDING VERIFICATION) | Build TBD
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -12,6 +12,8 @@
 ✅  STATUS: SESSION 3E = VERIFIED AND READY TO CLOSE (Truth Gate PASSED 2026-04-05)
 ✅  STATUS: SESSION 3F = VERIFIED AND READY TO CLOSE (WA E2E CONFIRMED 2026-04-05)
 ✅  STATUS: SESSION 3G = VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07)
+✅  STATUS: SESSION 4A = VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07)
+🔨  STATUS: SESSION 4B = IMPLEMENTED (PENDING VERIFICATION — 2026-04-08)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SESSION 3D   ✅ COMPLETE AND SYNCED (2026-04-05)
@@ -186,15 +188,73 @@ REMAINING MANUAL STEP (Founder):
   - (All code/infrastructure is ready — only Fonnte dashboard config remaining)
 ```
 
-## 🚀 SESSION 4A SCOPE (NEXT)
+## 🚀 SESSION 4A — ✅ VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07)
 
 ```
-NEXT AFTER 3G DEPLOY IS VERIFIED:
-- Sprint 2: ScoutScorer Agent
-  → GROQ_API_KEY sudah configured (substitusi OpenAI awal)
-  → Use existing ai_tasks table (migration 002-ai-tasks.sql)
-  → Build scoring logic untuk leads dari DB
-  → Route: POST /api/agents/scout-score
+STATUS: VERIFIED AND READY TO CLOSE
+Deploy: https://95365d08.sovereign-tower.pages.dev
+Build: 262.06 kB | TypeScript: zero errors
+
+SESSION 4A VERIFIED SCOPE:
+1. ScoutScorer Agent (single lead scoring) ✅ E2E CONFIRMED
+   - POST /api/agents/scout-score: Score single lead via GROQ LLM
+   - GET /api/agents/scout-score/status: Agent health check
+   - Model: llama-3.1-8b-instant
+   - ai_tasks table integration confirmed
+   - leads.ai_score + ai_score_reasoning updated
+   - Test result: score=85 for lead "Ahmad Syafiq Test"
+   - Task ID: 0aa3994c-88e0-4f25-9753-7ea1486fe707
+   - Tokens used: 330
+
+COMMITS SESSION 4A:
+  - bb8d0f2b: fix GROQ model to llama-3.1-8b-instant
+  - 89252701: feat(4a) add agents.ts
+  - fc857873: feat(4a) register agentsRouter
+  - 2f282f4b: chore(4a) update session marker
+  - 5a7db5fd: docs(4a) add ADR-013
+  - fc5f0c69: docs(4a) add session-4a-summary
+  - 6a9754e7: verify(4a) VERIFIED AND READY TO CLOSE
+```
+
+## 🚀 SESSION 4B — 🔨 IMPLEMENTED (PENDING VERIFICATION — 2026-04-08)
+
+```
+STATUS: IMPLEMENTED — PENDING E2E VERIFICATION
+Session Type: Bounded Extension of Session 4A
+Changes: Batch scoring route added
+
+SESSION 4B IMPLEMENTED SCOPE:
+1. ScoutScorer Batch Mode ✅ CODE COMPLETE
+   - POST /api/agents/scout-score/batch: Score multiple leads (max 20)
+   - Reuses scoreLeadWithGroq() helper from single route
+   - Per-item results with partial failure handling
+   - Response includes: batch_id, succeeded/failed counts, results array
+   - Safety: max 20 leads, UUID validation, sequential processing
+   - No auto-send, no broadcast (same as single route)
+
+2. Code Refactoring ✅ COMPLETE
+   - Extracted scoreLeadWithGroq() helper function
+   - Single route refactored to use helper (DRY principle)
+   - Zero breaking changes to single route
+   - Consistent error handling across routes
+
+CHANGES THIS SESSION:
+  - Modified: src/routes/agents.ts (~500 lines, +150 lines batch logic)
+  - Modified: src/lib/app-config.ts (TOWER_BUILD_SESSION = '4b')
+  - Created: docs/sessions/session-4b-summary.md
+  - Updated: ops/handoff/current-handoff.md (this file)
+
+PENDING VERIFICATION (Before marking VERIFIED):
+  - [ ] TypeScript compilation check
+  - [ ] Build and deploy to Cloudflare Pages
+  - [ ] Regression test: single route still works
+  - [ ] E2E test: batch with 1 lead
+  - [ ] E2E test: batch with 3-5 leads
+  - [ ] E2E test: batch with partial failures
+  - [ ] E2E test: input validation (>20 leads, invalid UUIDs)
+  - [ ] Verify ai_tasks records created correctly
+  - [ ] Verify leads.ai_score updated for each lead
+  - [ ] Git commit + push to GitHub
 ```
 
 ---
