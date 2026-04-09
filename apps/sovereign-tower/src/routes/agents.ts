@@ -21,7 +21,7 @@ import type { TowerEnv } from '../lib/app-config'
 import type { SovereignAuthVariables } from '@sovereign/auth'
 import { errorResponse } from '../lib/app-config'
 import { tryCreateDbClient, hasDbCredentials } from '../lib/db-adapter'
-import { getFonnteDeviceToken, fonnteSend, normalizePhone } from '../lib/wa-adapter'
+import { getFonnteDeviceToken, fonnteSendMessage, normalizePhone } from '../lib/wa-adapter'
 
 type AgentContext = {
   Bindings: TowerEnv
@@ -1392,7 +1392,7 @@ agentsRouter.post('/send-approved/:id', async (c) => {
     const normalizedPhone = normalizePhone(item.phone)
     
     // Send via Fonnte
-    const sendResult = await fonnteSend({
+    const sendResult = await fonnteSendMessage({
       token: fonnteToken,
       phone: normalizedPhone,
       message: item.message_body,
