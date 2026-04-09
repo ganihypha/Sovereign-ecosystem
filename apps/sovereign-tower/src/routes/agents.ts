@@ -843,15 +843,14 @@ agentsRouter.post('/compose-message', async (c) => {
   }
 
   try {
-    const dbResult = tryCreateDbClient(env)
-    if (!dbResult.ok) {
+    const supabase = tryCreateDbClient(env)
+    if (!supabase) {
       return c.json({ 
         ok: false, 
         error: 'DATABASE_UNAVAILABLE', 
-        message: 'Database client creation failed' 
+        message: 'Database credentials not configured' 
       }, 500)
     }
-    const supabase = dbResult.client
 
     // Fetch lead with score
     const { data: lead, error: leadError } = await supabase
