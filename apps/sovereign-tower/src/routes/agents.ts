@@ -1034,3 +1034,292 @@ Return ONLY the message text, no explanations.`
     }, 500)
   }
 })
+
+// ============================================================================
+// SESSION 4E: MESSAGE REVIEW + SEND GATE
+// ============================================================================
+
+/**
+ * POST /api/agents/review-message
+ * 
+ * Queue a composed message for founder review before sending.
+ * Integrates with existing wa_logs table from Session 3G.
+ * 
+ * Request Body:
+ * {
+ *   "lead_id": "uuid",
+ *   "message": "composed message text",
+ *   "template_type": "cold_outreach" | "follow_up" | "hot_lead",
+ *   "recommended_timing": "within 24 hours",
+ *   "confidence": 0.85,
+ *   "task_id": "uuid from compose-message"
+ * }
+ * 
+ * Response:
+ * {
+ *   "ok": true,
+ *   "review_id": "uuid",
+ *   "status": "pending_approval",
+ *   "lead": { id, name, phone },
+ *   "message": "text",
+ *   "next_action": "Use /api/wa/queue/:id/approve or /api/wa/queue/:id/reject"
+ * }
+ * 
+ * Safety:
+ * - Stores in wa_logs with requires_approval=true
+ * - NO auto-send (founder gate enforced)
+ * - Integrates with Session 3G approval workflow
+ */
+agentsRouter.post('/review-message', async (c) => {
+  const { env } = c
+  const body = await c.req.json().catch(() => ({}))
+  const { lead_id, message, template_type, recommended_timing, confidence, task_id } = body
+
+  // Validation
+  if (!lead_id || !message) {
+    return c.json({ 
+      ok: false, 
+      error: 'INVALID_REQUEST', 
+      message: 'lead_id and message required' 
+    }, 400)
+  }
+
+  // UUID validation
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(lead_id)) {
+    return c.json({ 
+      ok: false, 
+      error: 'INVALID_UUID', 
+      message: 'lead_id must be valid UUID' 
+    }, 400)
+  }
+
+  if (typeof message !== 'string' || message.trim().length === 0) {
+    return c.json({ 
+      ok: false, 
+      error: 'INVALID_MESSAGE', 
+      message: 'message must be non-empty string' 
+    }, 400)
+  }
+
+  try {
+    const supabase = tryCreateDbClient(env)
+    if (!supabase) {
+      return c.json({ 
+        ok: false, 
+        error: 'DATABASE_UNAVAILABLE', 
+        message: 'Database credentials not configured' 
+      }, 500)
+    }
+
+    // Fetch lead info
+    const { data: lead, error: leadError } = await supabase
+      .from('leads')
+      .select('id, name, phone, email, instagram_handle')
+      .eq('id', lead_id)
+      .single()
+
+    if (leadError || !lead) {
+      return c.json({ 
+        ok: false, 
+        error: 'LEAD_NOT_FOUND', 
+        message: `Lead ${lead_id} not found` 
+      }, 404)
+    }
+
+    // Determine target (prefer phone, fallback to email)
+    const target = lead.phone || lead.email || lead.instagram_handle
+    if (!target) {
+      return c.json({ 
+        ok: false, 
+        error: 'NO_CONTACT', 
+        message: 'Lead has no phone/email/instagram contact' 
+      }, 400)
+    }
+
+    // Create review entry in wa_logs
+    const reviewId = crypto.randomUUID()
+    const now = new Date().toISOString()
+
+    const { error: insertError } = await supabase
+      .from('wa_logs')
+      .insert({
+        id: reviewId,
+        direction: 'outbound',
+        target: target,
+        message_text: message,
+        status: 'pending_approval',
+        requires_approval: true,
+        metadata: {
+          session: '4e',
+          lead_id: lead_id,
+          template_type: template_type || 'unknown',
+          recommended_timing: recommended_timing || 'N/A',
+          confidence: confidence || 0,
+          compose_task_id: task_id || null,
+          queued_at: now
+        },
+        created_at: now
+      })
+
+    if (insertError) {
+      console.error('Failed to queue message for review:', insertError)
+      return c.json({ 
+        ok: false, 
+        error: 'QUEUE_FAILED', 
+        message: 'Failed to queue message for review' 
+      }, 500)
+    }
+
+    // Return success
+    return c.json({
+      ok: true,
+      review_id: reviewId,
+      status: 'pending_approval',
+      lead: {
+        id: lead.id,
+        name: lead.name,
+        phone: lead.phone,
+        target: target
+      },
+      message: message,
+      template_type: template_type || 'unknown',
+      recommended_timing: recommended_timing || 'N/A',
+      confidence: confidence || 0,
+      next_action: 'Use /api/wa/queue/:id/approve or /api/wa/queue/:id/reject',
+      queued_at: now
+    })
+
+  } catch (error) {
+    console.error('Review message error:', error)
+    return c.json({ 
+      ok: false, 
+      error: 'INTERNAL_ERROR', 
+      message: error instanceof Error ? error.message : 'Unknown error' 
+    }, 500)
+  }
+})
+
+/**
+ * GET /api/agents/pending-messages
+ * 
+ * List all composed messages awaiting founder review.
+ * Reads from wa_logs where requires_approval=true and status='pending_approval'.
+ * 
+ * Query Params:
+ * - limit: max results (default: 20, max: 100)
+ * 
+ * Response:
+ * {
+ *   "ok": true,
+ *   "pending_count": 5,
+ *   "messages": [
+ *     {
+ *       "id": "uuid",
+ *       "lead_id": "uuid",
+ *       "lead_name": "Name",
+ *       "target": "628xxx",
+ *       "message": "text",
+ *       "template_type": "hot_lead",
+ *       "recommended_timing": "within 24h",
+ *       "confidence": 0.85,
+ *       "queued_at": "ISO timestamp"
+ *     }
+ *   ]
+ * }
+ */
+agentsRouter.get('/pending-messages', async (c) => {
+  const { env } = c
+  const limitParam = c.req.query('limit')
+  const limit = Math.min(
+    Math.max(1, parseInt(limitParam || '20', 10)),
+    100
+  )
+
+  try {
+    const supabase = tryCreateDbClient(env)
+    if (!supabase) {
+      return c.json({ 
+        ok: false, 
+        error: 'DATABASE_UNAVAILABLE', 
+        message: 'Database credentials not configured' 
+      }, 500)
+    }
+
+    // Query pending messages from wa_logs
+    const { data: pendingLogs, error: queryError } = await supabase
+      .from('wa_logs')
+      .select('id, target, message_text, status, metadata, created_at')
+      .eq('direction', 'outbound')
+      .eq('status', 'pending_approval')
+      .eq('requires_approval', true)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (queryError) {
+      console.error('Failed to fetch pending messages:', queryError)
+      return c.json({ 
+        ok: false, 
+        error: 'QUERY_FAILED', 
+        message: 'Failed to fetch pending messages' 
+      }, 500)
+    }
+
+    const messages = pendingLogs || []
+    const pending_count = messages.length
+
+    // Fetch lead details for each message
+    const leadIds = messages
+      .map(m => m.metadata?.lead_id)
+      .filter((id): id is string => typeof id === 'string')
+
+    let leadsMap: Record<string, any> = {}
+    if (leadIds.length > 0) {
+      const { data: leads } = await supabase
+        .from('leads')
+        .select('id, name')
+        .in('id', leadIds)
+
+      if (leads) {
+        leadsMap = leads.reduce((acc, lead) => {
+          acc[lead.id] = lead
+          return acc
+        }, {} as Record<string, any>)
+      }
+    }
+
+    // Format response
+    const formattedMessages = messages.map(log => {
+      const meta = log.metadata || {}
+      const lead = leadsMap[meta.lead_id] || null
+
+      return {
+        id: log.id,
+        lead_id: meta.lead_id || null,
+        lead_name: lead?.name || 'Unknown',
+        target: log.target,
+        message: log.message_text,
+        template_type: meta.template_type || 'unknown',
+        recommended_timing: meta.recommended_timing || 'N/A',
+        confidence: meta.confidence || 0,
+        queued_at: meta.queued_at || log.created_at
+      }
+    })
+
+    return c.json({
+      ok: true,
+      pending_count,
+      messages: formattedMessages
+    })
+
+  } catch (error) {
+    console.error('Pending messages error:', error)
+    return c.json({ 
+      ok: false, 
+      error: 'INTERNAL_ERROR', 
+      message: error instanceof Error ? error.message : 'Unknown error' 
+    }, 500)
+  }
+})
+
+export default agentsRouter
