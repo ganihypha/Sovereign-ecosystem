@@ -1137,31 +1137,25 @@ agentsRouter.post('/review-message', async (c) => {
     }
 
     // Create review entry in wa_logs
-    const reviewId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+    // ALIGNED WITH SESSION 3G SCHEMA (insertWaLog pattern)
     const now = new Date().toISOString()
 
-    const { error: insertError } = await supabase
+    const { data: insertedLog, error: insertError } = await supabase
       .from('wa_logs')
       .insert({
-        id: reviewId,
         direction: 'outbound',
-        target: target,
-        message_text: message,
+        phone: target,
+        message_body: message,
         status: 'pending_approval',
         requires_approval: true,
-        metadata: JSON.stringify({
-          session: '4e',
-          lead_id: lead_id,
-          template_type: template_type || 'unknown',
-          recommended_timing: recommended_timing || 'N/A',
-          confidence: confidence || 0,
-          compose_task_id: task_id || null,
-          queued_at: now
-        }),
-        created_at: now
+        sent_by: 'agent',
+        fonnte_message_id: null,
+        sent_at: null,
       })
+      .select()
+      .single()
 
-    if (insertError) {
+    if (insertError || !insertedLog) {
       console.error('Failed to queue message for review:', insertError)
       return c.json({ 
         ok: false, 
@@ -1173,7 +1167,7 @@ agentsRouter.post('/review-message', async (c) => {
     // Return success
     return c.json({
       ok: true,
-      review_id: reviewId,
+      review_id: insertedLog.id,
       status: 'pending_approval',
       lead: {
         id: lead.id,
@@ -1246,9 +1240,10 @@ agentsRouter.get('/pending-messages', async (c) => {
     }
 
     // Query pending messages from wa_logs
+    // ALIGNED WITH SESSION 3G SCHEMA (phone, message_body)
     const { data: pendingLogs, error: queryError } = await supabase
       .from('wa_logs')
-      .select('id, target, message_text, status, metadata, created_at')
+      .select('id, phone, message_body, status, created_at')
       .eq('direction', 'outbound')
       .eq('status', 'pending_approval')
       .eq('requires_approval', true)
@@ -1267,43 +1262,15 @@ agentsRouter.get('/pending-messages', async (c) => {
     const messages = pendingLogs || []
     const pending_count = messages.length
 
-    // Fetch lead details for each message
-    const leadIds = messages
-      .map(m => m.metadata?.lead_id)
-      .filter((id): id is string => typeof id === 'string')
-
-    let leadsMap: Record<string, any> = {}
-    if (leadIds.length > 0) {
-      const { data: leads } = await supabase
-        .from('leads')
-        .select('id, name')
-        .in('id', leadIds)
-
-      if (leads) {
-        leadsMap = leads.reduce((acc, lead) => {
-          acc[lead.id] = lead
-          return acc
-        }, {} as Record<string, any>)
-      }
-    }
-
-    // Format response
-    const formattedMessages = messages.map(log => {
-      const meta = log.metadata || {}
-      const lead = leadsMap[meta.lead_id] || null
-
-      return {
+    // Format response (simplified - no metadata enrichment for now)
+    const formattedMessages = messages.map(log => ({
         id: log.id,
-        lead_id: meta.lead_id || null,
-        lead_name: lead?.name || 'Unknown',
-        target: log.target,
-        message: log.message_text,
-        template_type: meta.template_type || 'unknown',
-        recommended_timing: meta.recommended_timing || 'N/A',
-        confidence: meta.confidence || 0,
-        queued_at: meta.queued_at || log.created_at
-      }
-    })
+        target: log.phone,
+        message: log.message_body,
+        status: log.status,
+        queued_at: log.created_at
+      })
+    )
 
     return c.json({
       ok: true,
