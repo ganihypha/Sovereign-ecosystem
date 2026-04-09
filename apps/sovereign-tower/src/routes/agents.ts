@@ -21,6 +21,7 @@ import type { TowerEnv } from '../lib/app-config'
 import type { SovereignAuthVariables } from '@sovereign/auth'
 import { errorResponse } from '../lib/app-config'
 import { tryCreateDbClient, hasDbCredentials } from '../lib/db-adapter'
+import { getFonnteDeviceToken, fonnteSend, normalizePhone } from '../lib/wa-adapter'
 
 type AgentContext = {
   Bindings: TowerEnv
@@ -1379,8 +1380,6 @@ agentsRouter.post('/send-approved/:id', async (c) => {
     }
 
     // Execute send using Fonnte directly (Session 3G pattern)
-    const { getFonnteDeviceToken, fonnteSend, normalizePhone } = await import('../lib/wa-adapter')
-    
     const fonnteToken = getFonnteDeviceToken(env)
     if (!fonnteToken) {
       return c.json({
