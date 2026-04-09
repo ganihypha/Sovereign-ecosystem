@@ -782,3 +782,247 @@ Provide response in JSON format:
     generated_at: generatedAt
   })
 })
+
+// ============================================================================
+// SESSION 4D: MESSAGE COMPOSER AGENT
+// ============================================================================
+
+/**
+ * POST /api/agents/compose-message
+ * 
+ * Generates personalized outreach message for a lead based on their score and data.
+ * 
+ * Request Body:
+ * {
+ *   "lead_id": "uuid",
+ *   "template_type": "cold_outreach" | "follow_up" | "hot_lead" (optional, default: auto-detect)
+ * }
+ * 
+ * Response:
+ * {
+ *   "ok": true,
+ *   "lead": { id, name, score, status },
+ *   "message": "Personalized WhatsApp message text",
+ *   "template_type": "cold_outreach",
+ *   "personalization_notes": ["note1", "note2"],
+ *   "recommended_timing": "within 24h",
+ *   "confidence": 0.85,
+ *   "task_id": "uuid",
+ *   "generated_at": "ISO timestamp"
+ * }
+ * 
+ * Safety:
+ * - NO auto-send (founder gate maintained)
+ * - Logs to ai_tasks for audit trail
+ * - Requires JWT auth (founder role)
+ */
+agents.post('/compose-message', jwtAuth, async (c) => {
+  const { env } = c
+  const body = await c.req.json().catch(() => ({}))
+  const { lead_id, template_type } = body
+
+  // Validation
+  if (!lead_id || typeof lead_id !== 'string') {
+    return c.json({ ok: false, error: 'INVALID_REQUEST', message: 'lead_id required' }, 400)
+  }
+
+  // UUID validation
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(lead_id)) {
+    return c.json({ ok: false, error: 'INVALID_UUID', message: 'lead_id must be valid UUID' }, 400)
+  }
+
+  // Validate template_type if provided
+  const validTemplates = ['cold_outreach', 'follow_up', 'hot_lead']
+  if (template_type && !validTemplates.includes(template_type)) {
+    return c.json({ 
+      ok: false, 
+      error: 'INVALID_TEMPLATE', 
+      message: `template_type must be one of: ${validTemplates.join(', ')}` 
+    }, 400)
+  }
+
+  try {
+    const supabase = createSupabaseClient(env)
+
+    // Fetch lead with score
+    const { data: lead, error: leadError } = await supabase
+      .from('leads')
+      .select('id, name, phone, email, instagram_handle, source, status, notes, ai_score, ai_score_reasoning')
+      .eq('id', lead_id)
+      .single()
+
+    if (leadError || !lead) {
+      return c.json({ 
+        ok: false, 
+        error: 'LEAD_NOT_FOUND', 
+        message: `Lead ${lead_id} not found` 
+      }, 404)
+    }
+
+    // Check if lead has been scored
+    if (!lead.ai_score) {
+      return c.json({ 
+        ok: false, 
+        error: 'LEAD_NOT_SCORED', 
+        message: 'Lead must be scored first (use /api/agents/scout-score)' 
+      }, 400)
+    }
+
+    // Auto-detect template type if not provided
+    let detectedTemplate = template_type
+    if (!detectedTemplate) {
+      if (lead.ai_score >= 70) {
+        detectedTemplate = 'hot_lead'
+      } else if (lead.status === 'contacted' || lead.status === 'follow_up') {
+        detectedTemplate = 'follow_up'
+      } else {
+        detectedTemplate = 'cold_outreach'
+      }
+    }
+
+    // Build context for AI
+    const leadContext = {
+      name: lead.name,
+      score: lead.ai_score,
+      reasoning: lead.ai_score_reasoning,
+      source: lead.source,
+      status: lead.status,
+      contact: lead.phone || lead.email || lead.instagram_handle,
+      notes: lead.notes
+    }
+
+    // Generate message using GROQ
+    const groqPrompt = `You are an expert sales copywriter for PT Waskita Cakrawarti Digital.
+
+Generate a personalized WhatsApp outreach message for this lead:
+
+Lead Details:
+- Name: ${leadContext.name}
+- Source: ${leadContext.source}
+- Score: ${leadContext.score}/100
+- Status: ${leadContext.status}
+- Contact: ${leadContext.contact}
+- Score Reasoning: ${leadContext.reasoning}
+${leadContext.notes ? `- Notes: ${leadContext.notes}` : ''}
+
+Template Type: ${detectedTemplate}
+
+Instructions:
+1. Write a warm, personalized WhatsApp message in Bahasa Indonesia
+2. Reference their source (${leadContext.source}) naturally
+3. Match the template type:
+   - cold_outreach: introduce company, build interest, ask for meeting
+   - follow_up: reference previous interaction, add value, next step
+   - hot_lead: direct, professional, schedule call/meeting quickly
+4. Keep it conversational, under 150 words
+5. Include a clear call-to-action
+6. Use appropriate greeting and closing
+
+Return ONLY the message text, no explanations.`
+
+    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: 'You are an expert sales copywriter.' },
+          { role: 'user', content: groqPrompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      })
+    })
+
+    if (!groqResponse.ok) {
+      console.error('GROQ API error:', await groqResponse.text())
+      return c.json({ 
+        ok: false, 
+        error: 'AI_GENERATION_FAILED', 
+        message: 'Failed to generate message' 
+      }, 500)
+    }
+
+    const groqData = await groqResponse.json()
+    const generatedMessage = groqData.choices?.[0]?.message?.content || ''
+
+    if (!generatedMessage) {
+      return c.json({ 
+        ok: false, 
+        error: 'EMPTY_RESPONSE', 
+        message: 'AI returned empty message' 
+      }, 500)
+    }
+
+    // Extract personalization notes
+    const personalizationNotes: string[] = []
+    if (leadContext.source) personalizationNotes.push(`Referenced source: ${leadContext.source}`)
+    if (leadContext.score >= 70) personalizationNotes.push('High-quality lead - prioritize')
+    if (leadContext.score < 40) personalizationNotes.push('Low-quality lead - nurture campaign')
+    if (detectedTemplate === 'hot_lead') personalizationNotes.push('Fast track - schedule within 48h')
+
+    // Determine recommended timing
+    let recommendedTiming = 'within 3-5 days'
+    if (lead.ai_score >= 70) {
+      recommendedTiming = 'within 24 hours'
+    } else if (lead.ai_score >= 40) {
+      recommendedTiming = 'within 2-3 days'
+    }
+
+    // Calculate confidence score
+    const confidence = Math.min(0.95, 0.5 + (lead.ai_score / 200))
+
+    // Log AI task
+    const taskId = crypto.randomUUID()
+    const generatedAt = new Date().toISOString()
+
+    await supabase.from('ai_tasks').insert({
+      id: taskId,
+      agent: 'message-composer',
+      lead_id: lead.id,
+      status: 'completed',
+      input: JSON.stringify({ template_type: detectedTemplate, lead_context: leadContext }),
+      output: JSON.stringify({ 
+        message: generatedMessage, 
+        template_type: detectedTemplate,
+        confidence,
+        personalization_notes: personalizationNotes,
+        recommended_timing: recommendedTiming
+      }),
+      metadata: { session: '4d' },
+      created_at: generatedAt,
+      completed_at: generatedAt
+    })
+
+    // Return composed message
+    return c.json({
+      ok: true,
+      lead: {
+        id: lead.id,
+        name: lead.name,
+        score: lead.ai_score,
+        status: lead.status,
+        source: lead.source
+      },
+      message: generatedMessage.trim(),
+      template_type: detectedTemplate,
+      personalization_notes: personalizationNotes,
+      recommended_timing: recommendedTiming,
+      confidence: Math.round(confidence * 100) / 100,
+      task_id: taskId,
+      generated_at: generatedAt
+    })
+
+  } catch (error) {
+    console.error('Message composition error:', error)
+    return c.json({ 
+      ok: false, 
+      error: 'INTERNAL_ERROR', 
+      message: error instanceof Error ? error.message : 'Unknown error' 
+    }, 500)
+  }
+})
