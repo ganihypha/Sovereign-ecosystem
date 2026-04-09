@@ -1290,4 +1290,154 @@ agentsRouter.get('/pending-messages', async (c) => {
   }
 })
 
+// =============================================================================
+// POST /api/agents/send-approved/:id — Send Approved Message (SESSION 4F)
+// =============================================================================
+
+/**
+ * POST /api/agents/send-approved/:id
+ * 
+ * Executes actual send for an approved message.
+ * Integrates 4E review queue with 3G send infrastructure.
+ * 
+ * Flow:
+ * 1. Fetch approved item from wa_logs (must have status='sent' per 3G approve)
+ * 2. Extract phone + message_body
+ * 3. Execute send via waSendAndLog() (reuses 3G helper)
+ * 4. Return delivery status
+ * 
+ * Requirements:
+ * - Item must exist in wa_logs
+ * - Status must be 'sent' (approved via /api/wa/queue/:id/approve)
+ * - requires_approval must be false (gate cleared)
+ * 
+ * Session 4F: Minimal approved-send path
+ */
+agentsRouter.post('/send-approved/:id', async (c) => {
+  const env = c.env
+  const id = c.req.param('id')
+
+  // Validate ID
+  if (!id || typeof id !== 'string' || id.trim().length === 0) {
+    return c.json({
+      ok: false,
+      error: 'VALIDATION_ERROR',
+      message: 'Message ID is required'
+    }, 400)
+  }
+
+  // Check DB credentials
+  if (!hasDbCredentials(env)) {
+    return c.json({
+      ok: false,
+      error: 'DB_NOT_CONFIGURED',
+      message: 'Database credentials not configured'
+    }, 503)
+  }
+
+  const supabase = tryCreateDbClient(env)
+  if (!supabase) {
+    return c.json({
+      ok: false,
+      error: 'DB_CLIENT_FAILED',
+      message: 'Failed to create database client'
+    }, 503)
+  }
+
+  try {
+    // Fetch approved item from wa_logs
+    const { data: item, error: fetchError } = await supabase
+      .from('wa_logs')
+      .select('id, phone, message_body, status, requires_approval, direction')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !item) {
+      return c.json({
+        ok: false,
+        error: 'MESSAGE_NOT_FOUND',
+        message: `Message ${id.slice(0, 8)}... not found in queue`
+      }, 404)
+    }
+
+    // Verify approval status
+    if (item.status !== 'sent' || item.requires_approval !== false) {
+      return c.json({
+        ok: false,
+        error: 'MESSAGE_NOT_APPROVED',
+        message: `Message not approved. Current status: ${item.status}, requires_approval: ${item.requires_approval}. Use POST /api/wa/queue/:id/approve first.`
+      }, 409)
+    }
+
+    // Verify direction
+    if (item.direction !== 'outbound') {
+      return c.json({
+        ok: false,
+        error: 'INVALID_DIRECTION',
+        message: 'Can only send outbound messages'
+      }, 400)
+    }
+
+    // Execute send using Fonnte directly (Session 3G pattern)
+    const { getFonnteDeviceToken, fonnteSend, normalizePhone } = await import('../lib/wa-adapter')
+    
+    const fonnteToken = getFonnteDeviceToken(env)
+    if (!fonnteToken) {
+      return c.json({
+        ok: false,
+        error: 'FONNTE_NOT_CONFIGURED',
+        message: 'FONNTE_DEVICE_TOKEN not configured in environment'
+      }, 503)
+    }
+
+    const normalizedPhone = normalizePhone(item.phone)
+    
+    // Send via Fonnte
+    const sendResult = await fonnteSend({
+      token: fonnteToken,
+      phone: normalizedPhone,
+      message: item.message_body,
+    })
+
+    // Update wa_logs with send result
+    const updatePayload: any = {
+      sent_at: new Date().toISOString(),
+    }
+
+    if (sendResult.success && sendResult.message_id) {
+      updatePayload.fonnte_message_id = sendResult.message_id
+      updatePayload.status = 'delivered' // Fonnte confirmed
+    } else {
+      updatePayload.status = 'failed'
+    }
+
+    await supabase
+      .from('wa_logs')
+      .update(updatePayload)
+      .eq('id', id)
+
+    // Return result
+    const confirmed = sendResult.success && sendResult.message_id
+    return c.json({
+      ok: confirmed,
+      message_id: id,
+      phone: item.phone,
+      delivery_status: confirmed ? 'CONFIRMED' : 'FAILED',
+      fonnte_message_id: sendResult.message_id ?? null,
+      error: sendResult.error ?? null,
+      note: confirmed
+        ? `Message sent successfully via Fonnte (ID: ${sendResult.message_id})`
+        : `Send failed: ${sendResult.error ?? 'unknown'}`,
+    })
+
+  } catch (error) {
+    console.error('Send approved error:', error)
+    return c.json({
+      ok: false,
+      error: 'SEND_FAILED',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    }, 500)
+  }
+})
+
 export default agentsRouter
