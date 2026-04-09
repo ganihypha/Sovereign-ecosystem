@@ -816,7 +816,7 @@ Provide response in JSON format:
  * - Logs to ai_tasks for audit trail
  * - Requires JWT auth (founder role)
  */
-agents.post('/compose-message', jwtAuth, async (c) => {
+agentsRouter.post('/compose-message', async (c) => {
   const { env } = c
   const body = await c.req.json().catch(() => ({}))
   const { lead_id, template_type } = body
