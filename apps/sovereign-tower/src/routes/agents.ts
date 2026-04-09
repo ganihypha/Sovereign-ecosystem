@@ -1137,7 +1137,8 @@ agentsRouter.post('/review-message', async (c) => {
     }
 
     // Create review entry in wa_logs
-    // ALIGNED WITH SESSION 3G SCHEMA (insertWaLog pattern)
+    // ALIGNED WITH SESSION 3G SCHEMA + wa_logs table definition (001-wa-logs.sql)
+    // Status: 'pending' (not 'pending_approval' - CHECK constraint enforced)
     const now = new Date().toISOString()
 
     const { data: insertedLog, error: insertError } = await supabase
@@ -1146,7 +1147,7 @@ agentsRouter.post('/review-message', async (c) => {
         direction: 'outbound',
         phone: target,
         message_body: message,
-        status: 'pending_approval',
+        status: 'pending',
         requires_approval: true,
         sent_by: 'agent',
         fonnte_message_id: null,
@@ -1168,7 +1169,7 @@ agentsRouter.post('/review-message', async (c) => {
     return c.json({
       ok: true,
       review_id: insertedLog.id,
-      status: 'pending_approval',
+      status: 'pending',
       lead: {
         id: lead.id,
         name: lead.name,
@@ -1241,11 +1242,12 @@ agentsRouter.get('/pending-messages', async (c) => {
 
     // Query pending messages from wa_logs
     // ALIGNED WITH SESSION 3G SCHEMA (phone, message_body)
+    // Status: 'pending' + requires_approval=true (per 001-wa-logs.sql schema)
     const { data: pendingLogs, error: queryError } = await supabase
       .from('wa_logs')
       .select('id, phone, message_body, status, created_at')
       .eq('direction', 'outbound')
-      .eq('status', 'pending_approval')
+      .eq('status', 'pending')
       .eq('requires_approval', true)
       .order('created_at', { ascending: false })
       .limit(limit)
