@@ -1137,7 +1137,7 @@ agentsRouter.post('/review-message', async (c) => {
     }
 
     // Create review entry in wa_logs
-    const reviewId = crypto.randomUUID()
+    const reviewId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
     const now = new Date().toISOString()
 
     const { error: insertError } = await supabase
@@ -1149,7 +1149,7 @@ agentsRouter.post('/review-message', async (c) => {
         message_text: message,
         status: 'pending_approval',
         requires_approval: true,
-        metadata: {
+        metadata: JSON.stringify({
           session: '4e',
           lead_id: lead_id,
           template_type: template_type || 'unknown',
@@ -1157,7 +1157,7 @@ agentsRouter.post('/review-message', async (c) => {
           confidence: confidence || 0,
           compose_task_id: task_id || null,
           queued_at: now
-        },
+        }),
         created_at: now
       })
 
