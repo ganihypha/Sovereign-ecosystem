@@ -3,11 +3,11 @@ module.exports = {
     {
       name: 'sovereign-tower',
       script: 'npx',
-      args: 'wrangler pages dev dist --ip 0.0.0.0 --port 3001',
-      cwd: '/home/user/webapp/sovereign-ecosystem/apps/sovereign-tower',
+      args: 'wrangler pages dev dist --ip 0.0.0.0 --port 3000',
+      cwd: '/home/user/webapp/apps/sovereign-tower',
       env: {
         NODE_ENV: 'development',
-        PORT: 3001
+        PORT: 3000
       },
       watch: false,
       instances: 1,

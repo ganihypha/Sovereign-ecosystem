@@ -19,6 +19,7 @@ import { modulesRouter } from './routes/modules'
 import { dashboardRouter } from './routes/dashboard'
 import { waRouter } from './routes/wa'
 import { agentsRouter } from './routes/agents'
+import { founderDashboardRouter } from './routes/founder-dashboard'
 
 // =============================================================================
 // APP FACTORY
@@ -49,7 +50,14 @@ export function createApp(): TowerApp {
   // Session 3b: update allowed origins untuk production domain
   const corsMiddleware: MiddlewareHandler = async (c, next) => {
     await next()
-    c.res.headers.set('Access-Control-Allow-Origin', 'http://localhost:3001')
+    const origin = c.req.header('origin') || ''
+    const allowedOrigins = [
+      'http://localhost:3001',
+      'http://localhost:3000',
+      'https://sovereign-tower.pages.dev',
+    ]
+    const allowOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0]
+    c.res.headers.set('Access-Control-Allow-Origin', allowOrigin)
     c.res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
     c.res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   }
@@ -89,6 +97,7 @@ export function createApp(): TowerApp {
   // Founder-only guard — enforce role === 'founder' untuk semua protected routes
   // /health/* tetap public (tidak dalam /api/*)
   // /api/wa/webhook tetap public (webhook dari Fonnte)
+  // /dashboard tetap public HTML (auth dilakukan client-side via JavaScript)
   app.use('/api/*', async (c, next) => {
     // Skip founderOnly for webhook route
     if (c.req.method === 'POST' && c.req.path === '/api/wa/webhook') {
@@ -108,8 +117,14 @@ export function createApp(): TowerApp {
   app.route('/api/founder', founderRouter)
   app.route('/api/modules', modulesRouter)
   app.route('/api/dashboard', dashboardRouter)
+  app.route('/api/dashboard', founderDashboardRouter)  // SESSION 4G: wa dashboard data feed
   app.route('/api/wa', waRouter)
   app.route('/api/agents', agentsRouter)
+  
+  // SESSION 4G: Founder Dashboard Lite HTML UI
+  // ⚠️ Auth check still required — JWT enforced at /api/* level
+  // /dashboard route is separate, handled by founderDashboardRouter's '/' handler
+  app.route('/dashboard', founderDashboardRouter)
 
   // ─────────────────────────────────────────────────────────────────────────
   // ROOT + FALLBACK

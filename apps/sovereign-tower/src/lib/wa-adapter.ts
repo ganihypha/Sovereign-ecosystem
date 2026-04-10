@@ -1,5 +1,5 @@
 // sovereign-tower — src/lib/wa-adapter.ts
-// Fonnte WhatsApp Adapter — Session 3f + 3g
+// Fonnte WhatsApp Adapter — Session 3f + 3g + 4G
 // Live implementation yang wrap Fonnte API untuk sovereign-tower
 //
 // ⚠️ SECURITY RULES (non-negotiable):
@@ -24,6 +24,7 @@
 //
 // ADR-012: WA adapter wraps Fonnte, tidak expose ke public, always logged to wa_logs
 // ADR-019: Session 3g — inbound webhook, human-gate queue, broadcast gating
+// ADR-020: Session 4G — governance hardening: 'approved' status, rejection reason, env clarity
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -43,13 +44,30 @@ export const FONNTE_ENDPOINTS = {
 } as const
 
 // WA Log statuses — matches wa_logs.status CHECK constraint
+// Session 4G: 'approved' status added for governance clarity
+// Lifecycle: pending → approved → sent → delivered → read
+// Terminal states: failed, rejected_by_founder
 export type WaLogStatus =
-  | 'pending'
-  | 'sent'
-  | 'delivered'
-  | 'read'
-  | 'failed'
-  | 'rejected_by_founder'
+  | 'pending'             // queued, awaiting founder review
+  | 'approved'            // founder approved, NOT yet dispatched — SESSION 4G ADDITION
+  | 'sent'                // dispatched to Fonnte
+  | 'delivered'           // Fonnte confirmed delivery
+  | 'read'                // recipient read the message
+  | 'failed'              // send attempt failed
+  | 'rejected_by_founder' // explicitly rejected by founder
+
+/**
+ * Human-readable status labels untuk founder dashboard
+ */
+export const WA_STATUS_LABELS: Record<WaLogStatus, string> = {
+  pending: 'Menunggu Review',
+  approved: 'Disetujui (Siap Kirim)',
+  sent: 'Dikirim ke Provider',
+  delivered: 'Terkirim',
+  read: 'Dibaca',
+  failed: 'Gagal Kirim',
+  rejected_by_founder: 'Ditolak Founder',
+} as const
 
 // =============================================================================
 // ENV HELPERS
@@ -81,6 +99,57 @@ export function getFonnteDeviceToken(env: TowerEnv): string | null {
  */
 export function hasFonnteCredentials(env: TowerEnv): boolean {
   return getFonnteToken(env) !== null
+}
+
+/**
+ * SESSION 4G — Token/Env Clarity Report
+ * Returns a non-secret diagnostic report showing WHICH env vars are present
+ * without exposing any values. Used in /api/wa/status for governance transparency.
+ *
+ * ADR-020: Token resolution order documented here as authoritative reference:
+ *   SEND ops: FONNTE_DEVICE_TOKEN > FONNTE_TOKEN > FONNTE_ACCOUNT_TOKEN
+ *   MANAGEMENT ops: FONNTE_ACCOUNT_TOKEN > FONNTE_TOKEN > FONNTE_DEVICE_TOKEN
+ *   WEBHOOK validate: FONNTE_DEVICE_TOKEN > FONNTE_TOKEN > FONNTE_ACCOUNT_TOKEN
+ */
+export function getFonnteEnvReport(env: TowerEnv): {
+  FONNTE_DEVICE_TOKEN_present: boolean
+  FONNTE_ACCOUNT_TOKEN_present: boolean
+  FONNTE_TOKEN_present: boolean
+  send_token_source: 'FONNTE_DEVICE_TOKEN' | 'FONNTE_TOKEN' | 'FONNTE_ACCOUNT_TOKEN' | 'MISSING'
+  management_token_source: 'FONNTE_ACCOUNT_TOKEN' | 'FONNTE_TOKEN' | 'FONNTE_DEVICE_TOKEN' | 'MISSING'
+  token_length_check: {
+    FONNTE_DEVICE_TOKEN?: number
+    FONNTE_ACCOUNT_TOKEN?: number
+  }
+} {
+  const deviceToken = env.FONNTE_DEVICE_TOKEN
+  const accountToken = env.FONNTE_ACCOUNT_TOKEN
+  const genericToken = env.FONNTE_TOKEN
+
+  // Determine send token source
+  let sendSource: 'FONNTE_DEVICE_TOKEN' | 'FONNTE_TOKEN' | 'FONNTE_ACCOUNT_TOKEN' | 'MISSING' = 'MISSING'
+  if (deviceToken && deviceToken.trim().length > 0) sendSource = 'FONNTE_DEVICE_TOKEN'
+  else if (genericToken && genericToken.trim().length > 0) sendSource = 'FONNTE_TOKEN'
+  else if (accountToken && accountToken.trim().length > 0) sendSource = 'FONNTE_ACCOUNT_TOKEN'
+
+  // Determine management token source
+  let mgmtSource: 'FONNTE_ACCOUNT_TOKEN' | 'FONNTE_TOKEN' | 'FONNTE_DEVICE_TOKEN' | 'MISSING' = 'MISSING'
+  if (accountToken && accountToken.trim().length > 0) mgmtSource = 'FONNTE_ACCOUNT_TOKEN'
+  else if (genericToken && genericToken.trim().length > 0) mgmtSource = 'FONNTE_TOKEN'
+  else if (deviceToken && deviceToken.trim().length > 0) mgmtSource = 'FONNTE_DEVICE_TOKEN'
+
+  return {
+    FONNTE_DEVICE_TOKEN_present: !!(deviceToken && deviceToken.trim().length > 0),
+    FONNTE_ACCOUNT_TOKEN_present: !!(accountToken && accountToken.trim().length > 0),
+    FONNTE_TOKEN_present: !!(genericToken && genericToken.trim().length > 0),
+    send_token_source: sendSource,
+    management_token_source: mgmtSource,
+    // Length check helps diagnose truncation issues (like the 4F VsPot2DeB8CL2eLbVGMF fix)
+    token_length_check: {
+      ...(deviceToken ? { FONNTE_DEVICE_TOKEN: deviceToken.trim().length } : {}),
+      ...(accountToken ? { FONNTE_ACCOUNT_TOKEN: accountToken.trim().length } : {}),
+    },
+  }
 }
 
 // =============================================================================
@@ -541,12 +610,18 @@ export async function insertInboundWaLog(
 }
 
 // =============================================================================
-// SESSION 3G — HUMAN-GATE QUEUE HELPERS
+// SESSION 3G — HUMAN-GATE QUEUE HELPERS (SESSION 4G HARDENED)
 // =============================================================================
 
 /**
- * Get human-gate queue: wa_logs yang requires_approval=true dan status='pending'
- * Ini adalah queue yang harus di-review founder sebelum dikirim
+ * SESSION 4G HARDENED: Get human-gate queue
+ *
+ * Returns items that need founder attention:
+ * 1. status='pending' + requires_approval=true → awaiting review
+ * 2. status='approved' + requires_approval=false → approved but not yet sent
+ *    (these show up so founder can trigger send-approved)
+ *
+ * The 'approved' items appear so founder knows what's ready to dispatch.
  */
 export async function getGateQueue(
   db: DbClient,
@@ -555,9 +630,8 @@ export async function getGateQueue(
   try {
     const { data, error } = await db
       .from('wa_logs')
-      .select('id, direction, phone, message_body, status, requires_approval, sent_by, created_at, approved_at, approved_by')
-      .eq('requires_approval', true)
-      .eq('status', 'pending')
+      .select('id, direction, phone, message_body, status, requires_approval, sent_by, created_at, approved_at, approved_by, rejection_reason')
+      .in('status', ['pending', 'approved'])
       .order('created_at', { ascending: true }) // oldest first = FIFO queue
       .limit(limit)
     if (error || !data) return []
@@ -568,16 +642,54 @@ export async function getGateQueue(
 }
 
 /**
- * Get single queue item by id
+ * Get ONLY pending items (awaiting review, not yet approved)
+ * Used for strict "needs action" queue view
  */
-export async function getQueueItemById(db: DbClient, id: string): Promise<any | null> {
+export async function getPendingQueue(
+  db: DbClient,
+  limit = 20
+): Promise<any[]> {
   try {
     const { data, error } = await db
       .from('wa_logs')
-      .select('id, direction, phone, message_body, status, requires_approval, sent_by, created_at, approved_at, approved_by, fonnte_message_id')
-      .eq('id', id)
-      .single()
-    if (error || !data) return null
+      .select('id, direction, phone, message_body, status, requires_approval, sent_by, created_at, approved_at, approved_by')
+      .eq('requires_approval', true)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true })
+      .limit(limit)
+    if (error || !data) return []
+    return data as any[]
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Get single queue item by id — SESSION 4G: includes rejection_reason + rejected_at (with fallback)
+ */
+export async function getQueueItemById(db: DbClient, id: string): Promise<any | null> {
+  try {
+    // Try with 4G columns first, fall back to base columns
+    let data: any = null
+    try {
+      const res = await db
+        .from('wa_logs')
+        .select('id, direction, phone, message_body, status, requires_approval, sent_by, created_at, approved_at, approved_by, fonnte_message_id, rejection_reason, rejected_at')
+        .eq('id', id)
+        .single()
+      if (!res.error && res.data) data = res.data
+    } catch {
+      // column may not exist
+    }
+    if (!data) {
+      const res = await db
+        .from('wa_logs')
+        .select('id, direction, phone, message_body, status, requires_approval, sent_by, created_at, approved_at, approved_by, fonnte_message_id')
+        .eq('id', id)
+        .single()
+      if (res.error || !res.data) return null
+      data = res.data
+    }
     return data
   } catch {
     return null
@@ -585,18 +697,102 @@ export async function getQueueItemById(db: DbClient, id: string): Promise<any | 
 }
 
 /**
- * Approve queue item: update status ke 'pending' → 'sent' + set approved_at
- * Note: approval hanya update status — actual send dilakukan via /api/wa/send setelah approve
- * Narrowest safe approach: approve = mark as approved, tidak auto-send
+ * SESSION 4G — Audit Trail Query
+ * Get full lifecycle history for a single wa_logs item.
+ * Returns all columns needed to reconstruct the approval journey.
+ * Useful for: debugging, audit review, founder dashboard detail view.
+ */
+export async function getWaAuditTrail(
+  db: DbClient,
+  id: string
+): Promise<{
+  id: string
+  status: WaLogStatus
+  direction: string
+  phone: string
+  message_body: string
+  requires_approval: boolean
+  sent_by: string
+  created_at: string
+  approved_at: string | null
+  approved_by: string | null
+  rejected_at: string | null
+  rejection_reason: string | null
+  fonnte_message_id: string | null
+  sent_at: string | null
+  delivered_at: string | null
+  lifecycle_summary: string
+} | null> {
+  try {
+    // First try with new 4G columns (rejection_reason, rejected_at)
+    // Falls back to base columns if new columns don't exist yet (migration 007 not applied)
+    let row: any = null
+    try {
+      const { data, error } = await db
+        .from('wa_logs')
+        .select('id, status, direction, phone, message_body, requires_approval, sent_by, created_at, approved_at, approved_by, rejected_at, rejection_reason, fonnte_message_id, sent_at, delivered_at')
+        .eq('id', id)
+        .single()
+      if (!error && data) row = data as any
+    } catch {
+      // Column might not exist — try without new 4G columns
+    }
+
+    // Fallback without 4G-specific columns (pre-migration 007)
+    if (!row) {
+      const { data, error } = await db
+        .from('wa_logs')
+        .select('id, status, direction, phone, message_body, requires_approval, sent_by, created_at, approved_at, approved_by, fonnte_message_id, sent_at, delivered_at')
+        .eq('id', id)
+        .single()
+      if (error || !data) return null
+      row = { ...data as any, rejection_reason: null, rejected_at: null }
+    }
+
+    // Build human-readable lifecycle summary
+    const steps: string[] = [`created → ${row.status}`]
+    if (row.approved_at && row.status !== 'rejected_by_founder') {
+      steps.push(`approved_at=${String(row.approved_at).slice(0, 19)}`)
+    }
+    if (row.rejected_at) {
+      steps.push(`rejected_at=${String(row.rejected_at).slice(0, 19)}`)
+      if (row.rejection_reason) steps.push(`reason="${String(row.rejection_reason).slice(0, 50)}"`)
+    }
+    if (row.sent_at) steps.push(`sent_at=${String(row.sent_at).slice(0, 19)}`)
+    if (row.fonnte_message_id) steps.push(`fonnte_id=${row.fonnte_message_id}`)
+    if (row.delivered_at) steps.push(`delivered_at=${String(row.delivered_at).slice(0, 19)}`)
+
+    return {
+      ...row,
+      lifecycle_summary: steps.join(' → '),
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * SESSION 4G HARDENED: Approve queue item
+ *
+ * GOVERNANCE FIX: Status after approve is now 'approved' (NOT 'sent').
+ * 'approved' = founder reviewed and approved, but NOT yet dispatched to Fonnte.
+ * Actual dispatch happens via POST /api/agents/send-approved/:id
+ *
+ * State machine:
+ *   pending (requires_approval=true) → approved (requires_approval=false)
+ *   → then: POST /api/agents/send-approved/:id → sent → delivered
+ *
+ * ADR-020: 'approved' status introduced to eliminate ambiguity between
+ * "approved by founder" and "actually sent to provider".
  */
 export async function approveQueueItem(
   db: DbClient,
   id: string,
   approvedByUserId?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; note?: string }> {
   try {
     const updatePayload: any = {
-      status: 'sent',
+      status: 'approved',       // SESSION 4G: was 'sent' — now correctly 'approved'
       requires_approval: false, // gate cleared
       approved_at: new Date().toISOString(),
     }
@@ -613,7 +809,10 @@ export async function approveQueueItem(
       .eq('status', 'pending')
     if (error) {
       // If FK violation on approved_by (user not in DB), retry without approved_by
+      // This graceful fallback preserves the approval even when approver user ID
+      // is not present in the users table (e.g. JWT sub is not a DB user yet)
       if (error.message && error.message.includes('approved_by') && updatePayload.approved_by) {
+        console.warn('[wa-adapter] approveQueueItem: approved_by FK failed, retrying without it — audit note: approver not in users table')
         delete updatePayload.approved_by
         const { error: retryError } = await (db
           .from('wa_logs') as any)
@@ -624,7 +823,7 @@ export async function approveQueueItem(
         if (retryError) {
           return { success: false, error: retryError.message }
         }
-        return { success: true }
+        return { success: true, note: 'approved_by not set: approver UUID not in users table (graceful fallback active)' }
       }
       return { success: false, error: error.message }
     }
@@ -635,21 +834,31 @@ export async function approveQueueItem(
 }
 
 /**
- * Reject queue item: update status ke 'rejected_by_founder'
- * Item akan tidak dikirim, audit trail tetap tersimpan
+ * SESSION 4G HARDENED: Reject queue item
+ *
+ * Changes from 3G:
+ * - Added rejection_reason parameter for clearer audit trail
+ * - Added rejected_at timestamp (new column from migration 007)
+ * - Consistent approved_by handling matching approveQueueItem
  */
 export async function rejectQueueItem(
   db: DbClient,
   id: string,
-  approvedByUserId?: string
+  approvedByUserId?: string,
+  rejectionReason?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const updatePayload: any = {
       status: 'rejected_by_founder',
       requires_approval: false, // gate decision made
-      approved_at: new Date().toISOString(),
+      approved_at: new Date().toISOString(), // reusing approved_at as "decision_at"
+      rejected_at: new Date().toISOString(), // SESSION 4G: explicit rejection timestamp
     }
-    // Only set approved_by if it's a valid UUID (DB column is UUID FK to users)
+    // Set rejection reason if provided
+    if (rejectionReason && typeof rejectionReason === 'string') {
+      updatePayload.rejection_reason = rejectionReason.slice(0, 500) // max 500 chars
+    }
+    // Only set approved_by if it's a valid UUID
     const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (approvedByUserId && UUID_REGEX.test(approvedByUserId)) {
       updatePayload.approved_by = approvedByUserId

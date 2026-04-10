@@ -45,12 +45,17 @@ import {
   normalizeSenderPhone,
   insertInboundWaLog,
   getGateQueue,
+  getPendingQueue,
   getQueueItemById,
   approveQueueItem,
   rejectQueueItem,
   checkBroadcastGate,
   executeBroadcast,
   BROADCAST_MAX_TARGETS,
+  // Session 4G additions
+  getFonnteEnvReport,
+  getWaAuditTrail,
+  WA_STATUS_LABELS,
 } from '../lib/wa-adapter'
 import { tryCreateDbClient, hasDbCredentials } from '../lib/db-adapter'
 
@@ -79,7 +84,7 @@ export const waRouter = new Hono<WaContext>()
  */
 waRouter.get('/status', async (c: Context<WaContext>) => {
   const env = c.env
-  const session = '3f'
+  const session = '4g' // SESSION 4G UPDATE
 
   // Check credentials by name only
   const fonnteCreds = hasFonnteCredentials(env)
@@ -94,9 +99,13 @@ waRouter.get('/status', async (c: Context<WaContext>) => {
     SUPABASE_SERVICE_ROLE_KEY: !!(env.SUPABASE_SERVICE_ROLE_KEY && (env.SUPABASE_SERVICE_ROLE_KEY as string).length > 0),
   }
 
+  // SESSION 4G: Token/env clarity report
+  const fonnteEnvReport = getFonnteEnvReport(env)
+
   // Check wa_logs table
   let waLogsExists = false
   let waLogsCount = 0
+  let pendingCount = 0
   if (dbCreds) {
     const db = tryCreateDbClient(env)
     if (db) {
@@ -105,6 +114,11 @@ waRouter.get('/status', async (c: Context<WaContext>) => {
         const logs = await getRecentWaLogs(db, 1)
         // Just check accessibility, count separately
         waLogsCount = -1 // unknown without count query
+        // SESSION 4G: also count pending items
+        try {
+          const pending = await getPendingQueue(db, 100)
+          pendingCount = pending.length
+        } catch { pendingCount = -1 }
       }
     }
   }
@@ -139,10 +153,14 @@ waRouter.get('/status', async (c: Context<WaContext>) => {
       // Env readiness (names only, no values)
       env_readiness: envReadiness,
 
+      // SESSION 4G: Token/env clarity report (no values, only metadata)
+      fonnte_env_report: fonnteEnvReport,
+
       // DB status
       db: {
         credentials_present: dbCreds,
         wa_logs_table_exists: waLogsExists,
+        pending_approval_count: pendingCount,
       },
 
       // Device info (no token values)
@@ -610,10 +628,15 @@ waRouter.post('/webhook', async (c: Context<WaContext>) => {
   return c.json(
     successResponse({
       module: 'wa-webhook',
-      session: '3g',
+      session: '4g',
       status: 'received',
       logged: logId !== null,
       log_id: logId,
+      direction: 'inbound',
+      message_type: messageType,
+      // SESSION 4G: diagnostic fields for inbound verification
+      db_available: hasDbCredentials(env),
+      log_status: logId ? 'persisted' : (logError ? 'failed' : 'skipped_no_db'),
       note: logError
         ? `Received — log warning: ${logError}`
         : 'Inbound message received and logged',
@@ -624,14 +647,17 @@ waRouter.post('/webhook', async (c: Context<WaContext>) => {
 })
 
 // =============================================================================
-// GET /api/wa/queue — Human-Gate Queue (SESSION 3G)
+// GET /api/wa/queue — Human-Gate Queue (SESSION 3G, 4G HARDENED)
 // =============================================================================
 
 /**
- * GET /api/wa/queue?limit=20
+ * GET /api/wa/queue?limit=20&filter=pending|approved|all
  *
- * Returns queue of wa_logs where requires_approval=true AND status='pending'
- * This is the founder review queue — items waiting for human gate decision.
+ * SESSION 4G HARDENED:
+ * - Default returns both 'pending' and 'approved' items (full action queue)
+ * - filter=pending → only items awaiting review
+ * - filter=approved → only items approved but not yet sent
+ * - filter=all → same as default
  *
  * Requires JWT + founderOnly (inherited from app-level middleware)
  */
@@ -651,49 +677,70 @@ waRouter.get('/queue', async (c: Context<WaContext>) => {
   }
 
   const limitParam = c.req.query('limit')
+  const filter = c.req.query('filter') ?? 'all'
   const limit = Math.min(parseInt(limitParam ?? '20', 10) || 20, 50)
 
-  const queue = await getGateQueue(db, limit)
+  let queue: any[]
+  if (filter === 'pending') {
+    queue = await getPendingQueue(db, limit)
+  } else {
+    // default / 'approved' / 'all' → get full action queue
+    queue = await getGateQueue(db, limit)
+  }
+
+  const pendingCount = queue.filter((i: any) => i.status === 'pending').length
+  const approvedCount = queue.filter((i: any) => i.status === 'approved').length
 
   return c.json(
     successResponse({
       module: 'wa-queue',
-      session: '3g',
+      session: '4g',
       status: 'live',
+      filter_applied: filter,
       queue: queue.map((item: any) => ({
         id: item.id,
         direction: item.direction,
         phone: item.phone,
-        message_body: (item.message_body as string)?.slice(0, 200) ?? '',
+        message_preview: (item.message_body as string)?.slice(0, 200) ?? '',
         status: item.status,
+        status_label: WA_STATUS_LABELS[item.status as keyof typeof WA_STATUS_LABELS] ?? item.status,
         requires_approval: item.requires_approval,
         sent_by: item.sent_by,
         created_at: item.created_at,
+        approved_at: item.approved_at ?? null,
+        // SESSION 4G: show next action based on status
+        next_action: item.status === 'pending'
+          ? `POST /api/wa/queue/${item.id}/approve or /reject`
+          : item.status === 'approved'
+          ? `POST /api/agents/send-approved/${item.id}`
+          : null,
       })),
-      total: queue.length,
+      summary: {
+        total: queue.length,
+        pending_review: pendingCount,
+        approved_ready_to_send: approvedCount,
+      },
       limit,
       note: queue.length === 0
-        ? 'No items pending human gate review'
-        : `${queue.length} item(s) awaiting founder approval — POST /api/wa/queue/:id/approve or /reject`,
+        ? 'No items in action queue'
+        : `${pendingCount} pending review, ${approvedCount} approved (ready to send)`,
     }),
     200
   )
 })
 
 // =============================================================================
-// POST /api/wa/queue/:id/approve — Approve Queue Item (SESSION 3G)
+// POST /api/wa/queue/:id/approve — Approve Queue Item (SESSION 3G, 4G HARDENED)
 // =============================================================================
 
 /**
  * POST /api/wa/queue/:id/approve
  *
- * Founder approves a queued item.
- * Effect: status → 'sent', requires_approval → false, approved_at = now
+ * SESSION 4G HARDENED: Status after approve = 'approved' (was 'sent' in 3G)
+ * 'approved' = founder reviewed and approved, NOT yet dispatched to Fonnte.
+ * Actual send: POST /api/agents/send-approved/:id
  *
- * ⚠️ IMPORTANT: This does NOT auto-send the message.
- * Approve = gate cleared. Message is marked as approved for send.
- * Actual outbound send must be triggered separately via POST /api/wa/send
- * This is intentional — narrowest safe scope (ADR-019).
+ * State machine: pending → approved → (POST /api/agents/send-approved/:id) → sent → delivered
  *
  * Requires JWT + founderOnly
  */
@@ -754,28 +801,32 @@ waRouter.post('/queue/:id/approve', async (c: Context<WaContext>) => {
   return c.json(
     successResponse({
       module: 'wa-queue-approve',
-      session: '3g',
+      session: '4g',
       status: 'approved',
+      new_status: 'approved', // SESSION 4G: was 'sent', now correctly 'approved'
       id,
       phone: item.phone,
       message_preview: (item.message_body as string)?.slice(0, 100) ?? '',
-      note: 'Gate cleared — item approved. Message NOT auto-sent. Use POST /api/wa/send to actually send if needed.',
-      next_action: 'POST /api/wa/send with { phone, message } to execute outbound send',
+      ...(result.note ? { governance_note: result.note } : {}),
+      note: 'Gate cleared — item status set to \'approved\'. Message NOT auto-sent. Use POST /api/agents/send-approved/:id to dispatch.',
+      next_action: `POST /api/agents/send-approved/${id}`,
     }),
     200
   )
 })
 
 // =============================================================================
-// POST /api/wa/queue/:id/reject — Reject Queue Item (SESSION 3G)
+// POST /api/wa/queue/:id/reject — Reject Queue Item (SESSION 3G, 4G HARDENED)
 // =============================================================================
 
 /**
  * POST /api/wa/queue/:id/reject
  *
- * Founder rejects a queued item.
- * Effect: status → 'rejected_by_founder', requires_approval → false, approved_at = now
+ * SESSION 4G HARDENED: Supports rejection_reason body param.
+ * Effect: status → 'rejected_by_founder', rejected_at = now, rejection_reason saved
  * Item stays in wa_logs for full audit trail.
+ *
+ * Body (optional): { reason: "why rejected" }
  *
  * Requires JWT + founderOnly
  */
@@ -824,7 +875,18 @@ waRouter.post('/queue/:id/reject', async (c: Context<WaContext>) => {
     // Continue without userId
   }
 
-  const result = await rejectQueueItem(db, id, founderUserId)
+  // SESSION 4G: Extract rejection reason from body (optional)
+  let rejectionReason: string | undefined
+  try {
+    const body = await c.req.json().catch(() => ({}))
+    if (body?.reason && typeof body.reason === 'string') {
+      rejectionReason = body.reason.slice(0, 500)
+    }
+  } catch {
+    // No body or parse error — rejection_reason remains undefined
+  }
+
+  const result = await rejectQueueItem(db, id, founderUserId, rejectionReason)
 
   if (!result.success) {
     return c.json(
@@ -836,12 +898,76 @@ waRouter.post('/queue/:id/reject', async (c: Context<WaContext>) => {
   return c.json(
     successResponse({
       module: 'wa-queue-reject',
-      session: '3g',
+      session: '4g',
       status: 'rejected',
       id,
       phone: item.phone,
       message_preview: (item.message_body as string)?.slice(0, 100) ?? '',
+      rejection_reason: rejectionReason ?? null,
       note: 'Item rejected — status set to rejected_by_founder. Audit trail preserved in wa_logs.',
+    }),
+    200
+  )
+})
+
+// =============================================================================
+// GET /api/wa/audit/:id — Get Full Audit Trail for a Message (SESSION 4G)
+// =============================================================================
+
+/**
+ * GET /api/wa/audit/:id
+ *
+ * SESSION 4G: Get full lifecycle audit trail for a specific wa_logs item.
+ * Returns all state transitions including: created → approved → sent → delivered
+ * Plus rejection details if rejected.
+ *
+ * Requires JWT + founderOnly
+ */
+waRouter.get('/audit/:id', async (c: Context<WaContext>) => {
+  const env = c.env
+  const id = c.req.param('id')
+
+  if (!id || typeof id !== 'string' || id.trim().length === 0) {
+    return c.json(errorResponse('VALIDATION_ERROR', 'Message id is required'), 400)
+  }
+
+  if (!hasDbCredentials(env)) {
+    return c.json(errorResponse('DB_NOT_CONFIGURED', 'Database credentials missing'), 503)
+  }
+
+  const db = tryCreateDbClient(env)
+  if (!db) {
+    return c.json(errorResponse('DB_CLIENT_FAILED', 'Failed to create DB client'), 503)
+  }
+
+  const trail = await getWaAuditTrail(db, id)
+  if (!trail) {
+    return c.json(errorResponse('NOT_FOUND', `Message ${id.slice(0, 8)}... not found`), 404)
+  }
+
+  return c.json(
+    successResponse({
+      module: 'wa-audit',
+      session: '4g',
+      id: trail.id,
+      status: trail.status,
+      status_label: WA_STATUS_LABELS[trail.status as keyof typeof WA_STATUS_LABELS] ?? trail.status,
+      direction: trail.direction,
+      phone: trail.phone,
+      message_preview: trail.message_body?.slice(0, 100) ?? '',
+      requires_approval: trail.requires_approval,
+      sent_by: trail.sent_by,
+      timestamps: {
+        created_at: trail.created_at,
+        approved_at: trail.approved_at ?? null,
+        rejected_at: trail.rejected_at ?? null,
+        sent_at: trail.sent_at ?? null,
+        delivered_at: trail.delivered_at ?? null,
+      },
+      approver: trail.approved_by ?? null,
+      rejection_reason: trail.rejection_reason ?? null,
+      fonnte_message_id: trail.fonnte_message_id ?? null,
+      lifecycle_summary: trail.lifecycle_summary,
     }),
     200
   )

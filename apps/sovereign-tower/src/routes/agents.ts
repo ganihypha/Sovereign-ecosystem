@@ -1361,8 +1361,11 @@ agentsRouter.post('/send-approved/:id', async (c) => {
       }, 404)
     }
 
-    // Verify approval status
-    if (item.status !== 'sent' || item.requires_approval !== false) {
+    // SESSION 4G: Status check now handles both 'approved' (4G) and 'sent' (3G backward compat)
+    // After migration to 4G, approve sets status='approved' (not 'sent')
+    // We allow 'sent' as backward compat for items approved before 4G upgrade
+    const isApproved = (item.status === 'approved' || item.status === 'sent') && item.requires_approval === false
+    if (!isApproved) {
       return c.json({
         ok: false,
         error: 'MESSAGE_NOT_APPROVED',
