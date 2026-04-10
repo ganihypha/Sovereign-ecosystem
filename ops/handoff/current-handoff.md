@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-10 | Session 4G = VERIFIED & CLOSED (PUSHED + DEPLOYED) | Build 307.03 kB
+### Update: 2026-04-10 | Session 4G = FULLY CLOSED (PUSHED + DEPLOYED + MIGRATION 007 APPLIED) | Build 307.03 kB
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -551,11 +551,11 @@ Hardening governance, audit trail, dan token/env clarity setelah 4F verified clo
 - Repo: `https://github.com/ganihypha/Sovereign-ecosystem`
 
 ### Pending Manual Steps (Founder)
-1. **Apply Migration 007 to Supabase**:
-   - File: `migration/sql/007-wa-logs-governance-hardening.sql`
-   - Run in Supabase SQL Editor untuk production schema update
-   - Adds: `approved` status, `rejection_reason`, `rejected_at`, composite index
-   - ⚠️ Tanpa migration ini, `approve` tetap bekerja tapi `rejected_at` column tidak ada
+1. ~~**Apply Migration 007 to Supabase**~~ — ✅ **APPLIED & VERIFIED (2026-04-10)**
+   - `rejection_reason` TEXT ✅ added
+   - `rejected_at` TIMESTAMPTZ ✅ added
+   - `wa_logs_status_check` constraint ✅ updated (includes `approved`, `rejected_by_founder`)
+   - `idx_wa_logs_approval_queue` composite index ✅ created
 2. **Set JWT in Dashboard**:
    - Buka `https://sovereign-tower.pages.dev/dashboard`
    - Masukkan JWT token di form yang tersedia
@@ -563,8 +563,7 @@ Hardening governance, audit trail, dan token/env clarity setelah 4F verified clo
 
 ### Next Session
 **4H** — Suggested scope:
-- Apply Supabase Migration 007 dan verify kolom baru
-- E2E test approve flow dengan status `'approved'` (bukan `'sent'`)
+- E2E test approve flow dengan status `'approved'` (bukan `'sent'`) — DB sudah siap
 - Founder Dashboard Lite production test dengan real JWT
 - Batch send-approved (send multiple approved items in one action)
 - Atau: next business feature sesuai roadmap founder
