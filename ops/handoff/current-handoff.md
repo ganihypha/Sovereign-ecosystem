@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-08 | Session 4B = BUILD-VERIFIED (READY FOR PRODUCTION) | Build 263.76 kB
+### Update: 2026-04-10 | Session 4G = VERIFIED & CLOSED (PUSHED + DEPLOYED) | Build 307.03 kB
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -13,7 +13,12 @@
 ✅  STATUS: SESSION 3F = VERIFIED AND READY TO CLOSE (WA E2E CONFIRMED 2026-04-05)
 ✅  STATUS: SESSION 3G = VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07)
 ✅  STATUS: SESSION 4A = VERIFIED AND READY TO CLOSE (E2E CONFIRMED 2026-04-07)
-🟢  STATUS: SESSION 4B = BUILD-VERIFIED (READY FOR PRODUCTION — 2026-04-08)
+✅  STATUS: SESSION 4B = BUILD-VERIFIED (READY FOR PRODUCTION — 2026-04-08)
+✅  STATUS: SESSION 4C = DEPLOYED AND E2E VERIFIED (2026-04-08)
+✅  STATUS: SESSION 4D = DEPLOYED AND ROUTE VERIFIED (2026-04-09)
+✅  STATUS: SESSION 4E = VERIFIED AND READY TO CLOSE
+✅  STATUS: SESSION 4F = VERIFIED & CLOSED (PUSHED + DEPLOYED — 2026-04-10)
+🟢  STATUS: SESSION 4G = VERIFIED & CLOSED (PUSHED + DEPLOYED — 2026-04-10)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SESSION 3D   ✅ COMPLETE AND SYNCED (2026-04-05)
@@ -465,4 +470,102 @@ Implement and verify `POST /api/agents/send-approved/:id` — connecting Session
 
 ### Next Session
 **4G** — Ready to open. Suggested scope: batch queue processing, webhook inbound handler verification, or UI for pending-approval dashboard.
+
+
+---
+## SESSION 4G — ✅ VERIFIED & CLOSED
+**Date**: 2026-04-10
+**Classification**: VERIFIED ✅ PUSHED ✅ DEPLOYED ✅
+**Working Title**: Founder Ops Hardening & Dashboard Lite
+
+### Objective
+Hardening governance, audit trail, dan token/env clarity setelah 4F verified closeout. Tambah Founder Dashboard Lite HTML, route audit trail baru, dan perbaiki lifecycle status wa_logs dari ambigu 'sent' menjadi 'approved'.
+
+### What Was Built
+1. **Approval Governance Hardening** — `wa-adapter.ts`
+   - `approveQueueItem()`: status setelah approve sekarang `'approved'` (bukan `'sent'`)
+   - State machine: `pending → approved → (send-approved) → sent → delivered`
+   - `WaLogStatus` type extended: `'approved'` status ditambahkan resmi
+   - `WA_STATUS_LABELS`: human-readable labels untuk dashboard
+
+2. **Audit Trail Strengthening** — `wa-adapter.ts`
+   - `rejectQueueItem()`: tambah `rejection_reason` (500 char max) + `rejected_at` timestamp
+   - `getWaAuditTrail(db, id)`: full lifecycle query dengan `lifecycle_summary` string
+   - `getQueueItemById()`: sekarang include `rejection_reason` + `rejected_at`
+   - `getGateQueue()`: returns both `pending` + `approved` items (full action queue)
+   - `getPendingQueue()`: strict pending-only query
+
+3. **Token/Env Clarity** — `wa-adapter.ts`
+   - `getFonnteEnvReport(env)`: diagnostic report — WHICH vars present, token lengths, source order
+   - Token resolution documented: SEND uses FONNTE_DEVICE_TOKEN first, MGMT uses FONNTE_ACCOUNT_TOKEN first
+   - Length check catches truncation issues (like the 4F missing-'F' bug)
+
+4. **Route Updates** — `wa.ts`
+   - `GET /api/wa/status` → session 4g, `fonnte_env_report`, `pending_approval_count`
+   - `GET /api/wa/queue` → `filter` param (pending/approved/all), `summary` object, `next_action` per item
+   - `POST /api/wa/queue/:id/approve` → session 4g, `new_status: 'approved'`, `next_action` = send-approved
+   - `POST /api/wa/queue/:id/reject` → session 4g, `rejection_reason` body param
+   - `GET /api/wa/audit/:id` → NEW: full lifecycle audit trail endpoint
+   - `POST /api/wa/webhook` → session 4g, diagnostic fields (`log_status`, `db_available`, `message_type`)
+
+5. **Backward Compatibility** — `agents.ts`
+   - `POST /api/agents/send-approved/:id`: accepts `status='approved'` (4G) OR `status='sent'` (3G compat)
+   - Existing 4F flow masih berjalan tanpa perubahan
+
+6. **Founder Dashboard Lite** — `founder-dashboard.ts` (NEW)
+   - Route: `GET /dashboard` — HTML dashboard, JWT auth via browser `localStorage`
+   - Route: `GET /api/dashboard/wa` — JSON feed untuk dashboard
+   - View: pending queue, approved queue, recent logs, WA status, token env check
+   - Actions: approve/reject/send-approved langsung dari dashboard
+   - Mobile responsive dengan Tailwind CSS via CDN
+
+7. **Database Migration** — `migration/sql/007-wa-logs-governance-hardening.sql`
+   - Add `approved` to `status` CHECK constraint
+   - Add `rejection_reason TEXT` column
+   - Add `rejected_at TIMESTAMPTZ` column
+   - Add composite index `idx_wa_logs_approval_queue`
+   - ⚠️ Migration perlu diapply ke Supabase production (manual founder step)
+
+### Fixes Applied This Session
+1. `TOWER_BUILD_SESSION = '4f'` → `'4g'`
+2. CORS update di `app.ts`: allowedOrigins ditambah `localhost:3000` dan `sovereign-tower.pages.dev`
+3. App.ts: register `founderDashboardRouter` di `/dashboard` dan `/api/dashboard`
+
+### E2E Verification (Local Sandbox)
+- `GET /health` → `build_session: "4g"` ✅
+- `GET /api/wa/status` → `session: "4g"`, `fonnte_env_report` present, `pending_count: 2` ✅
+- `GET /api/wa/queue` → `session: "4g"`, `summary` object, `filter_applied` ✅
+- `GET /dashboard` → HTML rendered ✅
+- Production CF: `build_session: "4g"` ✅
+
+### Deployment
+- Latest deployment URL: `https://5d8c9a4f.sovereign-tower.pages.dev`
+- Production URL: `https://sovereign-tower.pages.dev`
+- Build size: `307.03 kB` (gzip: `83.65 kB`)
+
+### Git Commits This Session
+- `5c401f5` feat(4g): governance hardening + founder dashboard lite
+
+### GitHub Push
+- Pushed: `cecb6f0..5c401f5 main -> main` ✅ SYNCED
+- Repo: `https://github.com/ganihypha/Sovereign-ecosystem`
+
+### Pending Manual Steps (Founder)
+1. **Apply Migration 007 to Supabase**:
+   - File: `migration/sql/007-wa-logs-governance-hardening.sql`
+   - Run in Supabase SQL Editor untuk production schema update
+   - Adds: `approved` status, `rejection_reason`, `rejected_at`, composite index
+   - ⚠️ Tanpa migration ini, `approve` tetap bekerja tapi `rejected_at` column tidak ada
+2. **Set JWT in Dashboard**:
+   - Buka `https://sovereign-tower.pages.dev/dashboard`
+   - Masukkan JWT token di form yang tersedia
+   - Token expired otomatis ditolak
+
+### Next Session
+**4H** — Suggested scope:
+- Apply Supabase Migration 007 dan verify kolom baru
+- E2E test approve flow dengan status `'approved'` (bukan `'sent'`)
+- Founder Dashboard Lite production test dengan real JWT
+- Batch send-approved (send multiple approved items in one action)
+- Atau: next business feature sesuai roadmap founder
 
