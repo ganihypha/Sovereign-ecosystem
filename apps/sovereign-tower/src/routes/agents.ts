@@ -1391,20 +1391,20 @@ agentsRouter.post('/send-approved/:id', async (c) => {
 
     const normalizedPhone = normalizePhone(item.phone)
     
-    // Send via Fonnte
-    const sendResult = await fonnteSendMessage({
-      token: fonnteToken,
-      phone: normalizedPhone,
-      message: item.message_body,
-    })
+    // Send via Fonnte (3 positional args: token, phone, message)
+    const sendResult = await fonnteSendMessage(
+      fonnteToken,
+      normalizedPhone,
+      item.message_body
+    )
 
     // Update wa_logs with send result
     const updatePayload: any = {
       sent_at: new Date().toISOString(),
     }
 
-    if (sendResult.success && sendResult.message_id) {
-      updatePayload.fonnte_message_id = sendResult.message_id
+    if (sendResult.success && sendResult.fonnte_message_id) {
+      updatePayload.fonnte_message_id = sendResult.fonnte_message_id
       updatePayload.status = 'delivered' // Fonnte confirmed
     } else {
       updatePayload.status = 'failed'
@@ -1416,16 +1416,16 @@ agentsRouter.post('/send-approved/:id', async (c) => {
       .eq('id', id)
 
     // Return result
-    const confirmed = sendResult.success && sendResult.message_id
+    const confirmed = sendResult.success && !!sendResult.fonnte_message_id
     return c.json({
       ok: confirmed,
       message_id: id,
       phone: item.phone,
       delivery_status: confirmed ? 'CONFIRMED' : 'FAILED',
-      fonnte_message_id: sendResult.message_id ?? null,
+      fonnte_message_id: sendResult.fonnte_message_id ?? null,
       error: sendResult.error ?? null,
       note: confirmed
-        ? `Message sent successfully via Fonnte (ID: ${sendResult.message_id})`
+        ? `Message sent successfully via Fonnte (ID: ${sendResult.fonnte_message_id})`
         : `Send failed: ${sendResult.error ?? 'unknown'}`,
     })
 
