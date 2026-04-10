@@ -612,6 +612,20 @@ export async function approveQueueItem(
       .eq('requires_approval', true) // safety: only approve items that are actually pending gate
       .eq('status', 'pending')
     if (error) {
+      // If FK violation on approved_by (user not in DB), retry without approved_by
+      if (error.message && error.message.includes('approved_by') && updatePayload.approved_by) {
+        delete updatePayload.approved_by
+        const { error: retryError } = await (db
+          .from('wa_logs') as any)
+          .update(updatePayload)
+          .eq('id', id)
+          .eq('requires_approval', true)
+          .eq('status', 'pending')
+        if (retryError) {
+          return { success: false, error: retryError.message }
+        }
+        return { success: true }
+      }
       return { success: false, error: error.message }
     }
     return { success: true }
