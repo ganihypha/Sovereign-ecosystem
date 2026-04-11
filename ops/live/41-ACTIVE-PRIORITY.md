@@ -1,11 +1,10 @@
 # 41 — ACTIVE PRIORITY
 Classification: Sovereign OS Layer — Live Operating Board
 Status: OFFICIAL — LIVING (must stay current)
-Version: 1.2
-Last Updated: 2026-04-08
-Source Authority: Repo canon — active-priority.md (sha: 8590672683f1, 60 lines, v1.0)
-Source Drift: v1.0 canonized to v1.2 — NOW items updated to reflect session 4A verified status
-Repo Status: REPO-ABSENT — push-ready, awaiting GitHub auth
+Version: 1.3
+Last Updated: 2026-04-11
+Source Authority: Repo canon — ops/live/41-ACTIVE-PRIORITY.md
+Source Drift: v1.2 → v1.3 — Updated to reflect post-4G state, governance canon frozen, ops pack committed
 
 ---
 
@@ -22,49 +21,55 @@ Repo Status: REPO-ABSENT — push-ready, awaiting GitHub auth
 - [x] Finalkan active-priority.md sebagai papan prioritas aktif → **Doc 41 DONE (this doc)**
 - [x] Finalkan new-convo-boot.txt sebagai boot protocol resmi → **Doc 42 DONE**
 - [x] Canonize Sovereign Private Chair doctrine → **Doc 43 DONE (DOCTRINE — pending ratification)**
-- [ ] **Push docs/sovereign-os/ ke canonical repo** — BLOCKED pending GitHub auth
+- [x] **Push docs ke canonical repo** → ✅ RESOLVED (GitHub auth working, all pushes succeeded)
 - [ ] **Configure Fonnte webhook** — BLOCKED pending founder action at https://fonnte.com/settings
+- [x] **Governance Canon v1 frozen** → ✅ 13 docs FROZEN at commit `e4dd5e4`
+- [x] **Private Chair Ops Pack committed** → ✅ 4 ops docs at commit `086a1b1`
+- [ ] **Founder Dashboard Lite production test** — PENDING founder JWT setup
+- [ ] **E2E test approve flow with 'approved' status** — PENDING (4H scope)
 
 ---
 
 ## NEXT
 
-- Sync `current-handoff.md` dengan state terbaru agar benar-benar menjadi papan status resmi
-- Gunakan `MASTER-ARCHITECT-PROMPT-v2.txt` untuk membaca state aktif dan menyiapkan session eksekusi berikutnya
-- Lanjutkan jalur Session 4B / scope berikutnya setelah Founder menentukan arah
-- Rapikan source-of-truth map agar AI baru bisa masuk ke state sistem lebih cepat
-- Siapkan doc numbering dan posisi resmi untuk kernel docs di dalam struktur Sovereign
-- Update `00-MASTER-INDEX.md` untuk mencakup Docs 38-43 setelah push berhasil
+- E2E test approve→send-approved flow with `approved` status (DB ready, code ready)
+- Founder Dashboard Lite production test with real JWT
+- Batch send-approved (send multiple approved items in one action)
+- Move active build energy to BarberKas Sprint 1 FOUNDATION
+- Sync living docs after 4H execution
+- Run first Governance Health Review using PRIVATE_CHAIR_MAINTENANCE_CHECKLIST_V1
 
 ---
 
 ## LATER
 
-- Formalisasi Sovereign Private Chair setelah AI layer dan operating kernel benar-benar matang
+- Formalisasi Sovereign Private Chair setelah ops layer fully operational
 - Turunkan doctrine Private Chair menjadi role charter, invitation gate, access ladder, dan pact
 - Kembangkan governance lanjutan untuk counterpart / private chair di atas fondasi yang stabil
 - Dorong ekspansi build dan monetization sesudah continuity OS lebih kokoh
-- Rapikan integrasi lintas repo, lintas docs, dan lane eksekusi yang lebih luas
 - Rencanakan Docs 44-47 (future Sovereign OS extensions)
+- BarberKas market launch preparation
 
 ---
 
 ## NOT NOW
 
-- Jangan aktifkan private chair secara operasional sebelum fondasi AI layer siap
+- Jangan aktifkan private chair secara operasional sebelum fondasi ops layer teruji
 - Jangan lompat ke scope besar yang belum butuh disentuh
-- Jangan menambah terlalu banyak dokumen baru yang belum punya fungsi nyata
+- Jangan menambah doctrine baru — canon sudah FROZEN
 - Jangan memaksa eksekusi teknis berat sebelum access readiness jelas
-- Jangan membesarkan narasi lebih cepat daripada kesiapan sistem
+- Jangan mencampur BarberKas product lane dengan governance lane
 
 ---
 
 ## Current Session Target
 
-Session sebelumnya (4A) telah VERIFIED. Target session ini:
-- Canonize Docs 38-43 dari sumber repo aktual (DONE — awaiting push)
-- Verifikasi repo reality dan push capability (DONE — PUSH BLOCKED)
-- Produce push-ready commit untuk Founder approve dan push
+Session 4H — OS-grade execution verification:
+- Verify repo truth, canon integrity, ops pack validity
+- Patch stale living docs
+- Validate Chamber↔Tower workflow mapping
+- Honest proof classification
+- Continuation-safe closeout
 
 ---
 
@@ -72,34 +77,33 @@ Session sebelumnya (4A) telah VERIFIED. Target session ini:
 
 | Blocker | Status | Action Required |
 |---------|--------|-----------------|
-| Docs 38-43 belum ada di repo | PUSH BLOCKED | GitHub auth required |
-| GitHub push auth | MISSING | Founder: authorize GitHub in sandbox |
 | Fonnte webhook URL | PENDING | Founder: config at https://fonnte.com/settings |
-| Session 4B scope | TBD | Founder: tentukan scope berikutnya |
+| JWT setup in Dashboard Lite production | PENDING | Founder: set JWT token in browser |
 | repo-target.md claims Private but API confirms PUBLIC | DRIFT NOTED | Founder: decide if repo should be private |
 
 ---
 
-## Repo-Target Confirmation
+## Resolved Blockers (since v1.2)
 
-| Item | repo-target.md Claim | Verified Reality |
-|------|---------------------|------------------|
-| Repo URL | https://github.com/ganihypha/sovereign-ecosystem | ✅ Confirmed |
-| Repo type | Private | ❌ DRIFT — API confirms PUBLIC |
-| /docs/ structure | 29 docs | ✅ 37+ docs exist |
-| /docs/sovereign-os/ | Expected | ❌ ABSENT — needs push |
+| Blocker | Resolution | Date |
+|---------|------------|------|
+| GitHub push auth | ✅ RESOLVED — pushes working | 2026-04-10 |
+| Docs 38-43 push | ✅ RESOLVED — all in repo | 2026-04-10 |
+| Session 4B scope | ✅ RESOLVED — 4B through 4G all done | 2026-04-10 |
+| Governance canon packaging | ✅ RESOLVED — 13 docs FROZEN at e4dd5e4 | 2026-04-11 |
+| Private Chair ops pack | ✅ RESOLVED — 4 ops docs at 086a1b1 | 2026-04-11 |
 
 ---
 
-## Founder Manual Actions
+## Governance Status
 
-- [ ] **HIGH**: Authorize GitHub push access in sandbox (unblocks Docs 38-43 push)
-- [ ] **HIGH**: Configure Fonnte webhook at https://fonnte.com/settings → `https://sovereign-tower.pages.dev/api/wa/webhook?token=VsPot2DeB8CL2eLbVGMF`
-- [ ] **MEDIUM**: Review and approve Docs 38-42 content
-- [ ] **MEDIUM**: Ratify Doc 43 (Sovereign Private Chair) — move from DOCTRINE to OFFICIAL
-- [ ] **MEDIUM**: Decide Session 4B scope (Message Composer, Insight Generator, ScoutScorer batch, or Dashboard UI)
-- [ ] **LOW**: Update `repo-target.md` to reflect actual repo privacy status (Public vs Private)
-- [ ] **LOW**: Update `credential-map.md` if any new credentials have changed
+| Lane | Status | Location |
+|------|--------|----------|
+| Governance Canon v1 (13 docs) | FROZEN | `docs/governance-stack/` |
+| Private Chair Ops Pack (4 docs) | COMMITTED | `docs/governance-stack/05-ops/` |
+| Consolidation Report | COMMITTED | `docs/governance-stack/CONSOLIDATION_REPORT_V1.md` |
+| Ops Architect Report | COMMITTED | `docs/governance-stack/PRIVATE_CHAIR_OPS_ARCHITECT_REPORT_V1.md` |
+| BarberKas Master Build Doc | FROZEN FOR BUILD | Separate product lane |
 
 ---
 
@@ -110,6 +114,7 @@ Session sebelumnya (4A) telah VERIFIED. Target session ini:
 | 1.0 | 2026-04-07 | Source file in repo (active-priority.md) |
 | 1.1 | 2026-04-07 | Sandbox canonical upgrade — minor edits |
 | 1.2 | 2026-04-08 | Repo-sourced canon — NOW items marked complete, Blockers table expanded, repo-target drift noted |
+| 1.3 | 2026-04-11 | Post-4G update — resolved blockers, governance canon frozen, ops pack committed, 4H target set |
 
 ---
 *Sovereign OS — Doc 41 | Founder-Only*
