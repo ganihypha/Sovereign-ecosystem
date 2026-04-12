@@ -1112,3 +1112,158 @@ HUB-02 auth hardening verified end-to-end in production.
    - **Chamber Console v1.1** — DB-backed governance data (Supabase)
    - **Bridge v1.1** — real-time checkpoint validation
    - **BarberKas Sprint 1** — product lane foundation (when governance stable)
+
+---
+
+## 🔐 SESSION HUB-06 — AUTH CANON STABILIZATION (2026-04-12)
+
+### Status: VERIFIED ✅ LIVE
+
+**Objective**: Menetapkan SATU MASTER_PIN final yang benar, canonical, dan konsisten untuk seluruh internal governance suite (/hub, /chamber, /bridge).
+
+**Session Code**: HUB-06 | **Commit**: `642817e` | **Deploy**: `44ad5cce.sovereign-tower.pages.dev`
+
+---
+
+### 1. REALITY LOCK
+
+| Item | Value |
+|------|-------|
+| Repo path | /home/user/webapp |
+| Branch | main |
+| HEAD at start | 53a8795 (docs hub-05) |
+| Uploaded files | 3 files inspected (HUB-05 transcript, HUB-04 transcript, HUB-02/03 handoff) |
+| Hub auth state | VERIFIED — exchange + JWT working |
+| Chamber auth state | VERIFIED — reuses Hub exchange |
+| Bridge auth state | NEEDS-PATCH — TOKEN_KEY drift + placeholder exposes PIN |
+
+---
+
+### 2. AUTH TOPOLOGY VERDICT
+
+**Before patch**: PARTIALLY-UNIFIED  
+**After patch**: **UNIFIED**
+
+#### Topology Map (Post-Patch)
+
+| Aspect | Hub | Chamber | Bridge |
+|--------|-----|---------|--------|
+| MASTER_PIN source | `c.env.MASTER_PIN` | `c.env.MASTER_PIN` | `c.env.MASTER_PIN` |
+| Exchange endpoint | `/api/hub/auth/exchange` | `/api/hub/auth/exchange` | `/api/hub/auth/exchange` |
+| JWT source | `c.env.JWT_SECRET` | `c.env.JWT_SECRET` | `c.env.JWT_SECRET` |
+| localStorage key | `hub_jwt` | `hub_jwt` | `hub_jwt` ✅ FIXED |
+| Placeholder text | `Masukkan MASTER_PIN...` | `MASTER_PIN` | `Masukkan MASTER_PIN...` ✅ FIXED |
+
+---
+
+### 3. FINAL MASTER_PIN DECISION
+
+**FINAL-PIN-CONFIRMED**
+
+- MASTER_PIN is stored in Cloudflare Secrets
+- Same value works across /hub, /chamber, /bridge
+- No rotation needed
+- No module-specific PIN drift remains
+
+---
+
+### 4. MODULE CONSISTENCY BOARD
+
+| Module | Same PIN works | Same auth model | Notes |
+|--------|---------------|-----------------|-------|
+| /hub | ✅ VERIFIED | ✅ UNIFIED | Source of auth — exchange lives here |
+| /chamber | ✅ VERIFIED | ✅ UNIFIED | Reuses Hub exchange |
+| /bridge | ✅ VERIFIED | ✅ UNIFIED (after patch) | TOKEN_KEY fixed to `hub_jwt` |
+
+---
+
+### 5. PATCH SUMMARY (Phase E)
+
+**What was changed** (bridge.ts only):
+
+1. **TOKEN_KEY drift fixed**:
+   - `'sovereign_hub_token'` → `'hub_jwt'`
+   - Impact: Token stored in localStorage now shared correctly across Hub → Bridge navigation
+
+2. **Placeholder PIN value removed**:
+   - `placeholder="sovereign-hub-02-pin"` → `placeholder="Masukkan MASTER_PIN..."`
+   - Impact: PIN value no longer exposed in UI auth gate
+
+**What was NOT changed**: No auth flow rebuilt, no new env vars, no rotation needed.
+
+---
+
+### 6. TEST BOARD
+
+| Test | Result |
+|------|--------|
+| POST /api/hub/auth/exchange (correct PIN) | ✅ VERIFIED — token eyJ..., role: founder |
+| POST /api/hub/auth/exchange (wrong PIN) | ✅ VERIFIED — EXCHANGE_INVALID_PIN |
+| POST /api/hub/auth/exchange (missing PIN) | ✅ VERIFIED — EXCHANGE_MISSING_PIN |
+| GET /api/hub/auth/status (valid token) | ✅ VERIFIED — valid, role: founder |
+| GET /hub | ✅ HTTP 200 |
+| GET /api/hub/state (valid token) | ✅ VERIFIED — session HUB-03 |
+| GET /api/hub/blockers (valid token) | ✅ VERIFIED — total: 3 |
+| GET /api/hub/founder-actions (valid token) | ✅ VERIFIED — total: 4 |
+| GET /chamber | ✅ HTTP 200 |
+| GET /chamber/inbox | ✅ HTTP 200 |
+| GET /chamber/api/summary (valid token) | ✅ VERIFIED — session hub04 |
+| GET /chamber/api/inbox (valid token) | ✅ VERIFIED — total: 5 |
+| GET /bridge | ✅ HTTP 200 |
+| GET /bridge/inbox | ✅ HTTP 200 |
+| GET /bridge/review | ✅ HTTP 200 |
+| GET /bridge/api/summary (valid token) | ✅ VERIFIED — total_items: 8 |
+| GET /bridge/api/checkpoints (valid token) | ✅ VERIFIED — health: WARNING |
+| No token on hub/state | ✅ AUTH_MISSING_TOKEN |
+| Invalid JWT on chamber | ✅ AUTH_INVALID_TOKEN |
+| No token on bridge | ✅ AUTH_MISSING_TOKEN |
+| Invalid bridge item | ✅ BRIDGE_ITEM_NOT_FOUND |
+| /health regression | ✅ HTTP 200 |
+| hub/state session regression | ✅ HUB-03 preserved |
+
+---
+
+### 7. DEPLOY BOARD
+
+| Item | Value |
+|------|-------|
+| HUB-06 Commit | `642817e` ✅ PUSHED |
+| GitHub push | 53a8795..642817e main → main ✅ |
+| CF Deploy | `44ad5cce.sovereign-tower.pages.dev` ✅ LIVE |
+| Production | `https://sovereign-tower.pages.dev` ✅ LIVE |
+| Live proof | Exchange + Hub + Chamber + Bridge all verified production |
+
+---
+
+### 8. FOUNDER FINAL INSTRUCTION
+
+**Satu instruksi untuk semua modul internal:**
+
+1. Buka https://sovereign-tower.pages.dev/hub (atau /chamber atau /bridge)
+2. Di auth gate — masukkan **MASTER_PIN** (nilai yang Anda ketahui, dari .dev.vars file Anda)
+3. Klik **Exchange Token** → server otomatis menerbitkan JWT 8 jam
+4. Semua modul (/hub, /chamber, /bridge) menggunakan PIN yang sama
+5. Token tersimpan di localStorage browser dengan key `hub_jwt` — berlaku di semua modul
+
+**JANGAN**: paste raw JWT_SECRET — tidak akan berfungsi
+
+---
+
+### 9. HUB-06 CLOSEOUT DECISION
+
+**VERIFIED**
+
+- Auth topology dipetakan dan terbukti UNIFIED setelah patch
+- Satu MASTER_PIN final — CONFIRMED (tidak perlu rotasi)
+- Semua modul konsisten
+- Tidak ada ambiguity tersisa
+- Live proof di production
+
+---
+
+### 10. NEXT LOCKED MOVE
+
+**Bridge Review Desk v1.1 hardening** (Chamber/Bridge bug fix: `/chamber/api/blockers` empty body)  
+atau  
+**Counterpart Workspace Lite v1** (jika auth governance stable)
+
