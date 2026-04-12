@@ -1,10 +1,10 @@
 # 41 — ACTIVE PRIORITY
 Classification: Sovereign OS Layer — Live Operating Board
 Status: OFFICIAL — LIVING (must stay current)
-Version: 1.5
+Version: 1.6
 Last Updated: 2026-04-12
 Source Authority: Repo canon — ops/live/41-ACTIVE-PRIORITY.md
-Source Drift: v1.4 → v1.5 — HUB-02 auth hardening pushed (205c2d5). Deploy pending CF token.
+Source Drift: v1.5 → v1.6 — HUB-02 VERIFIED & CLOSED. Deployed fd629c0d, build_session hub02 live, MASTER_PIN configured.
 
 ---
 
@@ -28,17 +28,17 @@ Source Drift: v1.4 → v1.5 — HUB-02 auth hardening pushed (205c2d5). Deploy p
 - [ ] **Founder Dashboard Lite production test** — PENDING founder JWT setup
 - [ ] **E2E test approve flow with 'approved' status** — PENDING
 - [x] **Session & Handoff Hub MVP** — ✅ BUILD COMPLETE (HUB-01 at commit `5be6f49`)
-- [x] **HUB-02 Auth Hardening** — ✅ PUSHED (commit `205c2d5`) | DEPLOY PENDING (CF token required)
-- [ ] **Deploy HUB-02 to production** — BLOCKED: CLOUDFLARE_API_TOKEN needed + MASTER_PIN secret required
+- [x] **HUB-02 Auth Hardening** — ✅ VERIFIED & CLOSED (commit `205c2d5`, deploy `fd629c0d`)
+- [x] **Deploy HUB-02 to production** — ✅ LIVE: `sovereign-tower.pages.dev` → `build_session: hub02`
 
 ---
 
 ## NEXT
 
-- **URGENT**: Deploy HUB-02 to Cloudflare Pages (build + wrangler deploy + add MASTER_PIN secret)
-- **URGENT**: Add MASTER_PIN Cloudflare Secret for Exchange Token flow to work in production
-- Founder: test Exchange Token flow at `/hub` in production after deploy
-- Move active build energy to BarberKas Sprint 1 FOUNDATION (after Hub deploy confirmed)
+- ✅ HUB-02 deployed and live — `build_session: hub02` confirmed production
+- ✅ MASTER_PIN secret configured — Exchange Token flow live at `/hub`
+- **Move active build energy to BarberKas Sprint 1 FOUNDATION** ← NEXT LOCKED MOVE
+- E2E test approve→send-approved flow dengan status `approved`
 - E2E test approve→send-approved flow with `approved` status
 - Run first Governance Health Review using PRIVATE_CHAIR_MAINTENANCE_CHECKLIST_V1
 
@@ -117,6 +117,8 @@ HUB-01 — ✅ COMPLETE. Next session:
 | 1.2 | 2026-04-08 | Repo-sourced canon — NOW items marked complete, Blockers table expanded, repo-target drift noted |
 | 1.3 | 2026-04-11 | Post-4G update — resolved blockers, governance canon frozen, ops pack committed, 4H target set |
 | 1.4 | 2026-04-12 | HUB-01 complete — Session & Handoff Hub MVP built, verified, pushed (5be6f49) |
+| 1.5 | 2026-04-12 | HUB-02 pushed — auth hardening (205c2d5), deploy pending CF token |
+| 1.6 | 2026-04-12 | HUB-02 VERIFIED & CLOSED — deployed (fd629c0d), build_session hub02 live, MASTER_PIN configured |
 
 ---
 *Sovereign OS — Doc 41 | Founder-Only*

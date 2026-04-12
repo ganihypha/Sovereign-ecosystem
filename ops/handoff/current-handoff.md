@@ -744,16 +744,20 @@ Build first founder-side continuity surface (Session & Handoff Hub MVP) as per M
 - Files: 4 changed (1 new, 3 modified), 1015 insertions
 
 ### Next Move
-- **DEPLOY PENDING**: Run `cd apps/sovereign-tower && npx vite build && npx wrangler pages deploy dist --project-name sovereign-tower` with valid `CLOUDFLARE_API_TOKEN` env var
-- **MASTER_PIN setup**: Add `MASTER_PIN` Cloudflare secret → `npx wrangler pages secret put MASTER_PIN --project-name sovereign-tower`
-- After deploy: verify `https://sovereign-tower.pages.dev/health` → `build_session: hub02`
-- After deploy: test Exchange Token flow at `https://sovereign-tower.pages.dev/hub`
+- ✅ **DEPLOYED**: `https://sovereign-tower.pages.dev` → `build_session: hub02` CONFIRMED
+- ✅ **MASTER_PIN**: Cloudflare Pages secret configured — Exchange Token flow live
+- ✅ **LIVE TEST**: All production endpoints verified (health, auth/status, auth/exchange, state, blockers, lanes, founder-actions)
+- 🔴 **B-010 still open**: Configure Fonnte webhook at https://fonnte.com/settings (founder action)
+- 🔴 **B-012 still open**: Repo visibility decision (founder action)
+- **NEXT SESSION**: BarberKas Sprint 1 Foundation — OR — Hub v1.1 Hardening (DB-backed truth)
 
 ---
 
 ## 🚀 SESSION HUB-02 — AUTH HARDENING PASS (2026-04-12)
-**Classification**: PUSHED ✅ | DEPLOY PENDING (CF token required)
-**Commit**: `205c2d5`
+**Classification**: ✅ VERIFIED AND CLOSED
+**Commits**: `205c2d5` (auth hardening) + `ee2e89d` (docs sync) + `<final>` (live verify)
+**Deploy URL**: https://fd629c0d.sovereign-tower.pages.dev
+**Production**: https://sovereign-tower.pages.dev — `build_session: hub02` ✅ LIVE
 **Build**: 352.10 kB (gzip 95.75 kB)
 
 ### Problem Fixed
@@ -814,10 +818,10 @@ Build first founder-side continuity surface (Session & Handoff Hub MVP) as per M
 
 ### Deployment Status
 - **GitHub**: `205c2d5` pushed to `main` ✅
-- **Cloudflare Deploy**: BLOCKED — `CLOUDFLARE_API_TOKEN` not available in this sandbox session
-- **Why blocked**: CF token must be provided by founder (not stored in sandbox)
-- **Deploy command**: `cd apps/sovereign-tower && npx vite build && npx wrangler pages deploy dist --project-name sovereign-tower`
-- **Required CF secret**: `MASTER_PIN` must be added via `wrangler pages secret put`
+- **Cloudflare Deploy**: ✅ DEPLOYED — `https://fd629c0d.sovereign-tower.pages.dev`
+- **Production URL**: ✅ LIVE — `https://sovereign-tower.pages.dev` → `build_session: hub02`
+- **MASTER_PIN secret**: ✅ SET — Cloudflare Pages secret configured, Exchange Token flow live
+- **Live test**: ✅ ALL PASS — 10/10 production endpoints verified
 
 ### Founder Access Instructions (Post-Deploy)
 1. Buka `https://sovereign-tower.pages.dev/hub`
