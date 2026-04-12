@@ -23,6 +23,7 @@ import { founderDashboardRouter } from './routes/founder-dashboard'
 import { hubRouter } from './routes/hub'
 import { chamberRouter } from './routes/chamber'
 import { bridgeRouter } from './routes/bridge'
+import { counterpartRouter } from './routes/counterpart'
 
 // =============================================================================
 // APP FACTORY
@@ -174,6 +175,21 @@ export function createApp(): TowerApp {
   })
   app.route('/bridge', bridgeRouter)
 
+  // HUB-08: Counterpart Workspace Lite v1 — bounded downstream participation layer
+  // Isolated additive route. Does NOT modify Hub, Chamber, Bridge, or Tower core.
+  // Counterpart = bounded contribution workspace only (NOT governance override)
+  // Auth: /counterpart/api/* protected by JWT + founderOnly via explicit middleware.
+  // UI routes /counterpart/* use client-side JWT auth (same pattern as Hub/Chamber/Bridge).
+  // ⚠️ v1 is bounded preview under founder-controlled auth.
+  //    True multi-user counterpart role auth is deferred (stated honestly in /counterpart/boundaries).
+  app.use('/counterpart/api/*', async (c, next) => {
+    return jwtMiddleware({ JWT_SECRET: c.env.JWT_SECRET })(c, next)
+  })
+  app.use('/counterpart/api/*', async (c, next) => {
+    return founderOnly()(c, next)
+  })
+  app.route('/counterpart', counterpartRouter)
+
   // ─────────────────────────────────────────────────────────────────────────
   // ROOT + FALLBACK
   // ─────────────────────────────────────────────────────────────────────────
@@ -278,7 +294,33 @@ export function createApp(): TowerApp {
           ],
           auth_note: 'HUB-04: Reuses Hub auth model. Same MASTER_PIN / JWT. No second auth flow.',
         },
-      notice: 'HUB-04: Chamber Operating Console v1 built. Governance operating surface. Auth preserved from HUB-03.',
+      notice: 'HUB-08: Counterpart Workspace Lite v1 built. Bounded participation layer downstream of Hub/Chamber/Bridge. Auth preserved.',
+      hub08: {
+        counterpart: {
+          ui: 'GET /counterpart — Counterpart Workspace Lite v1 (bounded participation)',
+          screens: [
+            'GET /counterpart — Overview / workspace summary',
+            'GET /counterpart/access — Access level + allowed areas',
+            'GET /counterpart/scope — Scoped work lanes + contribution types',
+            'GET /counterpart/checkpoints — Checkpoint history (bounded, counterpart-visible)',
+            'GET /counterpart/contribute — Contribution desk (submit)',
+            'GET /counterpart/outcomes — Restricted review outcomes',
+            'GET /counterpart/boundaries — Explicit boundary notice',
+          ],
+          api_bounded: [
+            'GET /counterpart/api/summary',
+            'GET /counterpart/api/access',
+            'GET /counterpart/api/scope',
+            'GET /counterpart/api/checkpoints',
+            'GET /counterpart/api/outcomes',
+            'POST /counterpart/api/contributions',
+            'GET /counterpart/api/contributions',
+            'GET /counterpart/api/boundaries',
+          ],
+          auth_note: 'HUB-08: v1 is bounded preview under founder-controlled auth. True multi-user counterpart auth deferred.',
+          boundary_note: 'Counterpart is downstream of Hub/Chamber/Bridge. Cannot override founder decisions.',
+        }
+      },
     })
   })
 

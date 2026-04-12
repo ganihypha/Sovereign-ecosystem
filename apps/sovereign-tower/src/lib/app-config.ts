@@ -12,7 +12,7 @@
 
 export const TOWER_APP_NAME = 'Sovereign Tower' as const
 export const TOWER_APP_VERSION = '0.1.0' as const
-export const TOWER_BUILD_SESSION = 'hub05' as const
+export const TOWER_BUILD_SESSION = 'hub08' as const
 export const TOWER_PHASE = 'phase-3' as const
 export const TOWER_DESCRIPTION = 'Private founder-only command center — Sovereign Business Engine v4.0'
 
@@ -165,6 +165,22 @@ export const TOWER_ROUTES = {
   BRIDGE_API_ITEM: '/bridge/api/item',
   BRIDGE_API_CHECKPOINTS: '/bridge/api/checkpoints',
   BRIDGE_API_BOUNDARIES: '/bridge/api/boundaries',
+  // HUB-08 Counterpart Workspace Lite v1
+  COUNTERPART: '/counterpart',
+  COUNTERPART_ACCESS: '/counterpart/access',
+  COUNTERPART_SCOPE: '/counterpart/scope',
+  COUNTERPART_CHECKPOINTS: '/counterpart/checkpoints',
+  COUNTERPART_CONTRIBUTE: '/counterpart/contribute',
+  COUNTERPART_OUTCOMES: '/counterpart/outcomes',
+  COUNTERPART_BOUNDARIES: '/counterpart/boundaries',
+  // HUB-08 Counterpart API routes
+  COUNTERPART_API_SUMMARY: '/counterpart/api/summary',
+  COUNTERPART_API_ACCESS: '/counterpart/api/access',
+  COUNTERPART_API_SCOPE: '/counterpart/api/scope',
+  COUNTERPART_API_CHECKPOINTS: '/counterpart/api/checkpoints',
+  COUNTERPART_API_OUTCOMES: '/counterpart/api/outcomes',
+  COUNTERPART_API_CONTRIBUTIONS: '/counterpart/api/contributions',
+  COUNTERPART_API_BOUNDARIES: '/counterpart/api/boundaries',
 } as const
 
 export type TowerRoute = (typeof TOWER_ROUTES)[keyof typeof TOWER_ROUTES]
