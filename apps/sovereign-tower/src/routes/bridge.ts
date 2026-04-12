@@ -56,8 +56,8 @@ export const bridgeRouter = new Hono<BridgeContext>()
 // CONSTANTS
 // =============================================================================
 
-const BRIDGE_BUILD_SESSION = 'hub05'
-const BRIDGE_VERSION = '1.0.0'
+const BRIDGE_BUILD_SESSION = 'hub07'
+const BRIDGE_VERSION = '1.1.0'
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -266,37 +266,34 @@ const BRIDGE_CHECKPOINTS: BridgeCheckpoint[] = [
   {
     id: 'CP-001',
     label: 'Auth Layer (Hub MASTER_PIN / JWT)',
-    system: 'HUB-01/02/03',
+    system: 'HUB-01/02/03/06',
     status: 'PASS',
-    last_checked: '2026-04-12T17:00:00.000Z',
-    detail: 'MASTER_PIN valid. Token exchange working. 8h JWT issued correctly.',
+    last_checked: '2026-04-12T20:00:00.000Z',
+    detail: 'MASTER_PIN unified (HUB-06). TOKEN_KEY=hub_jwt across Hub/Chamber/Bridge. Token exchange working. 8h JWT issued correctly.',
   },
   {
     id: 'CP-002',
-    label: 'Chamber Console v1 (HUB-04)',
+    label: 'Chamber Console v1 (HUB-04) + Hardening (HUB-07)',
     system: 'Chamber',
     status: 'PASS',
-    last_checked: '2026-04-12T17:00:00.000Z',
-    detail: '6 screens + 9 APIs verified locally. Build 411.26 kB. Commit b5c80a7.',
-    action_required: 'Deploy to Cloudflare Pages (CF token now available).',
+    last_checked: '2026-04-12T20:00:00.000Z',
+    detail: 'Chamber deployed commit b5c80a7 (HUB-04). HUB-07 adds /api/blockers + /api/* 404 fallback. All 9 APIs operational.',
   },
   {
     id: 'CP-003',
     label: 'GitHub Push Status',
     system: 'Version Control',
-    status: 'WARN',
-    last_checked: '2026-04-12T17:00:00.000Z',
-    detail: 'HUB-04 commit b5c80a7 built locally, push previously blocked. Token now available.',
-    action_required: 'git push origin main (GITHUB_TOKEN available).',
+    status: 'PASS',
+    last_checked: '2026-04-12T20:00:00.000Z',
+    detail: 'HUB-04 (b5c80a7), HUB-05 (bcb07b3), HUB-06 (642817e), docs (a4e6f35) all pushed to origin main.',
   },
   {
     id: 'CP-004',
     label: 'Cloudflare Pages Deploy',
     system: 'Infrastructure',
-    status: 'WARN',
-    last_checked: '2026-04-12T17:00:00.000Z',
-    detail: 'Last deploy: fd0505c8 (HUB-03). HUB-04 deploy pending.',
-    action_required: 'npx wrangler pages deploy dist --project-name sovereign-tower',
+    status: 'PASS',
+    last_checked: '2026-04-12T20:00:00.000Z',
+    detail: 'Last deploy: 44ad5cce (HUB-06 auth canon). Production: https://sovereign-tower.pages.dev. build_session=hub05.',
   },
   {
     id: 'CP-005',
@@ -312,25 +309,25 @@ const BRIDGE_CHECKPOINTS: BridgeCheckpoint[] = [
     label: '/health endpoint',
     system: 'System',
     status: 'PASS',
-    last_checked: '2026-04-12T17:00:00.000Z',
-    detail: 'build_session: hub04, status: ok, environment: development.',
+    last_checked: '2026-04-12T20:00:00.000Z',
+    detail: 'build_session: hub05, status: ok, environment: development. Production verified.',
   },
   {
     id: 'CP-007',
     label: '/api/hub/state',
     system: 'HUB Continuity',
     status: 'PASS',
-    last_checked: '2026-04-12T17:00:00.000Z',
-    detail: 'session.code: HUB-03. Hub continuity preserved. No auth regression.',
+    last_checked: '2026-04-12T20:00:00.000Z',
+    detail: 'session.code: HUB-03. Hub continuity preserved. HUB-06 auth canon verified. No regression.',
   },
   {
     id: 'CP-008',
     label: 'Supabase Connection',
     system: 'Database',
     status: 'UNKNOWN',
-    last_checked: '2026-04-12T17:00:00.000Z',
-    detail: 'Supabase credentials present in .dev.vars. Live connection not yet verified in HUB-05.',
-    action_required: 'Verify DB access via /api/founder/profile in next session.',
+    last_checked: '2026-04-12T20:00:00.000Z',
+    detail: 'Supabase credentials present in .dev.vars. Live connection not verified in HUB-07 scope.',
+    action_required: 'Verify DB access via /api/founder/profile in future session (Chamber v1.1).',
   },
 ]
 
@@ -522,7 +519,7 @@ function bridgeShell(opts: {
         <div class="flex items-center gap-3">
           <span class="text-orange-400 text-lg">🌉</span>
           <span class="font-bold text-white text-sm">Bridge Review Desk</span>
-          <span class="text-gray-500 text-xs">v${BRIDGE_VERSION} · HUB-05</span>
+          <span class="text-gray-500 text-xs">v${BRIDGE_VERSION} · HUB-07</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           ${navHtml}

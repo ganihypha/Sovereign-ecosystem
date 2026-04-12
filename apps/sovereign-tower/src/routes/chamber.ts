@@ -299,19 +299,19 @@ const MAINTENANCE_CHECKS: MaintenanceCheck[] = [
     id: 'MC-006',
     label: 'Living Docs Freshness',
     category: 'DOCS',
-    status: 'PENDING',
-    description: 'current-handoff + 41-ACTIVE-PRIORITY perlu update HUB-04.',
-    action_required: 'Jalankan Phase H setelah deploy berhasil.',
-    ref: 'HUB-04 Phase H',
+    status: 'VERIFIED',
+    description: 'current-handoff + 41-ACTIVE-PRIORITY diupdate di HUB-06 (auth canon) dan HUB-07 (hardening). Commit a4e6f35.',
+    action_required: null,
+    ref: 'HUB-06 VERIFIED — commit a4e6f35',
   },
   {
     id: 'MC-007',
-    label: 'Chamber Console Deploy',
+    label: 'Full Deployment Status',
     category: 'DEPLOY',
-    status: 'PENDING',
-    description: 'Chamber Console v1 belum di-deploy ke production.',
-    action_required: 'Jalankan Phase G: build + push + deploy.',
-    ref: 'HUB-04 Phase G',
+    status: 'VERIFIED',
+    description: 'HUB-04 (b5c80a7), HUB-05 (bcb07b3), HUB-06 (642817e) sudah di-deploy ke production. Live: https://sovereign-tower.pages.dev.',
+    action_required: null,
+    ref: 'HUB-06 deploy 44ad5cce VERIFIED',
   },
   {
     id: 'MC-008',
@@ -1065,6 +1065,55 @@ chamberRouter.get('/api/maintenance', (c: Context<ChamberContext>) => {
     checks: MAINTENANCE_CHECKS,
     health_ref: '/health',
   }))
+})
+
+/**
+ * GET /api/chamber/blockers
+ * HUB-07: Dedicated blockers endpoint — aliased from maintenance checks (blocked items only).
+ * Mirrors /api/hub/blockers contract for cross-module consistency.
+ * BUG-01 FIX: endpoint was missing; previously returned HTTP 200 empty body.
+ */
+chamberRouter.get('/api/blockers', (c: Context<ChamberContext>) => {
+  const blockerItems = MAINTENANCE_CHECKS.filter(i => i.status === 'BLOCKED')
+  const pendingItems = MAINTENANCE_CHECKS.filter(i => i.status === 'PENDING')
+  const verifiedItems = MAINTENANCE_CHECKS.filter(i => i.status === 'VERIFIED')
+
+  return c.json(successResponse({
+    session: CHAMBER_BUILD_SESSION,
+    total: MAINTENANCE_CHECKS.length,
+    open: blockerItems.length,
+    pending: pendingItems.length,
+    resolved: verifiedItems.length,
+    blockers: blockerItems.map(mc => ({
+      id: mc.id,
+      title: mc.label,
+      status: mc.status,
+      category: mc.category,
+      description: mc.description,
+      action_required: mc.action_required,
+      ref: mc.ref,
+    })),
+    all_checks: MAINTENANCE_CHECKS.map(mc => ({
+      id: mc.id,
+      title: mc.label,
+      status: mc.status,
+      category: mc.category,
+      ref: mc.ref,
+    })),
+    maintenance_ref: '/chamber/api/maintenance',
+  }))
+})
+
+/**
+ * GET /api/* — catch-all 404 for unknown /chamber/api/* paths.
+ * HUB-07: BUG-03 FIX — Hono sub-router previously returned HTTP 200 empty body
+ * for unknown /chamber/api/* routes. Now returns proper 404 JSON error.
+ */
+chamberRouter.get('/api/*', (c: Context<ChamberContext>) => {
+  return c.json(errorResponse(
+    'CHAMBER_ROUTE_NOT_FOUND',
+    `Chamber API route '${c.req.path}' not found. See available endpoints: GET /chamber/api/summary, /inbox, /decision/:id, /audit, /truth-sync, /maintenance, /blockers`,
+  ), 404)
 })
 
 // =============================================================================
