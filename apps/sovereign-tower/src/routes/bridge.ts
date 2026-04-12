@@ -493,7 +493,7 @@ function bridgeShell(opts: {
       <div class="space-y-3">
         <div>
           <label class="block text-xs text-gray-400 mb-1">Master PIN</label>
-          <input id="pin-input" type="password" placeholder="sovereign-hub-02-pin"
+          <input id="pin-input" type="password" placeholder="Masukkan MASTER_PIN..."
             class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2.5 text-sm text-white focus:border-orange-500 focus:outline-none">
         </div>
         <button id="pin-btn" onclick="doExchange()"
@@ -549,7 +549,7 @@ function bridgeShell(opts: {
   <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
   <script>
     // ── Auth helpers ──────────────────────────────────────────────────────────
-    const TOKEN_KEY = 'sovereign_hub_token'
+    const TOKEN_KEY = 'hub_jwt'
 
     function getToken() { return localStorage.getItem(TOKEN_KEY) }
     function setToken(t) { localStorage.setItem(TOKEN_KEY, t) }
