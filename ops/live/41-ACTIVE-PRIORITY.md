@@ -1,10 +1,10 @@
 # 41 — ACTIVE PRIORITY
 Classification: Sovereign OS Layer — Live Operating Board
 Status: OFFICIAL — LIVING (must stay current)
-Version: 1.4
+Version: 1.5
 Last Updated: 2026-04-12
 Source Authority: Repo canon — ops/live/41-ACTIVE-PRIORITY.md
-Source Drift: v1.2 → v1.3 — Updated to reflect post-4G state, governance canon frozen, ops pack committed
+Source Drift: v1.4 → v1.5 — HUB-02 auth hardening pushed (205c2d5). Deploy pending CF token.
 
 ---
 
@@ -26,18 +26,20 @@ Source Drift: v1.2 → v1.3 — Updated to reflect post-4G state, governance can
 - [x] **Governance Canon v1 frozen** → ✅ 13 docs FROZEN at commit `e4dd5e4`
 - [x] **Private Chair Ops Pack committed** → ✅ 4 ops docs at commit `086a1b1`
 - [ ] **Founder Dashboard Lite production test** — PENDING founder JWT setup
-- [ ] **E2E test approve flow with 'approved' status** — PENDING (4H scope)
+- [ ] **E2E test approve flow with 'approved' status** — PENDING
 - [x] **Session & Handoff Hub MVP** — ✅ BUILD COMPLETE (HUB-01 at commit `5be6f49`)
+- [x] **HUB-02 Auth Hardening** — ✅ PUSHED (commit `205c2d5`) | DEPLOY PENDING (CF token required)
+- [ ] **Deploy HUB-02 to production** — BLOCKED: CLOUDFLARE_API_TOKEN needed + MASTER_PIN secret required
 
 ---
 
 ## NEXT
 
-- E2E test approve→send-approved flow with `approved` status (DB ready, code ready)
-- Founder Dashboard Lite production test with real JWT
-- Batch send-approved (send multiple approved items in one action)
-- Move active build energy to BarberKas Sprint 1 FOUNDATION
-- Sync living docs after 4H execution
+- **URGENT**: Deploy HUB-02 to Cloudflare Pages (build + wrangler deploy + add MASTER_PIN secret)
+- **URGENT**: Add MASTER_PIN Cloudflare Secret for Exchange Token flow to work in production
+- Founder: test Exchange Token flow at `/hub` in production after deploy
+- Move active build energy to BarberKas Sprint 1 FOUNDATION (after Hub deploy confirmed)
+- E2E test approve→send-approved flow with `approved` status
 - Run first Governance Health Review using PRIVATE_CHAIR_MAINTENANCE_CHECKLIST_V1
 
 ---

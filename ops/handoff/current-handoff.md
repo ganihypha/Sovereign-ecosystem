@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-12 | HUB-01 = BUILD COMPLETE | Session & Handoff Hub MVP live | Commit 5be6f49
+### Update: 2026-04-12 | HUB-02 = AUTH HARDENING DONE | Commit 205c2d5 | PUSHED ✅ | DEPLOY PENDING (CF token required)
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -21,6 +21,7 @@
 🟢  STATUS: SESSION 4G = VERIFIED & CLOSED (PUSHED + DEPLOYED — 2026-04-10)
 ✅  STATUS: SESSION 4H = VERIFIED PASS (OS-GRADE HARDENING — 2026-04-12)
 ✅  STATUS: HUB-01 = BUILD COMPLETE (SESSION & HANDOFF HUB MVP — 2026-04-12)
+🔄  STATUS: HUB-02 = AUTH HARDENING DONE — PUSHED — DEPLOY PENDING (CF token required — 2026-04-12)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SESSION 3D   ✅ COMPLETE AND SYNCED (2026-04-05)
@@ -743,10 +744,89 @@ Build first founder-side continuity surface (Session & Handoff Hub MVP) as per M
 - Files: 4 changed (1 new, 3 modified), 1015 insertions
 
 ### Next Move
-Founder decides:
-- **Option A**: Harden Hub v1 (add DB-backed truth, dynamic state)
-- **Option B**: Begin BarberKas Sprint 1 Foundation
-- **Option C**: Patch truth inputs if stale
-- **Option D**: Deploy HUB-01 to production via Cloudflare Pages
+- **DEPLOY PENDING**: Run `cd apps/sovereign-tower && npx vite build && npx wrangler pages deploy dist --project-name sovereign-tower` with valid `CLOUDFLARE_API_TOKEN` env var
+- **MASTER_PIN setup**: Add `MASTER_PIN` Cloudflare secret → `npx wrangler pages secret put MASTER_PIN --project-name sovereign-tower`
+- After deploy: verify `https://sovereign-tower.pages.dev/health` → `build_session: hub02`
+- After deploy: test Exchange Token flow at `https://sovereign-tower.pages.dev/hub`
+
+---
+
+## 🚀 SESSION HUB-02 — AUTH HARDENING PASS (2026-04-12)
+**Classification**: PUSHED ✅ | DEPLOY PENDING (CF token required)
+**Commit**: `205c2d5`
+**Build**: 352.10 kB (gzip 95.75 kB)
+
+### Problem Fixed
+- UI overlay: founder misleadingly told to "paste JWT dari dev.vars" (which is raw secret, not JWT)
+- Error handler: single generic "Authentication failed or API unreachable" for all failure cases
+- No distinction: missing / invalid / expired / unreachable errors were all the same message
+- No safe token minting path: founder had to manually generate JWT
+
+### What Changed
+**`src/routes/hub.ts`**:
+- Auth overlay: 2-tab UI — "Exchange Token (PIN)" + "Paste Signed JWT"
+- Exchange Token: founder enters MASTER_PIN → server mints 8h signed JWT automatically
+- Paste JWT tab: explicit format hint (eyJ...), NEVER paste JWT_SECRET warning
+- Error states: missing / invalid_format / invalid / expired / network — all separated
+- INIT: client-side expiry pre-check on page load
+- loadHub(): 401/403 → specific AUTH_* error codes
+- B-011: wording corrected — no longer says "paste dari dev.vars"
+- FA-002: wording corrected — Exchange Token guidance
+- Session meta: HUB-02 / DEPLOYED
+- Closeout draft: reflects HUB-02 reality
+
+**New public routes (exempt from JWT middleware)**:
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/hub/auth/status` | GET | Check token validity — returns missing/invalid_format/invalid/expired/valid |
+| `/api/hub/auth/exchange` | POST | MASTER_PIN → server-issued 8h JWT |
+| `/api/hub/auth/logout` | POST | Stateless logout acknowledgment |
+
+**`src/app.ts`**:
+- `/api/hub/auth/*` exempted from `jwtMiddleware` + `founderOnly` (these are pre-auth routes)
+
+**`src/lib/app-config.ts`**:
+- `MASTER_PIN` added to `TowerEnv` type
+- 3 new HUB_AUTH_* routes in `TOWER_ROUTES`
+- `TOWER_BUILD_SESSION`: `'4g'` → `'hub02'`
+
+### Local Test Matrix (ALL PASS ✅)
+| Test | Result |
+|------|--------|
+| `GET /health` | ✅ `build_session: hub02` |
+| `POST /api/hub/auth/exchange` (correct PIN) | ✅ token `eyJ...`, role: founder |
+| `POST /api/hub/auth/exchange` (wrong PIN) | ✅ `EXCHANGE_INVALID_PIN` |
+| `GET /api/hub/auth/status` (no token) | ✅ `missing`, `can_exchange: true` |
+| `GET /api/hub/auth/status` (raw secret) | ✅ `invalid_format` |
+| `GET /api/hub/auth/status` (valid JWT) | ✅ `valid`, `seconds_remaining: 28800` |
+| `POST /api/hub/auth/logout` | ✅ acknowledged |
+| `GET /api/hub/state` (valid JWT) | ✅ HUB-02 / DEPLOYED / 10 items |
+| `GET /api/hub/blockers` | ✅ 3 blockers |
+| `GET /api/hub/founder-actions` | ✅ 4 actions |
+| `GET /api/hub/lanes` | ✅ 6 lanes |
+| `GET /api/hub/closeout-draft` | ✅ HUB-02 summary |
+| `POST /api/hub/closeout-draft` | ✅ accepts founder_notes |
+| `GET /api/hub/next-session` | ✅ |
+| Missing token → `AUTH_MISSING_TOKEN` | ✅ |
+| Invalid token → `AUTH_INVALID_TOKEN` | ✅ |
+| Regression: `/health` | ✅ |
+| Regression: `/dashboard` | ✅ |
+
+### Deployment Status
+- **GitHub**: `205c2d5` pushed to `main` ✅
+- **Cloudflare Deploy**: BLOCKED — `CLOUDFLARE_API_TOKEN` not available in this sandbox session
+- **Why blocked**: CF token must be provided by founder (not stored in sandbox)
+- **Deploy command**: `cd apps/sovereign-tower && npx vite build && npx wrangler pages deploy dist --project-name sovereign-tower`
+- **Required CF secret**: `MASTER_PIN` must be added via `wrangler pages secret put`
+
+### Founder Access Instructions (Post-Deploy)
+1. Buka `https://sovereign-tower.pages.dev/hub`
+2. Klik tab **"Exchange Token (PIN)"**
+3. Masukkan **MASTER_PIN** (bukan JWT_SECRET)
+4. Klik **"Exchange Token"**
+5. Server otomatis menerbitkan signed JWT (8 jam) — stored di localStorage
+6. Hub terbuka dengan data lengkap
+
+**Jangan** paste raw `JWT_SECRET` ke form auth — itu akan ditolak dengan `invalid_format`.
 
 
