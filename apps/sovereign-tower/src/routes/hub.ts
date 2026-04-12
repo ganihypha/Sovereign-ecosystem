@@ -118,12 +118,12 @@ interface CloseoutDraft {
 
 function getSessionMeta(): SessionMeta {
   return {
-    code: 'HUB-02',
-    title: 'Session & Handoff Hub — Auth Hardening Pass',
-    objective: 'HUB-01 base verified, HUB-02 focus: founder auth clarity, safer access flow, error UX fix, push + deploy + live test. Founder no longer needs to manually generate JWT or paste raw secret.',
+    code: 'HUB-03',
+    title: 'Session & Handoff Hub — Auth Continuity Verification',
+    objective: 'HUB-02 auth hardening verified in production. HUB-03: confirm PIN→JWT→API bridge is valid end-to-end, MASTER_PIN status classified, B-011 resolved, docs synced. No new features.',
     classification: 'Internal Sovereign Suite — Founder-Only',
     phase: 'VERIFIED',
-    status: 'DEPLOYED',
+    status: 'LIVE',
     updated_at: new Date().toISOString(),
   }
 }
@@ -237,12 +237,12 @@ function getBlockers(): Blocker[] {
     },
     {
       id: 'B-011',
-      title: 'Founder Hub access — perlu signed JWT (bukan raw secret)',
+      title: 'Founder Hub access — Exchange Token flow live (RESOLVED HUB-03)',
       blocker_type: 'founder-only',
       owner: 'Founder',
       priority: 'LOW',
-      status: 'OPEN',
-      action_required: 'Buka /hub → gunakan Exchange Token (MASTER_PIN) untuk auto-generate signed JWT. JANGAN paste raw JWT_SECRET. Token format yang valid: eyJ...',
+      status: 'RESOLVED',
+      action_required: 'RESOLVED (HUB-03): Exchange Token flow verified in production. Buka /hub → tab Exchange Token (PIN) → masukkan MASTER_PIN → JWT 8 jam diterbitkan otomatis.',
       related_lane: 'Tower',
     },
     {
@@ -271,10 +271,10 @@ function getFounderActions(): FounderAction[] {
     {
       id: 'FA-002',
       title: 'Akses Hub melalui Exchange Token flow',
-      description: 'Buka /hub, klik "Exchange Token", masukkan MASTER_PIN. Server otomatis menerbitkan signed JWT. JANGAN paste raw JWT_SECRET langsung ke form auth.',
+      description: 'DONE (HUB-03): Exchange Token flow live dan verified di production. Buka /hub → tab Exchange Token (PIN) → masukkan MASTER_PIN → JWT 8 jam diterbitkan otomatis. JANGAN paste raw JWT_SECRET.',
       urgency: 'LOW',
-      status: 'PENDING',
-      dependency_target: 'Hub usability + auth clarity',
+      status: 'DONE',
+      dependency_target: 'Hub usability + auth clarity — VERIFIED HUB-03',
     },
     {
       id: 'FA-003',
@@ -351,11 +351,11 @@ function generateCloseoutDraft(): CloseoutDraft {
   const openBlockers = blockers.filter(b => b.status === 'OPEN')
 
   return {
-    build_summary: 'HUB-02: Auth hardening pass. Fixed founder auth UX: clearer overlay with Exchange Token tab (MASTER_PIN → server-issued JWT), separated error states (missing/invalid/expired/unreachable), removed misleading "paste from dev.vars" wording. Added /api/hub/auth/status + /exchange + /logout. HUB-01 base routes intact and working.',
+    build_summary: 'HUB-03: Auth continuity verification pass. HUB-02 auth confirmed live in production. MASTER_PIN: VALID-CONFIRMED (PIN→JWT→API bridge all pass live). B-011 RESOLVED. FA-002 DONE. Error codes all correct. No new features — bounded scope maintained.',
     truth_verdict: 'All living docs synced. Governance canon 13 docs frozen at e4dd5e4. Production build_session: hub02. Auth: founder uses MASTER_PIN → server issues 8h signed JWT. Founder never needs to paste raw JWT_SECRET.',
     blocker_summary: `${openBlockers.length} open blocker(s): ${openBlockers.map(b => b.id + ' — ' + b.title).join('; ')}. All are founder-only manual actions — no technical blockers.`,
     boundary_verdict: 'Hub ≠ Chamber (no doctrine). Hub ≠ Tower core (only Hub routes touched). Governance ≠ product. Counterpart NOT activated. BarberKas NOT touched. Auth fix is Hub-scoped. No scope drift.',
-    next_locked_move: 'After HUB-02 closeout: option A) begin BarberKas Sprint 1 Foundation, option B) harden Hub v3 (DB-backed truth), option C) patch stale truth inputs if needed.',
+    next_locked_move: 'HUB-03 VERIFIED. Next locked move: A) BarberKas Sprint 1 Foundation [RECOMMENDED], B) Hub v1.1 hardening (DB-backed truth), C) E2E approve→send-approved flow test.',
     generated_at: new Date().toISOString(),
   }
 }
