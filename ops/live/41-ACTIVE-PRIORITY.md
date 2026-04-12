@@ -1,8 +1,8 @@
 # 41 — ACTIVE PRIORITY
 Classification: Sovereign OS Layer — Live Operating Board
 Status: OFFICIAL — LIVING (must stay current)
-Version: 1.3
-Last Updated: 2026-04-11
+Version: 1.4
+Last Updated: 2026-04-12
 Source Authority: Repo canon — ops/live/41-ACTIVE-PRIORITY.md
 Source Drift: v1.2 → v1.3 — Updated to reflect post-4G state, governance canon frozen, ops pack committed
 
@@ -27,6 +27,7 @@ Source Drift: v1.2 → v1.3 — Updated to reflect post-4G state, governance can
 - [x] **Private Chair Ops Pack committed** → ✅ 4 ops docs at commit `086a1b1`
 - [ ] **Founder Dashboard Lite production test** — PENDING founder JWT setup
 - [ ] **E2E test approve flow with 'approved' status** — PENDING (4H scope)
+- [x] **Session & Handoff Hub MVP** — ✅ BUILD COMPLETE (HUB-01 at commit `5be6f49`)
 
 ---
 
@@ -64,12 +65,10 @@ Source Drift: v1.2 → v1.3 — Updated to reflect post-4G state, governance can
 
 ## Current Session Target
 
-Session 4H — OS-grade execution verification:
-- Verify repo truth, canon integrity, ops pack validity
-- Patch stale living docs
-- Validate Chamber↔Tower workflow mapping
-- Honest proof classification
-- Continuation-safe closeout
+HUB-01 — ✅ COMPLETE. Next session:
+- Option A: Harden Hub v1 (DB-backed truth)
+- Option B: BarberKas Sprint 1 Foundation
+- Option C: Deploy HUB-01 to Cloudflare Pages production
 
 ---
 
@@ -115,6 +114,7 @@ Session 4H — OS-grade execution verification:
 | 1.1 | 2026-04-07 | Sandbox canonical upgrade — minor edits |
 | 1.2 | 2026-04-08 | Repo-sourced canon — NOW items marked complete, Blockers table expanded, repo-target drift noted |
 | 1.3 | 2026-04-11 | Post-4G update — resolved blockers, governance canon frozen, ops pack committed, 4H target set |
+| 1.4 | 2026-04-12 | HUB-01 complete — Session & Handoff Hub MVP built, verified, pushed (5be6f49) |
 
 ---
 *Sovereign OS — Doc 41 | Founder-Only*

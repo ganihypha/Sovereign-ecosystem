@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-12 | Session 4H = VERIFIED PASS | No scope drift | All endpoints confirmed | Docs current
+### Update: 2026-04-12 | HUB-01 = BUILD COMPLETE | Session & Handoff Hub MVP live | Commit 5be6f49
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -20,6 +20,7 @@
 ✅  STATUS: SESSION 4F = VERIFIED & CLOSED (PUSHED + DEPLOYED — 2026-04-10)
 🟢  STATUS: SESSION 4G = VERIFIED & CLOSED (PUSHED + DEPLOYED — 2026-04-10)
 ✅  STATUS: SESSION 4H = VERIFIED PASS (OS-GRADE HARDENING — 2026-04-12)
+✅  STATUS: HUB-01 = BUILD COMPLETE (SESSION & HANDOFF HUB MVP — 2026-04-12)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SESSION 3D   ✅ COMPLETE AND SYNCED (2026-04-05)
@@ -680,5 +681,72 @@ Verifikasi OS-grade kesiapan sistem setelah Session 4G closeout. Tidak ada kode 
 - Internal founder operating layer (session brief, blocker board, closeout generator)
 - Scope: isolated new feature, no changes to existing governance or Tower core
 - Entry point: `/hub` atau terpisah sebagai new page in Tower
+
+---
+## HUB-01 — ✅ BUILD COMPLETE (SESSION & HANDOFF HUB MVP)
+**Date**: 2026-04-12
+**Classification**: BUILD COMPLETE ✅ | VERIFIED LOCAL ✅ | PUSHED ✅ | NO SCOPE DRIFT ✅
+**Session Type**: Bounded build — new isolated feature, no Tower core changes
+
+### Objective
+Build first founder-side continuity surface (Session & Handoff Hub MVP) as per Master Architect Prompt HUB-01. Reduce manual re-briefing tax, make current truth visible, keep blockers explicit, separate lanes clearly.
+
+### What Was Built
+1. **Hub HTML UI** — `GET /hub`
+   - JWT-gated single page with Tailwind CSS
+   - 7 sections: Session Brief, Verified State, Blocker Board, Founder Actions, Lane Split, Closeout Draft, Next Session Planner
+   - Dark theme, mobile responsive, sticky nav
+
+2. **Hub API Layer** — 7 endpoints under `/api/hub/`
+   | Route | Method | Purpose |
+   |-------|--------|---------|
+   | `/api/hub/state` | GET | Session meta + 10 verified state items with proof_class |
+   | `/api/hub/blockers` | GET | 3 blockers with type/priority/status/action |
+   | `/api/hub/founder-actions` | GET | 4 founder manual actions with urgency |
+   | `/api/hub/lanes` | GET | 6 lane items across Tower/Chamber/Counterpart/BarberKas + boundary rules |
+   | `/api/hub/closeout-draft` | GET | Auto-generated closeout (build_summary, truth_verdict, boundary_verdict, next_move) |
+   | `/api/hub/closeout-draft` | POST | Accept closeout with founder_notes |
+   | `/api/hub/next-session` | GET | Next target, carry-forward, pending decisions, out-of-scope reminders |
+
+3. **Architectural Integration**
+   - `hub.ts` registered at `/hub` + `/api/hub` in `app.ts`
+   - `TOWER_ROUTES` updated in `app-config.ts`
+   - Root endpoint `/` now includes hub route listing
+
+### Boundaries Preserved
+- Hub ≠ Chamber (no doctrine expansion)
+- Hub ≠ Tower core (no existing route modified)
+- Hub ≠ BarberKas (no product lane mixing)
+- Hub ≠ Counterpart (not activated)
+- Governance canon untouched (frozen at e4dd5e4)
+- All existing Tower routes verified working (regression pass)
+
+### Verification Results
+| Check | Status |
+|-------|--------|
+| `GET /hub` HTML renders | ✅ HTTP 200 |
+| `GET /api/hub/state` | ✅ 10 state items, proof classes correct |
+| `GET /api/hub/blockers` | ✅ 3 blockers, all OPEN |
+| `GET /api/hub/founder-actions` | ✅ 4 actions, all PENDING |
+| `GET /api/hub/lanes` | ✅ 6 lanes, 5 boundary rules |
+| `GET /api/hub/closeout-draft` | ✅ All 5 fields populated |
+| `POST /api/hub/closeout-draft` | ✅ Accepts founder_notes |
+| `GET /api/hub/next-session` | ✅ All fields populated |
+| `GET /health` (regression) | ✅ build_session: 4g, status: ok |
+| `GET /` (regression) | ✅ Hub routes listed |
+| `GET /dashboard` (regression) | ✅ HTTP 200 |
+| Build size | 337.21 kB (gzip: 91.40 kB) |
+
+### Git
+- Commit: `5be6f49` feat(hub-01): Session & Handoff Hub MVP
+- Pushed: `121a078..5be6f49 main -> main` ✅
+- Files: 4 changed (1 new, 3 modified), 1015 insertions
+
+### Next Move
+Founder decides:
+- **Option A**: Harden Hub v1 (add DB-backed truth, dynamic state)
+- **Option B**: Begin BarberKas Sprint 1 Foundation
+- **Option C**: Patch truth inputs if stale
+- **Option D**: Deploy HUB-01 to production via Cloudflare Pages
 
 
