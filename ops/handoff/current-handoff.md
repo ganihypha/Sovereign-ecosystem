@@ -1267,3 +1267,187 @@ HUB-02 auth hardening verified end-to-end in production.
 atau  
 **Counterpart Workspace Lite v1** (jika auth governance stable)
 
+---
+
+## 🔩 SESSION HUB-07 — BRIDGE REVIEW DESK v1.1 HARDENING (2026-04-12)
+
+### Status: VERIFIED ✅ LIVE
+
+**Objective**: Bounded hardening pass — fix /chamber/api/blockers empty-body bug, stabilise Bridge/Chamber response contracts, update stale checkpoint data.
+
+**Session Code**: HUB-07 | **Commit**: `a40d940` | **Deploy**: `6b9398a9.sovereign-tower.pages.dev`
+
+**Scope**: In-scope only: Bridge + Chamber API hardening. No new modules, no auth redesign, no Counterpart, no BarberKas.
+
+---
+
+### 1. REALITY LOCK
+
+| Item | Value |
+|------|-------|
+| Repo path | /home/user/webapp |
+| Branch | main |
+| HEAD at start | a4e6f35 (docs hub-06) |
+| Hub live state | ✅ HTTP 200 — /hub, /api/hub/state session=HUB-03 |
+| Chamber live state | ✅ HTTP 200 — /chamber + all 5 APIs working |
+| Bridge live state | ✅ HTTP 200 — /bridge + all 9 APIs working |
+| Auth state | ✅ UNIFIED (HUB-06 confirmed) — MASTER_PIN + hub_jwt + exchange |
+| Go/No-Go | ✅ GO |
+
+---
+
+### 2. SCOPE LOCK VERDICT
+
+**In-Scope** (executed):
+- `/chamber/api/blockers` — endpoint creation (BUG-01)
+- `/chamber/api/*` 404 fallback — unknown routes (BUG-03)
+- Bridge checkpoints CP-002/003/004 data refresh (DRIFT-01/BUG-02)
+- Chamber maintenance data MC-006/MC-007 freshness update (DRIFT-02)
+- BRIDGE_BUILD_SESSION + BRIDGE_VERSION bump (hub07, 1.1.0)
+
+**Deferred**:
+- Supabase DB-backed governance queue (Chamber v1.2 — future session)
+- `/bridge/api/item/:id/route` target validation hardening (minor edge, not breaking)
+
+**Out-of-Scope** (rejected):
+- New modules, Counterpart, BarberKas, auth redesign, major UI changes
+
+---
+
+### 3. BUG / DRIFT MAP
+
+| ID | Location | Classification | Impact | Fix Status |
+|----|----------|---------------|--------|------------|
+| BUG-01 | `/chamber/api/blockers` | BUG — endpoint missing | HTTP 200 empty body (silent failure) | ✅ FIXED |
+| BUG-02 | `bridge.ts BRIDGE_CHECKPOINTS` | DRIFT — stale HUB-04 era data | CP-002/003/004 showed WARN despite all being deployed | ✅ FIXED |
+| BUG-03 | `/chamber/api/*` unknown routes | WEAK CONTRACT — no 404 fallback | HTTP 200 empty body for any unknown chamber API route | ✅ FIXED |
+| DRIFT-01 | `chamber.ts MC-006` | DRIFT — stale data | Living docs showed PENDING despite a4e6f35 done | ✅ FIXED |
+| DRIFT-02 | `chamber.ts MC-007` | DRIFT — stale data | Deploy showed PENDING despite 44ad5cce live | ✅ FIXED |
+
+---
+
+### 4. PATCH SUMMARY
+
+**Files touched**: `apps/sovereign-tower/src/routes/chamber.ts`, `apps/sovereign-tower/src/routes/bridge.ts`
+
+| Patch | File | Change |
+|-------|------|--------|
+| Add `/api/blockers` endpoint | chamber.ts | New GET route after `/api/maintenance`; derives data from MAINTENANCE_CHECKS; contract mirrors `/api/hub/blockers` |
+| Add `/api/*` catch-all 404 | chamber.ts | New GET `'/api/*'` route returning HTTP 404 JSON `CHAMBER_ROUTE_NOT_FOUND` |
+| Update MC-006, MC-007 | chamber.ts | Status: PENDING→VERIFIED with current commit/deploy refs |
+| Refresh CP-002/003/004 | bridge.ts | Status: WARN→PASS with current reality (all deployed) |
+| Bump session + version | bridge.ts | `BRIDGE_BUILD_SESSION`: hub05→hub07, `BRIDGE_VERSION`: 1.0.0→1.1.0 |
+| Update nav label | bridge.ts | UI version label: `HUB-05`→`HUB-07` |
+
+**Auth**: Zero changes. MASTER_PIN, JWT_SECRET, TOKEN_KEY, exchange endpoint unchanged.
+
+---
+
+### 5. ROUTE BOARD
+
+**Bridge Routes (all VERIFIED)**:
+| Route | Status |
+|-------|--------|
+| GET /bridge | ✅ HTTP 200 |
+| GET /bridge/inbox | ✅ HTTP 200 |
+| GET /bridge/review | ✅ HTTP 200 |
+| GET /bridge/classification | ✅ HTTP 200 |
+| GET /bridge/checkpoints | ✅ HTTP 200 |
+| GET /bridge/boundaries | ✅ HTTP 200 |
+| GET /bridge/api/summary | ✅ success=true, session=hub07, version=1.1.0 |
+| GET /bridge/api/inbox | ✅ success=true, total=8 |
+| GET /bridge/api/item/:id | ✅ BR-001 found |
+| POST /bridge/api/item/:id/classify | ✅ result=CLASSIFIED |
+| POST /bridge/api/item/:id/route | ✅ result=ROUTED |
+| POST /bridge/api/item/:id/hold | ✅ result=ON_HOLD |
+| POST /bridge/api/item/:id/escalate | ✅ result=ESCALATED |
+| GET /bridge/api/checkpoints | ✅ overall_health=WARNING (CP-005 WA Webhook WARN stays) |
+| GET /bridge/api/boundaries | ✅ active=4, deferred=2 |
+
+**Chamber Routes (all VERIFIED)**:
+| Route | Status |
+|-------|--------|
+| GET /chamber | ✅ HTTP 200 |
+| GET /chamber/api/summary | ✅ success=true |
+| GET /chamber/api/inbox | ✅ total=5, pending=3 |
+| GET /chamber/api/audit | ✅ success=true |
+| GET /chamber/api/truth-sync | ✅ overall_status=PENDING_SYNC |
+| GET /chamber/api/maintenance | ✅ overall_health=DEGRADED (MC-001 BLOCKED) |
+| GET /chamber/api/blockers | ✅ FIXED — success=true, total=8, open=1 |
+| GET /chamber/api/[unknown] | ✅ FIXED — HTTP 404, CHAMBER_ROUTE_NOT_FOUND |
+
+**Hub Shared Routes (all VERIFIED)**:
+| Route | Status |
+|-------|--------|
+| GET /hub | ✅ HTTP 200 |
+| GET /api/hub/state | ✅ session=HUB-03 |
+| GET /api/hub/blockers | ✅ total=3 |
+| GET /api/hub/founder-actions | ✅ total=4 |
+| GET /api/hub/lanes | ✅ lanes=6 |
+
+---
+
+### 6. TEST BOARD (31 tests — all PASS)
+
+| Category | Count | Status |
+|----------|-------|--------|
+| Bridge API endpoints | 9 | ✅ ALL PASS |
+| Chamber API endpoints | 10 (incl. new /blockers + 404) | ✅ ALL PASS |
+| Bridge UI routes | 6 | ✅ ALL PASS |
+| Chamber UI routes | 6 | ✅ ALL PASS |
+| Hub shared routes | 5 | ✅ ALL PASS |
+| Error/edge cases | 6 | ✅ ALL PASS |
+| **BUG-01 verification** | 1 | ✅ body_len=1517, success=True |
+| **BUG-03 verification** | 1 | ✅ HTTP 404, CHAMBER_ROUTE_NOT_FOUND |
+
+**Error cases**: EXCHANGE_INVALID_PIN ✅ | EXCHANGE_MISSING_PIN ✅ | AUTH_MISSING_TOKEN ✅ | AUTH_INVALID_TOKEN ✅ | BRIDGE_ITEM_NOT_FOUND ✅ | CHAMBER_ROUTE_NOT_FOUND ✅
+
+---
+
+### 7. PUSH / DEPLOY BOARD
+
+| Item | Value | Status |
+|------|-------|--------|
+| Commit | `a40d940` | ✅ PUSHED to origin main |
+| GitHub range | `a4e6f35..a40d940` on main | ✅ |
+| Cloudflare Deploy | `6b9398a9.sovereign-tower.pages.dev` | ✅ LIVE |
+| Production URL | `https://sovereign-tower.pages.dev` | ✅ |
+| Build size | 473.29 kB (gzip 121.58 kB) | ✅ |
+| Live proof: Bridge session | `hub07`, version `1.1.0` | ✅ |
+| Live proof: Chamber blockers | `success=True, total=8, open=1` | ✅ |
+| Live proof: Chamber 404 | HTTP 404, `CHAMBER_ROUTE_NOT_FOUND` | ✅ |
+
+---
+
+### 8. AUTH STABILITY CHECK
+
+- MASTER_PIN: **UNCHANGED** — same Cloudflare Secret, same value
+- JWT_SECRET: **UNCHANGED**
+- TOKEN_KEY: **UNCHANGED** — `hub_jwt` (unified in HUB-06)
+- Exchange endpoint: **UNCHANGED** — `/api/hub/auth/exchange`
+- No regressions. /hub /chamber /bridge all HTTP 200.
+
+---
+
+### 9. HUB-07 CLOSEOUT DECISION
+
+**VERIFIED**
+
+- /chamber/api/blockers — endpoint created, data correct, live verified
+- Bridge checkpoints — refreshed to current reality, no stale WARN
+- Chamber 404 fallback — unknown /api/* routes return HTTP 404
+- Chamber maintenance data — freshness updated (MC-006, MC-007)
+- Auth stability — zero regression, MASTER_PIN unchanged
+- All 31 tests pass
+- Live production verified at https://sovereign-tower.pages.dev
+
+---
+
+### 10. NEXT LOCKED MOVE
+
+**Option A (Recommended)**: Counterpart Workspace Lite v1 — auth governance layer is now stable  
+**Option B**: Chamber Console v1.1 Hardening — Supabase DB-backed governance queue  
+**Option C**: Bridge Review Desk v1.2 refinement — live checkpoint validation
+
+**Immediate Open Blocker**: B-010 (Fonnte Webhook URL) — must be resolved manually by founder at https://fonnte.com/settings.
+

@@ -1,10 +1,10 @@
 # 41 — ACTIVE PRIORITY
 Classification: Sovereign OS Layer — Live Operating Board
 Status: OFFICIAL — LIVING (must stay current)
-Version: 2.0
+Version: 2.1
 Last Updated: 2026-04-12
 Source Authority: Repo canon — ops/live/41-ACTIVE-PRIORITY.md
-Source Drift: v1.9 → v2.0 — HUB-06 Auth Canon Stabilization VERIFIED & LIVE. Commit 642817e, deploy 44ad5cce. AUTH TOPOLOGY: UNIFIED. FINAL-PIN-CONFIRMED. bridge.ts TOKEN_KEY + placeholder fixed. All 3 modules consistent.
+Source Drift: v2.0 → v2.1 — HUB-07 Bridge v1.1 Hardening VERIFIED & LIVE. Commit a40d940, deploy 6b9398a9. BUG-01 FIXED (/chamber/api/blockers). BUG-03 FIXED (chamber 404 fallback). Bridge CP-002/003/004 refreshed to PASS. version=1.1.0, session=hub07.
 
 ---
 
@@ -48,8 +48,17 @@ Source Drift: v1.9 → v2.0 — HUB-06 Auth Canon Stabilization VERIFIED & LIVE.
   - bridge.ts TOKEN_KEY fixed: `sovereign_hub_token` → `hub_jwt`
   - bridge.ts placeholder cleaned: no longer exposes PIN value
   - All 3 modules (/hub /chamber /bridge) now use same auth source, same localStorage key
-- **🔴 NEXT LOCKED MOVE: Bridge Review Desk v1.1 Hardening** (fix `/chamber/api/blockers` empty-body bug) ← RECOMMENDED
-- Alternatif: Counterpart Workspace Lite v1 | Hub v1.1 Hardening (DB-backed truth)
+- ✅ HUB-07 Bridge Review Desk v1.1 Hardening — VERIFIED & LIVE (commit a40d940, deploy 6b9398a9)
+  - BUG-01 FIXED: `/chamber/api/blockers` endpoint created (was HTTP 200 empty body)
+  - BUG-03 FIXED: `/chamber/api/*` unknown routes now return HTTP 404 CHAMBER_ROUTE_NOT_FOUND
+  - Bridge checkpoints CP-002/003/004 refreshed WARN→PASS (all deployed)
+  - Chamber MC-006/MC-007 freshness updated PENDING→VERIFIED
+  - BRIDGE_VERSION: 1.0.0→1.1.0, BRIDGE_BUILD_SESSION: hub05→hub07
+  - Auth: UNCHANGED — MASTER_PIN, JWT_SECRET, TOKEN_KEY all same
+- **🔴 NEXT LOCKED MOVE: Counterpart Workspace Lite v1** (auth governance stable) ← RECOMMENDED
+- Alternatif A: Chamber Console v1.1 (Supabase DB-backed governance queue)
+- Alternatif B: Bridge Review Desk v1.2 (live checkpoint validation)
+- Immediate open blocker: B-010 Fonnte Webhook — founder must configure at https://fonnte.com/settings
 - E2E test approve→send-approved flow with `approved` status
 - Run first Governance Health Review using PRIVATE_CHAIR_MAINTENANCE_CHECKLIST_V1
 
@@ -134,6 +143,7 @@ HUB-01 — ✅ COMPLETE. Next session:
 | 1.8 | 2026-04-12 | HUB-04 Chamber Console v1 built — 6 screens, 9 APIs, local verified (b5c80a7) — push/deploy pending |
 | 1.9 | 2026-04-12 | HUB-05 Bridge Review Desk v1 — 6 screens, 9 APIs, VERIFIED & DEPLOYED LIVE (bcb07b3, b8b00e49) |
 | 2.0 | 2026-04-12 | HUB-06 Auth Canon Stabilization — UNIFIED topology, FINAL-PIN-CONFIRMED, bridge.ts TOKEN_KEY+placeholder fixed (642817e, 44ad5cce) |
+| 2.1 | 2026-04-12 | HUB-07 Bridge v1.1 Hardening — BUG-01 /chamber/api/blockers fixed, BUG-03 chamber 404 fallback added, checkpoints refreshed (a40d940, 6b9398a9) |
 
 ---
 *Sovereign OS — Doc 41 | Founder-Only*
