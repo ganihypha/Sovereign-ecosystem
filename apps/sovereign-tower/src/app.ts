@@ -21,6 +21,7 @@ import { waRouter } from './routes/wa'
 import { agentsRouter } from './routes/agents'
 import { founderDashboardRouter } from './routes/founder-dashboard'
 import { hubRouter } from './routes/hub'
+import { chamberRouter } from './routes/chamber'
 
 // =============================================================================
 // APP FACTORY
@@ -146,6 +147,19 @@ export function createApp(): TowerApp {
   app.route('/api/hub', hubRouter)
   app.route('/hub', hubRouter)
 
+  // HUB-04: Chamber Operating Console v1 — founder governance operating surface
+  // Isolated additive route. Does NOT modify Tower core, Hub, or governance canon.
+  // Chamber = governance operating console (NOT product app, NOT Counterpart, NOT public UI)
+  // Auth: /chamber/api/* routes protected by JWT + founderOnly via explicit middleware.
+  // UI routes /chamber/* are HTML pages with client-side JWT auth (same model as Hub).
+  app.use('/chamber/api/*', async (c, next) => {
+    return jwtMiddleware({ JWT_SECRET: c.env.JWT_SECRET })(c, next)
+  })
+  app.use('/chamber/api/*', async (c, next) => {
+    return founderOnly()(c, next)
+  })
+  app.route('/chamber', chamberRouter)
+
   // ─────────────────────────────────────────────────────────────────────────
   // ROOT + FALLBACK
   // ─────────────────────────────────────────────────────────────────────────
@@ -227,7 +241,30 @@ export function createApp(): TowerApp {
         ],
         auth_note: 'HUB-02: Founder uses MASTER_PIN to exchange for signed JWT. Never paste raw JWT_SECRET.',
       },
-      notice: 'HUB-02: Auth hardening pass. Safer founder access via MASTER_PIN exchange. Session 4a: ScoutScorer Agent. Session 3g WA routes preserved.',
+      chamber: {
+          ui: 'GET /chamber — Chamber Operating Console (governance operating surface)',
+          screens: [
+            'GET /chamber — Overview / summary cards',
+            'GET /chamber/inbox — Governance inbox',
+            'GET /chamber/decision-board — Decision board + approve/reject/hold',
+            'GET /chamber/audit — Audit trail viewer',
+            'GET /chamber/truth-sync — Truth sync panel',
+            'GET /chamber/maintenance — Maintenance checklist',
+          ],
+          api_bounded: [
+            'GET /api/chamber/summary',
+            'GET /api/chamber/inbox',
+            'GET /api/chamber/decision/:id',
+            'POST /api/chamber/decision/:id/approve',
+            'POST /api/chamber/decision/:id/reject',
+            'POST /api/chamber/decision/:id/hold',
+            'GET /api/chamber/audit',
+            'GET /api/chamber/truth-sync',
+            'GET /api/chamber/maintenance',
+          ],
+          auth_note: 'HUB-04: Reuses Hub auth model. Same MASTER_PIN / JWT. No second auth flow.',
+        },
+      notice: 'HUB-04: Chamber Operating Console v1 built. Governance operating surface. Auth preserved from HUB-03.',
     })
   })
 

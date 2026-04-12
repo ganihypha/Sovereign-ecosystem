@@ -12,7 +12,7 @@
 
 export const TOWER_APP_NAME = 'Sovereign Tower' as const
 export const TOWER_APP_VERSION = '0.1.0' as const
-export const TOWER_BUILD_SESSION = 'hub02' as const
+export const TOWER_BUILD_SESSION = 'hub04' as const
 export const TOWER_PHASE = 'phase-3' as const
 export const TOWER_DESCRIPTION = 'Private founder-only command center — Sovereign Business Engine v4.0'
 
@@ -138,6 +138,20 @@ export const TOWER_ROUTES = {
   HUB_AUTH_STATUS: '/api/hub/auth/status',
   HUB_AUTH_EXCHANGE: '/api/hub/auth/exchange',
   HUB_AUTH_LOGOUT: '/api/hub/auth/logout',
+  // HUB-04 Chamber Operating Console v1
+  CHAMBER: '/chamber',
+  CHAMBER_INBOX: '/chamber/inbox',
+  CHAMBER_DECISION_BOARD: '/chamber/decision-board',
+  CHAMBER_AUDIT: '/chamber/audit',
+  CHAMBER_TRUTH_SYNC: '/chamber/truth-sync',
+  CHAMBER_MAINTENANCE: '/chamber/maintenance',
+  // HUB-04 Chamber API routes
+  CHAMBER_API_SUMMARY: '/chamber/api/summary',
+  CHAMBER_API_INBOX: '/chamber/api/inbox',
+  CHAMBER_API_DECISION: '/chamber/api/decision',
+  CHAMBER_API_AUDIT: '/chamber/api/audit',
+  CHAMBER_API_TRUTH_SYNC: '/chamber/api/truth-sync',
+  CHAMBER_API_MAINTENANCE: '/chamber/api/maintenance',
 } as const
 
 export type TowerRoute = (typeof TOWER_ROUTES)[keyof typeof TOWER_ROUTES]
