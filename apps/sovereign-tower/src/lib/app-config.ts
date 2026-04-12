@@ -12,7 +12,7 @@
 
 export const TOWER_APP_NAME = 'Sovereign Tower' as const
 export const TOWER_APP_VERSION = '0.1.0' as const
-export const TOWER_BUILD_SESSION = '4g' as const
+export const TOWER_BUILD_SESSION = 'hub02' as const
 export const TOWER_PHASE = 'phase-3' as const
 export const TOWER_DESCRIPTION = 'Private founder-only command center — Sovereign Business Engine v4.0'
 
@@ -68,6 +68,14 @@ export type TowerEnv = {
   /** Founder user ID (UUID di Supabase auth) — untuk identity check */
   FOUNDER_USER_ID?: string
 
+  /**
+   * Master PIN — untuk auth exchange endpoint /api/hub/auth/exchange
+   * Founder masukkan PIN ini → server issue short-lived JWT otomatis
+   * Bukan raw JWT_SECRET — PIN dipakai untuk mint JWT, tidak untuk direct auth
+   * Tambahkan ke .dev.vars (dev) atau Cloudflare Secret (prod)
+   */
+  MASTER_PIN?: string
+
   // --- App Config ---
   /** Environment: development | staging | production */
   ENVIRONMENT?: string
@@ -118,7 +126,7 @@ export const TOWER_ROUTES = {
   // Session 4G additions
   WA_AUDIT: '/api/wa/audit',          // GET /api/wa/audit/:id
   WA_DASHBOARD: '/api/wa/dashboard',  // Founder Dashboard Lite
-  // HUB-01: Session & Handoff Hub MVP
+  // HUB-01/HUB-02: Session & Handoff Hub
   HUB: '/hub',
   HUB_STATE: '/api/hub/state',
   HUB_BLOCKERS: '/api/hub/blockers',
@@ -126,6 +134,10 @@ export const TOWER_ROUTES = {
   HUB_LANES: '/api/hub/lanes',
   HUB_CLOSEOUT: '/api/hub/closeout-draft',
   HUB_NEXT: '/api/hub/next-session',
+  // HUB-02 auth routes
+  HUB_AUTH_STATUS: '/api/hub/auth/status',
+  HUB_AUTH_EXCHANGE: '/api/hub/auth/exchange',
+  HUB_AUTH_LOGOUT: '/api/hub/auth/logout',
 } as const
 
 export type TowerRoute = (typeof TOWER_ROUTES)[keyof typeof TOWER_ROUTES]

@@ -86,10 +86,18 @@ export function createApp(): TowerApp {
   // JWT Middleware — verifikasi Bearer token untuk semua /api/* routes
   // ⚠️ Session 3g EXCEPTION: /api/wa/webhook adalah PUBLIC route (Fonnte webhook)
   //    Diproteksi via ?token= query param (validateWebhookToken), bukan JWT
+  // ⚠️ Session HUB-02 EXCEPTION: /api/hub/auth/* adalah PUBLIC routes untuk auth exchange
+  //    - GET /api/hub/auth/status  — token status check (no auth required, reads header optionally)
+  //    - POST /api/hub/auth/exchange — mint JWT via MASTER_PIN (no JWT required, PIN required)
+  //    - POST /api/hub/auth/logout — stateless logout acknowledgment (no auth required)
   //    Semua route /api/* lainnya tetap full JWT + founderOnly
   app.use('/api/*', async (c, next) => {
     // Skip JWT for webhook route (public, token-gated separately)
     if (c.req.method === 'POST' && c.req.path === '/api/wa/webhook') {
+      return next()
+    }
+    // Skip JWT for hub auth routes (HUB-02 — public auth helpers)
+    if (c.req.path.startsWith('/api/hub/auth/')) {
       return next()
     }
     return jwtMiddleware({ JWT_SECRET: c.env.JWT_SECRET })(c, next)
@@ -98,10 +106,15 @@ export function createApp(): TowerApp {
   // Founder-only guard — enforce role === 'founder' untuk semua protected routes
   // /health/* tetap public (tidak dalam /api/*)
   // /api/wa/webhook tetap public (webhook dari Fonnte)
+  // /api/hub/auth/* tetap public (HUB-02 auth exchange routes)
   // /dashboard tetap public HTML (auth dilakukan client-side via JavaScript)
   app.use('/api/*', async (c, next) => {
     // Skip founderOnly for webhook route
     if (c.req.method === 'POST' && c.req.path === '/api/wa/webhook') {
+      return next()
+    }
+    // Skip founderOnly for hub auth routes (HUB-02)
+    if (c.req.path.startsWith('/api/hub/auth/')) {
       return next()
     }
     return founderOnly()(c, next)
@@ -198,7 +211,7 @@ export function createApp(): TowerApp {
       },
       hub: {
         ui: 'GET /hub — Session & Handoff Hub (continuity surface)',
-        api: [
+        api_protected: [
           'GET /api/hub/state',
           'GET /api/hub/blockers',
           'GET /api/hub/founder-actions',
@@ -207,8 +220,14 @@ export function createApp(): TowerApp {
           'POST /api/hub/closeout-draft',
           'GET /api/hub/next-session',
         ],
+        auth_public: [
+          'GET /api/hub/auth/status  — check token validity (no auth required)',
+          'POST /api/hub/auth/exchange — mint JWT via MASTER_PIN (no JWT required)',
+          'POST /api/hub/auth/logout — stateless logout acknowledgment',
+        ],
+        auth_note: 'HUB-02: Founder uses MASTER_PIN to exchange for signed JWT. Never paste raw JWT_SECRET.',
       },
-      notice: 'HUB-01: Session & Handoff Hub MVP added. Session 4a: ScoutScorer Agent. Session 3g WA routes preserved.',
+      notice: 'HUB-02: Auth hardening pass. Safer founder access via MASTER_PIN exchange. Session 4a: ScoutScorer Agent. Session 3g WA routes preserved.',
     })
   })
 
