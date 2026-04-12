@@ -1,10 +1,10 @@
 # 41 — ACTIVE PRIORITY
 Classification: Sovereign OS Layer — Live Operating Board
 Status: OFFICIAL — LIVING (must stay current)
-Version: 2.1
+Version: 2.2
 Last Updated: 2026-04-12
 Source Authority: Repo canon — ops/live/41-ACTIVE-PRIORITY.md
-Source Drift: v2.0 → v2.1 — HUB-07 Bridge v1.1 Hardening VERIFIED & LIVE. Commit a40d940, deploy 6b9398a9. BUG-01 FIXED (/chamber/api/blockers). BUG-03 FIXED (chamber 404 fallback). Bridge CP-002/003/004 refreshed to PASS. version=1.1.0, session=hub07.
+Source Drift: v2.1 → v2.2 — HUB-08 Counterpart Workspace Lite v1 VERIFIED & LIVE. Commit ea13ee1, deploy e08c9d0b. 7 UI screens + 9 bounded APIs. BOUNDARY=SAFE. build_session=hub08.
 
 ---
 
@@ -31,10 +31,16 @@ Source Drift: v2.0 → v2.1 — HUB-07 Bridge v1.1 Hardening VERIFIED & LIVE. Co
 - [x] **HUB-02 Auth Hardening** — ✅ VERIFIED & CLOSED (commit `205c2d5`, deploy `fd629c0d`)
 - [x] **Deploy HUB-02 to production** — ✅ LIVE: `sovereign-tower.pages.dev` → `build_session: hub02`
 - [x] **HUB-03 Auth Continuity Verification** — ✅ VERIFIED & CLOSED (commit `39d6a8c`, deploy `fd0505c8`)
-- [x] **HUB-04 Chamber Operating Console v1** — ✅ CODE-CONFIRMED local (commit `b5c80a7`) — Push/Deploy PENDING
-  - MASTER_PIN: VALID-CONFIRMED (PIN→JWT→API bridge proven live)
-  - B-011: RESOLVED (Exchange Token flow verified production)
-  - MASTER_PIN rotated/synced (dev.vars = CF secret)
+- [x] **HUB-04 Chamber Operating Console v1** — ✅ DEPLOYED (commit `b5c80a7`)
+- [x] **HUB-05 Bridge Review Desk v1** — ✅ DEPLOYED (commit `bcb07b3`)
+- [x] **HUB-06 Auth Canon Unified** — ✅ DEPLOYED (commit `642817e`)
+- [x] **HUB-07 Bridge v1.1 Hardening** — ✅ DEPLOYED (commit `a40d940`)
+- [x] **HUB-08 Counterpart Workspace Lite v1** — ✅ VERIFIED & LIVE (commit `ea13ee1`, deploy `e08c9d0b`)
+  - 7 UI screens: /counterpart, /access, /scope, /checkpoints, /contribute, /outcomes, /boundaries
+  - 9 bounded APIs: summary, access, scope, checkpoints, outcomes, contributions (GET+POST), boundaries, 404
+  - BOUNDARY=SAFE: no secrets exposed, no founder overrides, input validated
+  - Auth: reuses Hub MASTER_PIN / JWT — no drift
+  - build_session: hub08
 
 ---
 
@@ -55,9 +61,11 @@ Source Drift: v2.0 → v2.1 — HUB-07 Bridge v1.1 Hardening VERIFIED & LIVE. Co
   - Chamber MC-006/MC-007 freshness updated PENDING→VERIFIED
   - BRIDGE_VERSION: 1.0.0→1.1.0, BRIDGE_BUILD_SESSION: hub05→hub07
   - Auth: UNCHANGED — MASTER_PIN, JWT_SECRET, TOKEN_KEY all same
-- **🔴 NEXT LOCKED MOVE: Counterpart Workspace Lite v1** (auth governance stable) ← RECOMMENDED
-- Alternatif A: Chamber Console v1.1 (Supabase DB-backed governance queue)
-- Alternatif B: Bridge Review Desk v1.2 (live checkpoint validation)
+- ✅ **HUB-08 Counterpart Workspace Lite v1 — VERIFIED & LIVE** (commit ea13ee1, deploy e08c9d0b)
+  - 7 screens, 9 APIs, BOUNDARY=SAFE, build_session=hub08
+- **🔴 NEXT LOCKED MOVE: Counterpart Access Ladder v1** (earned access progression) ← RECOMMENDED
+- Alternatif A: Counterpart Workspace Lite v1.1 Hardening (true counterpart role auth)
+- Alternatif B: Chamber Console v1.1 (Supabase DB-backed governance queue)
 - Immediate open blocker: B-010 Fonnte Webhook — founder must configure at https://fonnte.com/settings
 - E2E test approve→send-approved flow with `approved` status
 - Run first Governance Health Review using PRIVATE_CHAIR_MAINTENANCE_CHECKLIST_V1
@@ -144,6 +152,7 @@ HUB-01 — ✅ COMPLETE. Next session:
 | 1.9 | 2026-04-12 | HUB-05 Bridge Review Desk v1 — 6 screens, 9 APIs, VERIFIED & DEPLOYED LIVE (bcb07b3, b8b00e49) |
 | 2.0 | 2026-04-12 | HUB-06 Auth Canon Stabilization — UNIFIED topology, FINAL-PIN-CONFIRMED, bridge.ts TOKEN_KEY+placeholder fixed (642817e, 44ad5cce) |
 | 2.1 | 2026-04-12 | HUB-07 Bridge v1.1 Hardening — BUG-01 /chamber/api/blockers fixed, BUG-03 chamber 404 fallback added, checkpoints refreshed (a40d940, 6b9398a9) |
+| 2.2 | 2026-04-12 | HUB-08 Counterpart Workspace Lite v1 — 7 screens + 9 bounded APIs, BOUNDARY=SAFE, VERIFIED & DEPLOYED LIVE (ea13ee1, e08c9d0b) |
 
 ---
 *Sovereign OS — Doc 41 | Founder-Only*
