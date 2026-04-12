@@ -1,10 +1,10 @@
 # 41 — ACTIVE PRIORITY
 Classification: Sovereign OS Layer — Live Operating Board
 Status: OFFICIAL — LIVING (must stay current)
-Version: 1.7
+Version: 1.8
 Last Updated: 2026-04-12
 Source Authority: Repo canon — ops/live/41-ACTIVE-PRIORITY.md
-Source Drift: v1.6 → v1.7 — HUB-03 VERIFIED & CLOSED. MASTER_PIN VALID-CONFIRMED, B-011 RESOLVED, session code HUB-03 live (fd0505c8).
+Source Drift: v1.8 → v1.9 — HUB-05 Bridge Review Desk v1 BUILT & LIVE. Commit bcb07b3, deploy b8b00e49. build_session: hub05. HUB-04 + HUB-05 pushed & deployed. GitHub token + CF token configured from uploaded file.
 
 ---
 
@@ -31,6 +31,7 @@ Source Drift: v1.6 → v1.7 — HUB-03 VERIFIED & CLOSED. MASTER_PIN VALID-CONFI
 - [x] **HUB-02 Auth Hardening** — ✅ VERIFIED & CLOSED (commit `205c2d5`, deploy `fd629c0d`)
 - [x] **Deploy HUB-02 to production** — ✅ LIVE: `sovereign-tower.pages.dev` → `build_session: hub02`
 - [x] **HUB-03 Auth Continuity Verification** — ✅ VERIFIED & CLOSED (commit `39d6a8c`, deploy `fd0505c8`)
+- [x] **HUB-04 Chamber Operating Console v1** — ✅ CODE-CONFIRMED local (commit `b5c80a7`) — Push/Deploy PENDING
   - MASTER_PIN: VALID-CONFIRMED (PIN→JWT→API bridge proven live)
   - B-011: RESOLVED (Exchange Token flow verified production)
   - MASTER_PIN rotated/synced (dev.vars = CF secret)
@@ -41,6 +42,8 @@ Source Drift: v1.6 → v1.7 — HUB-03 VERIFIED & CLOSED. MASTER_PIN VALID-CONFI
 
 - ✅ HUB-02 deployed and live — `build_session: hub02` confirmed production
 - ✅ HUB-03 verified — MASTER_PIN VALID-CONFIRMED, B-011 RESOLVED, Exchange Token live
+- ✅ HUB-04 Chamber Console v1 — 6 screens + 9 APIs — PUSHED & DEPLOYED (commit b5c80a7)
+- ✅ HUB-05 Bridge Review Desk v1 — 6 screens + 9 APIs — VERIFIED & DEPLOYED LIVE (commit bcb07b3, deploy b8b00e49)
 - **🔴 NEXT LOCKED MOVE: BarberKas Sprint 1 Foundation** ← RECOMMENDED
 - Alternatif: Hub v1.1 Hardening (DB-backed truth) | E2E approve→send-approved flow
 - E2E test approve→send-approved flow with `approved` status
@@ -124,6 +127,8 @@ HUB-01 — ✅ COMPLETE. Next session:
 | 1.5 | 2026-04-12 | HUB-02 pushed — auth hardening (205c2d5), deploy pending CF token |
 | 1.6 | 2026-04-12 | HUB-02 VERIFIED & CLOSED — deployed (fd629c0d), build_session hub02 live, MASTER_PIN configured |
 | 1.7 | 2026-04-12 | HUB-03 VERIFIED & CLOSED — MASTER_PIN VALID-CONFIRMED, B-011 RESOLVED, deploy fd0505c8 |
+| 1.8 | 2026-04-12 | HUB-04 Chamber Console v1 built — 6 screens, 9 APIs, local verified (b5c80a7) — push/deploy pending |
+| 1.9 | 2026-04-12 | HUB-05 Bridge Review Desk v1 — 6 screens, 9 APIs, VERIFIED & DEPLOYED LIVE (bcb07b3, b8b00e49) |
 
 ---
 *Sovereign OS — Doc 41 | Founder-Only*
