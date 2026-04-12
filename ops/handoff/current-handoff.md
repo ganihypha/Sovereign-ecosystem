@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-12 | HUB-02 = AUTH HARDENING DONE | Commit 205c2d5 | PUSHED ✅ | DEPLOY PENDING (CF token required)
+### Update: 2026-04-12 | HUB-03 = AUTH CONTINUITY VERIFIED | Commit 39d6a8c | PUSHED ✅ | DEPLOYED fd0505c8 ✅ | build_session: hub02 LIVE
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -833,4 +833,99 @@ Build first founder-side continuity surface (Session & Handoff Hub MVP) as per M
 
 **Jangan** paste raw `JWT_SECRET` ke form auth — itu akan ditolak dengan `invalid_format`.
 
+
+
+---
+
+## 🔐 SESSION HUB-03 — AUTH CONTINUITY VERIFICATION (2026-04-12)
+**Classification**: ✅ VERIFIED AND CLOSED
+**Commits**: `39d6a8c` (hub-03 patches) + `<final-docs>` (living docs sync)
+**Deploy URL**: https://fd0505c8.sovereign-tower.pages.dev
+**Production**: https://sovereign-tower.pages.dev — `build_session: hub02` ✅ LIVE
+**Session Code**: HUB-03 (confirmed in /api/hub/state)
+**Build**: 352.13 kB (gzip 95.73 kB)
+
+### Objective
+HUB-02 auth hardening verified end-to-end in production.
+- MASTER_PIN: **VALID-CONFIRMED** (PIN→JWT→protected API bridge all pass live)
+- B-011: **RESOLVED** (Exchange Token flow live & verified in production)
+- FA-002: **DONE** (Exchange Token flow working)
+- No new features added — bounded scope maintained
+
+### MASTER_PIN Status
+**Classification: VALID-CONFIRMED**
+- MASTER_PIN exists in Cloudflare Pages secrets ✅
+- Secret was reset/synced during HUB-03 (prior value uncertain; rotated to dev.vars value) ✅
+- Exchange succeeds in production: POST /api/hub/auth/exchange → JWT eyJ... role:founder ✅
+- Token works on all protected /api/hub/* endpoints ✅
+
+### Auth Bug Audit (HUB-03 Verdict)
+| Item | Status |
+|------|--------|
+| UI tells founder to use Exchange Token (PIN) | ✅ CORRECT |
+| UI warns "JANGAN paste raw JWT_SECRET" | ✅ CORRECT (warning, not instruction) |
+| B-011 "paste dari dev.vars" bug | ✅ FIXED (HUB-02), VERIFIED (HUB-03) |
+| Distinct error codes (missing/invalid_format/invalid/expired) | ✅ ALL WORKING |
+| MASTER_PIN runtime read | ✅ CONFIRMED |
+| Auth routes exempt from JWT middleware | ✅ CONFIRMED |
+| Protected routes reject unauthorized | ✅ CONFIRMED |
+
+### Live Test Board (Production — HUB-03)
+| Test | Result |
+|------|--------|
+| GET /hub | ✅ HTTP 200, title correct |
+| GET /health — build_session | ✅ hub02 |
+| GET /api/hub/auth/status (no token) | ✅ AUTH_MISSING_TOKEN, can_exchange: true |
+| POST /api/hub/auth/exchange (correct PIN) | ✅ token eyJ..., role:founder, 8h TTL |
+| POST /api/hub/auth/exchange (wrong PIN) | ✅ EXCHANGE_INVALID_PIN |
+| POST /api/hub/auth/exchange (empty PIN) | ✅ EXCHANGE_MISSING_PIN |
+| GET /api/hub/auth/status (raw secret) | ✅ AUTH_INVALID_FORMAT |
+| GET /api/hub/auth/status (wrong sig) | ✅ AUTH_INVALID_TOKEN |
+| GET /api/hub/state (valid JWT) | ✅ session.code HUB-03, status LIVE |
+| GET /api/hub/blockers | ✅ B-010 OPEN, B-011 RESOLVED, B-012 OPEN |
+| GET /api/hub/founder-actions | ✅ FA-002 DONE |
+| GET /api/hub/lanes | ✅ 6 lanes |
+| GET /api/hub/closeout-draft | ✅ HUB-03 build summary |
+| GET /api/hub/next-session | ✅ BarberKas Sprint 1 RECOMMENDED |
+| POST /api/hub/auth/logout | ✅ stateless ack |
+| Regression /health | ✅ |
+
+### Patches Applied (HUB-03 scope — hub.ts only)
+| Change | Detail |
+|--------|--------|
+| Session meta | code HUB-02 → HUB-03, status DEPLOYED → LIVE |
+| B-011 | status OPEN → RESOLVED |
+| FA-002 | status PENDING → DONE |
+| closeout build_summary | Updated to HUB-03 reality |
+| next_locked_move | Updated — HUB-03 VERIFIED, BarberKas RECOMMENDED |
+| Production deploy state item | build_session 4g → hub02 corrected |
+| MASTER_PIN CF secret | Rotated/synced (dev = prod) |
+
+### MASTER_PIN Rotation Note
+- Prior value in CF secrets was uncertain (HUB-02 set `sovereign-hub-02-pin` but didn't match)
+- HUB-03 rotated to match `.dev.vars` known value
+- Exchange tested and confirmed working in production after rotation
+- **Founder must use MASTER_PIN value from their `.dev.vars` file**
+
+### Deploy Board
+- **Git commit**: `39d6a8c` → pushed to main ✅
+- **CF Deploy**: `fd0505c8.sovereign-tower.pages.dev` ✅
+- **Production**: `sovereign-tower.pages.dev` — HUB-03 session meta live ✅
+- **Secrets**: MASTER_PIN rotated and verified ✅
+
+### Founder Access (Current Valid Flow)
+1. Buka `https://sovereign-tower.pages.dev/hub`
+2. Tab **Exchange Token (PIN)** → masukkan **MASTER_PIN** (dari `.dev.vars` file)
+3. Server terbitkan JWT 8 jam — stored di localStorage
+4. Hub terbuka dengan data HUB-03
+5. **JANGAN** paste raw `JWT_SECRET` — akan ditolak `AUTH_INVALID_FORMAT`
+
+### Open Blockers Post-HUB-03
+- **B-010**: Fonnte webhook URL — founder manual (https://fonnte.com/settings)
+- **B-012**: Repo visibility decision — founder manual
+
+### Next Locked Move
+**BarberKas Sprint 1 Foundation** [RECOMMENDED]
+- Alternatif: Hub v1.1 Hardening (DB-backed truth)
+- Alternatif: E2E approve→send-approved flow test
 

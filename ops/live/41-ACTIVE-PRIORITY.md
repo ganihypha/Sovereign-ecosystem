@@ -1,10 +1,10 @@
 # 41 — ACTIVE PRIORITY
 Classification: Sovereign OS Layer — Live Operating Board
 Status: OFFICIAL — LIVING (must stay current)
-Version: 1.6
+Version: 1.7
 Last Updated: 2026-04-12
 Source Authority: Repo canon — ops/live/41-ACTIVE-PRIORITY.md
-Source Drift: v1.5 → v1.6 — HUB-02 VERIFIED & CLOSED. Deployed fd629c0d, build_session hub02 live, MASTER_PIN configured.
+Source Drift: v1.6 → v1.7 — HUB-03 VERIFIED & CLOSED. MASTER_PIN VALID-CONFIRMED, B-011 RESOLVED, session code HUB-03 live (fd0505c8).
 
 ---
 
@@ -30,15 +30,19 @@ Source Drift: v1.5 → v1.6 — HUB-02 VERIFIED & CLOSED. Deployed fd629c0d, bui
 - [x] **Session & Handoff Hub MVP** — ✅ BUILD COMPLETE (HUB-01 at commit `5be6f49`)
 - [x] **HUB-02 Auth Hardening** — ✅ VERIFIED & CLOSED (commit `205c2d5`, deploy `fd629c0d`)
 - [x] **Deploy HUB-02 to production** — ✅ LIVE: `sovereign-tower.pages.dev` → `build_session: hub02`
+- [x] **HUB-03 Auth Continuity Verification** — ✅ VERIFIED & CLOSED (commit `39d6a8c`, deploy `fd0505c8`)
+  - MASTER_PIN: VALID-CONFIRMED (PIN→JWT→API bridge proven live)
+  - B-011: RESOLVED (Exchange Token flow verified production)
+  - MASTER_PIN rotated/synced (dev.vars = CF secret)
 
 ---
 
 ## NEXT
 
 - ✅ HUB-02 deployed and live — `build_session: hub02` confirmed production
-- ✅ MASTER_PIN secret configured — Exchange Token flow live at `/hub`
-- **Move active build energy to BarberKas Sprint 1 FOUNDATION** ← NEXT LOCKED MOVE
-- E2E test approve→send-approved flow dengan status `approved`
+- ✅ HUB-03 verified — MASTER_PIN VALID-CONFIRMED, B-011 RESOLVED, Exchange Token live
+- **🔴 NEXT LOCKED MOVE: BarberKas Sprint 1 Foundation** ← RECOMMENDED
+- Alternatif: Hub v1.1 Hardening (DB-backed truth) | E2E approve→send-approved flow
 - E2E test approve→send-approved flow with `approved` status
 - Run first Governance Health Review using PRIVATE_CHAIR_MAINTENANCE_CHECKLIST_V1
 
@@ -119,6 +123,7 @@ HUB-01 — ✅ COMPLETE. Next session:
 | 1.4 | 2026-04-12 | HUB-01 complete — Session & Handoff Hub MVP built, verified, pushed (5be6f49) |
 | 1.5 | 2026-04-12 | HUB-02 pushed — auth hardening (205c2d5), deploy pending CF token |
 | 1.6 | 2026-04-12 | HUB-02 VERIFIED & CLOSED — deployed (fd629c0d), build_session hub02 live, MASTER_PIN configured |
+| 1.7 | 2026-04-12 | HUB-03 VERIFIED & CLOSED — MASTER_PIN VALID-CONFIRMED, B-011 RESOLVED, deploy fd0505c8 |
 
 ---
 *Sovereign OS — Doc 41 | Founder-Only*
