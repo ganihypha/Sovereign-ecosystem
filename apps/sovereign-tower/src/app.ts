@@ -22,6 +22,7 @@ import { agentsRouter } from './routes/agents'
 import { founderDashboardRouter } from './routes/founder-dashboard'
 import { hubRouter } from './routes/hub'
 import { chamberRouter } from './routes/chamber'
+import { bridgeRouter } from './routes/bridge'
 
 // =============================================================================
 // APP FACTORY
@@ -159,6 +160,19 @@ export function createApp(): TowerApp {
     return founderOnly()(c, next)
   })
   app.route('/chamber', chamberRouter)
+
+  // HUB-05: Bridge Review Desk v1 — triage + routing surface for founder
+  // Isolated additive route. Does NOT modify Hub, Chamber, or Tower core.
+  // Bridge = classify + route + hold + escalate signals.
+  // Auth: /bridge/api/* protected by JWT + founderOnly via explicit middleware.
+  // UI routes /bridge/* use client-side JWT auth (same pattern as Hub/Chamber).
+  app.use('/bridge/api/*', async (c, next) => {
+    return jwtMiddleware({ JWT_SECRET: c.env.JWT_SECRET })(c, next)
+  })
+  app.use('/bridge/api/*', async (c, next) => {
+    return founderOnly()(c, next)
+  })
+  app.route('/bridge', bridgeRouter)
 
   // ─────────────────────────────────────────────────────────────────────────
   // ROOT + FALLBACK

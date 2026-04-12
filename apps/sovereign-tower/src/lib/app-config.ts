@@ -12,7 +12,7 @@
 
 export const TOWER_APP_NAME = 'Sovereign Tower' as const
 export const TOWER_APP_VERSION = '0.1.0' as const
-export const TOWER_BUILD_SESSION = 'hub04' as const
+export const TOWER_BUILD_SESSION = 'hub05' as const
 export const TOWER_PHASE = 'phase-3' as const
 export const TOWER_DESCRIPTION = 'Private founder-only command center — Sovereign Business Engine v4.0'
 
@@ -152,6 +152,19 @@ export const TOWER_ROUTES = {
   CHAMBER_API_AUDIT: '/chamber/api/audit',
   CHAMBER_API_TRUTH_SYNC: '/chamber/api/truth-sync',
   CHAMBER_API_MAINTENANCE: '/chamber/api/maintenance',
+  // HUB-05 Bridge Review Desk v1
+  BRIDGE: '/bridge',
+  BRIDGE_INBOX: '/bridge/inbox',
+  BRIDGE_REVIEW: '/bridge/review',
+  BRIDGE_CLASSIFICATION: '/bridge/classification',
+  BRIDGE_CHECKPOINTS: '/bridge/checkpoints',
+  BRIDGE_BOUNDARIES: '/bridge/boundaries',
+  // HUB-05 Bridge API routes
+  BRIDGE_API_SUMMARY: '/bridge/api/summary',
+  BRIDGE_API_INBOX: '/bridge/api/inbox',
+  BRIDGE_API_ITEM: '/bridge/api/item',
+  BRIDGE_API_CHECKPOINTS: '/bridge/api/checkpoints',
+  BRIDGE_API_BOUNDARIES: '/bridge/api/boundaries',
 } as const
 
 export type TowerRoute = (typeof TOWER_ROUTES)[keyof typeof TOWER_ROUTES]
