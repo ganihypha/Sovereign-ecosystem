@@ -20,6 +20,7 @@ import { dashboardRouter } from './routes/dashboard'
 import { waRouter } from './routes/wa'
 import { agentsRouter } from './routes/agents'
 import { founderDashboardRouter } from './routes/founder-dashboard'
+import { hubRouter } from './routes/hub'
 
 // =============================================================================
 // APP FACTORY
@@ -126,6 +127,12 @@ export function createApp(): TowerApp {
   // /dashboard route is separate, handled by founderDashboardRouter's '/' handler
   app.route('/dashboard', founderDashboardRouter)
 
+  // HUB-01: Session & Handoff Hub MVP — continuity surface for founder
+  // Isolated additive route. Does NOT modify Tower core or governance canon.
+  // Hub ≠ Chamber, Hub ≠ Tower core, Hub ≠ BarberKas
+  app.route('/api/hub', hubRouter)
+  app.route('/hub', hubRouter)
+
   // ─────────────────────────────────────────────────────────────────────────
   // ROOT + FALLBACK
   // ─────────────────────────────────────────────────────────────────────────
@@ -189,7 +196,19 @@ export function createApp(): TowerApp {
         ],
         note: 'DB wiring progressive. Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in env.',
       },
-      notice: 'Session 4a: ScoutScorer Agent added. POST /api/agents/scout-score (GROQ scoring), GET /api/agents/scout-score/status. Session 3g WA routes preserved: webhook, queue, broadcast.',
+      hub: {
+        ui: 'GET /hub — Session & Handoff Hub (continuity surface)',
+        api: [
+          'GET /api/hub/state',
+          'GET /api/hub/blockers',
+          'GET /api/hub/founder-actions',
+          'GET /api/hub/lanes',
+          'GET /api/hub/closeout-draft',
+          'POST /api/hub/closeout-draft',
+          'GET /api/hub/next-session',
+        ],
+      },
+      notice: 'HUB-01: Session & Handoff Hub MVP added. Session 4a: ScoutScorer Agent. Session 3g WA routes preserved.',
     })
   })
 

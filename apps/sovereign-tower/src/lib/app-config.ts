@@ -118,6 +118,14 @@ export const TOWER_ROUTES = {
   // Session 4G additions
   WA_AUDIT: '/api/wa/audit',          // GET /api/wa/audit/:id
   WA_DASHBOARD: '/api/wa/dashboard',  // Founder Dashboard Lite
+  // HUB-01: Session & Handoff Hub MVP
+  HUB: '/hub',
+  HUB_STATE: '/api/hub/state',
+  HUB_BLOCKERS: '/api/hub/blockers',
+  HUB_FOUNDER_ACTIONS: '/api/hub/founder-actions',
+  HUB_LANES: '/api/hub/lanes',
+  HUB_CLOSEOUT: '/api/hub/closeout-draft',
+  HUB_NEXT: '/api/hub/next-session',
 } as const
 
 export type TowerRoute = (typeof TOWER_ROUTES)[keyof typeof TOWER_ROUTES]
