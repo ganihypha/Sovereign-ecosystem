@@ -1,6 +1,6 @@
 # CURRENT HANDOFF
 # Sovereign Business Engine v4.0 — State terkini untuk AI Developer baru
-### Update: 2026-04-11 | Session 4G = FULLY CLOSED | Governance Canon v1 FROZEN | Ops Pack COMMITTED | Build 307.03 kB
+### Update: 2026-04-12 | Session 4H = VERIFIED PASS | No scope drift | All endpoints confirmed | Docs current
 ### ⚠️ CLASSIFIED — FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL
 
 ---
@@ -19,6 +19,7 @@
 ✅  STATUS: SESSION 4E = VERIFIED AND READY TO CLOSE
 ✅  STATUS: SESSION 4F = VERIFIED & CLOSED (PUSHED + DEPLOYED — 2026-04-10)
 🟢  STATUS: SESSION 4G = VERIFIED & CLOSED (PUSHED + DEPLOYED — 2026-04-10)
+✅  STATUS: SESSION 4H = VERIFIED PASS (OS-GRADE HARDENING — 2026-04-12)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SESSION 3D   ✅ COMPLETE AND SYNCED (2026-04-05)
@@ -609,4 +610,75 @@ docs/governance-stack/05-ops/
 ### Supporting Reports
 - `CONSOLIDATION_REPORT_V1.md` — full governance audit
 - `PRIVATE_CHAIR_OPS_ARCHITECT_REPORT_V1.md` — 9-output ops analysis
+
+---
+## SESSION 4H — ✅ VERIFIED PASS (OS-GRADE HARDENING)
+**Date**: 2026-04-12
+**Classification**: VERIFIED ✅ | DOCS PATCHED ✅ | NO SCOPE DRIFT ✅
+**Session Type**: Bounded verification pass — 4 hours max, no new doctrine
+
+### Objective
+Verifikasi OS-grade kesiapan sistem setelah Session 4G closeout. Tidak ada kode baru, hanya verifikasi, patch docs stale, dan closeout clean.
+
+### Verification Results (ALL CONFIRMED ✅)
+
+**Repo & Sandbox:**
+- Branch: `main` — clean working tree, 0 uncommitted changes
+- HEAD: `e1d1284` (docs(4h): living docs sync)
+- Local = Remote: ✅ fully synced
+- Total tracked files: 250
+
+**Production Deployment:**
+- URL: `https://sovereign-tower.pages.dev`
+- `GET /health` → `build_session: "4g"`, `status: "ok"` ✅
+- Latest Cloudflare deploy: `5d8c9a4f.sovereign-tower.pages.dev` (2026-04-10) ✅
+
+**JWT & Auth:**
+- JWT_SECRET source: `dev.vars.setup.3.2.txt` — verified working ✅
+- JWT signing: HS256, UTF-8 raw key (via `TextEncoder` as per `packages/auth/src/jwt.ts`)
+- Auth confirmed: `sub: founder`, `role: founder` — all protected routes accessible ✅
+
+**API Endpoints (CODE-CONFIRMED):**
+| Endpoint | Status | Notes |
+|----------|--------|-------|
+| `GET /health` | ✅ LIVE | `build_session: 4g` |
+| `GET /api/wa/status` | ✅ LIVE | `session: 4g`, `status: ready`, `is_ready_to_send: true`, `pending: 2` |
+| `GET /api/wa/queue` | ✅ LIVE | `total: 2`, `pending_review: 2`, `approved: 0` |
+| `GET /api/wa/audit/:id` | ✅ LIVE | Full lifecycle trail, `lifecycle_summary` working |
+| `GET /api/dashboard/wa` | ✅ LIVE | `ok: true`, `db_ready: true`, `wa_ready: true` |
+| `GET /dashboard` | ✅ LIVE | HTML 200, Tailwind UI accessible |
+
+**Supabase Schema (VERIFIED):**
+- `rejection_reason` TEXT ✅ present
+- `rejected_at` TIMESTAMPTZ ✅ present
+- `status` TEXT ✅ (constraint includes `approved`, `rejected_by_founder`)
+- Index `idx_wa_logs_approval_queue` ✅ confirmed (from Session 4G migration 007)
+
+**Governance Canon:**
+- 13 docs FROZEN at `e4dd5e4` ✅
+- 4 ops docs in `docs/governance-stack/05-ops/` ✅
+- `CHAMBER_TO_TOWER_INTEGRATION_MAP_V1.md` present ✅
+- 8 SQL migrations committed (000–007) ✅
+
+**Living Docs:**
+- `current-handoff.md` → PATCHED this session ✅
+- `ops/live/41-ACTIVE-PRIORITY.md` v1.3 → current ✅ (no patch needed)
+
+### Queue State (Live 2026-04-12)
+- 2 items in `wa_logs` with `status=pending, requires_approval=true`
+- IDs: `32124471-...`, `33dadbc9-...`
+- Both awaiting founder review via Dashboard or API
+
+### Blockers (Inherited from 4G — still PENDING)
+| Blocker | Status | Action |
+|---------|--------|--------|
+| Fonnte webhook URL config | PENDING | Founder: `https://fonnte.com/settings` → URL: `https://sovereign-tower.pages.dev/api/wa/webhook?token=VsPot2DeB8CL2eLbVGMF` |
+| JWT setup in Dashboard Lite | PENDING | Founder: buka `/dashboard`, paste JWT dari `dev.vars.setup.3.2.txt` |
+
+### Next Session
+**Session 4I** (Next move confirmed) — Build **Session & Handoff Hub MVP**:
+- Internal founder operating layer (session brief, blocker board, closeout generator)
+- Scope: isolated new feature, no changes to existing governance or Tower core
+- Entry point: `/hub` atau terpisah sebagai new page in Tower
+
 
