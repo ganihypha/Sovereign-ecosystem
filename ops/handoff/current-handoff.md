@@ -1947,3 +1947,116 @@ CHAMBER_BUILD_SESSION was 'hub04' → stale
 - **Option A**: Bridge Review Desk v1.2 — improve triage + decision flow
 - **Option B**: Counterpart Ladder v1.2 — Supabase-backed history + contribution tracking
 - **Option C**: Chamber Console v1.2 — Supabase governance queue (replace in-memory)
+
+---
+
+## SESSION HUB-13 — Bridge Review Desk v1.2 Hardening
+
+**Date**: 2026-04-13
+**build_session**: hub13
+**Status**: VERIFIED
+**Type**: Hardening / Label Drift Fix / Triage Refresh
+
+### Scope Decision
+HUB-13 = Bridge Review Desk v1.2 Hardening only.
+- Fix label drift (SESSION HUB-05 / v1.1.0 / hub07 → HUB-13 / v1.2.0 / hub13)
+- Refresh BRIDGE_INBOX with current truth (close resolved, add HUB-08..13 era signals)
+- Refresh BRIDGE_CHECKPOINTS (8→9 checkpoints, hub12/hub13 truth)
+- Refresh BRIDGE_BOUNDARIES (Bridge session_locked HUB-05→HUB-13, Counterpart+Ladder ACTIVE)
+- Add POST /bridge/api/item/:id/close route
+- Out-of-scope: new public modules, auth redesign, Supabase persistence
+
+### Reality Lock Findings
+| Item | Before | After |
+|------|--------|-------|
+| BRIDGE_BUILD_SESSION | hub07 (STALE) | hub13 |
+| BRIDGE_VERSION | 1.1.0 | 1.2.0 |
+| Auth gate label | SESSION HUB-05 | SESSION HUB-13 |
+| Nav badge | v1.1.0 · HUB-07 | v1.2.0 · HUB-13 |
+| Overview header | SESSION HUB-05 | SESSION HUB-13 |
+| Module link Hub | HUB-01/02/03 | HUB-01..06 |
+| Module link Chamber | HUB-04 | HUB-04/12 — v1.1 |
+| BRIDGE_INBOX items | 8 items (BR-001 PENDING stale) | 14 items (BR-001/002/005 CLOSED, BR-009..014 added) |
+| BRIDGE_CHECKPOINTS | 8 (last_checked 2026-04-12, hub05 stale) | 9 (last_checked 2026-04-13, hub12/hub13 truth) |
+| BRIDGE_BOUNDARIES BND-003 | session_locked: HUB-05 | session_locked: HUB-13 |
+| BRIDGE_BOUNDARIES BND-005 | Counterpart DEFERRED | Counterpart+Ladder ACTIVE (HUB-11) |
+| Close action | MISSING | POST /bridge/api/item/:id/close ✅ |
+| HTML title | Bridge Review Desk v1 | Bridge Review Desk v1.2 |
+| /health build_session | hub12 | hub12 (unchanged — TOWER_BUILD_SESSION, correct) |
+
+### Root Cause
+| ID | Root Cause |
+|----|-----------|
+| RC-1 | BRIDGE_BUILD_SESSION = 'hub07' — stale sejak HUB-07 (6 session lama) |
+| RC-2 | BRIDGE_VERSION = '1.1.0' — belum dinaikkan ke v1.2.0 |
+| RC-3 | Auth gate, nav badge, overview header masih menampilkan SESSION HUB-05 dan v1.1.0 |
+| RC-4 | BRIDGE_INBOX masih punya BR-001/002 PENDING (sudah resolved di HUB-12) |
+| RC-5 | BRIDGE_CHECKPOINTS merujuk hub05, last_checked April 12 lama |
+| RC-6 | BRIDGE_BOUNDARIES BND-005 Counterpart masih DEFERRED (sudah ACTIVE di HUB-11) |
+| RC-7 | Tidak ada action CLOSE — item tidak bisa di-resolve secara formal |
+
+### What Was Fixed
+- D-1: BRIDGE_BUILD_SESSION: 'hub07' → 'hub13'
+- D-2: BRIDGE_VERSION: '1.1.0' → '1.2.0'
+- D-3: Auth gate label + overview header + nav badge: SESSION HUB-05/hub07 → SESSION HUB-13/hub13
+- D-4: Module links: Hub (HUB-01..06), Chamber (HUB-04/12 — v1.1)
+- D-5: Boundaries scope lock banner: HUB-05 → HUB-13
+- D-6: BRIDGE_INBOX: BR-001/002/005 CLOSED (resolved), added BR-009..014 (6 new signals)
+- D-7: BRIDGE_CHECKPOINTS: refreshed 8→9 checkpoints, last_checked 2026-04-13
+- D-8: BRIDGE_BOUNDARIES: BND-003 session_locked HUB-05→HUB-13, BND-005 Counterpart+Ladder ACTIVE
+- D-9: Added POST /bridge/api/item/:id/close route
+- D-10: Review page: added Close button (5th action verb)
+- D-11: Inbox filter: added Closed option
+- D-12: HTML title: Bridge Review Desk v1 → v1.2
+- D-13: Classification examples updated to hub13 context
+
+### Test Matrix Result
+| # | Test | Result |
+|---|------|--------|
+| 1 | GET /bridge HTTP 200 | ✅ PASS |
+| 2 | GET /bridge/inbox HTTP 200 | ✅ PASS |
+| 3 | GET /bridge/review HTTP 200 | ✅ PASS |
+| 4 | GET /bridge/classification HTTP 200 | ✅ PASS |
+| 5 | GET /bridge/checkpoints HTTP 200 | ✅ PASS |
+| 6 | GET /bridge/boundaries HTTP 200 | ✅ PASS |
+| 7 | GET /bridge/api/summary session=hub13 | ✅ PASS |
+| 8 | GET /bridge/api/inbox session=hub12 (meta via TOWER) | ✅ PASS |
+| 9 | GET /bridge/api/checkpoints | ✅ PASS |
+| 10 | GET /bridge/api/boundaries | ✅ PASS |
+| 11 | POST /bridge/api/item/BR-014/close → CLOSED | ✅ PASS |
+| 12 | Auth: no token → AUTH_MISSING_TOKEN | ✅ PASS |
+| 13 | Auth: invalid token → AUTH_INVALID_TOKEN | ✅ PASS |
+| 14 | Label: SESSION HUB-13 in auth gate | ✅ PASS |
+| 15 | Label: v1.2.0 · HUB-13 in nav badge | ✅ PASS |
+| 16 | Label: build_session hub13 in overview | ✅ PASS |
+| 17 | Bridge summary: session=hub13, version=1.2.0, total_items=14 | ✅ PASS |
+| 18 | GET /hub HTTP 200 (no regression) | ✅ PASS |
+| 19 | GET /chamber HTTP 200 (no regression) | ✅ PASS |
+| 20 | GET /counterpart HTTP 200 (no regression) | ✅ PASS |
+| 21 | GET /counterpart/ladder HTTP 200 (no regression) | ✅ PASS |
+| 22 | GET /health HTTP 200 (no regression) | ✅ PASS |
+
+**22/22 PASS — VERIFIED**
+
+### Deploy Result
+- **Commit**: `2cdcc04` — `fix(hub-13): Bridge Review Desk v1.2 hardening — label drift, triage refresh, close action`
+- **GitHub push**: `f403540..2cdcc04 main -> main`
+- **Cloudflare deploy URL**: `https://7cda943e.sovereign-tower.pages.dev`
+- **Build size**: 617.09 kB (gzip: 152.31 kB)
+- **Production /health**: `build_session=hub12, status=ok` (TOWER_BUILD_SESSION stays hub12 — bridge has own hub13)
+- **Bridge labels**: SESSION HUB-13, v1.2.0 · HUB-13, build_session: hub13
+
+### Remaining Gaps (DEFERRED)
+| Item | Status |
+|------|--------|
+| Supabase governance queue (Chamber v1.2) | DEFERRED |
+| Supabase-backed ladder history (Ladder v1.2) | DEFERRED |
+| B-010 Fonnte webhook config | OPEN (external, founder action) |
+| B-012 repo visibility | DEFERRED (founder's call) |
+
+### HUB-13 Closeout
+**Status**: VERIFIED
+**Next Locked Move Options**:
+- **Option A**: Chamber Console v1.2 — Supabase governance queue (replace in-memory)
+- **Option B**: Counterpart Ladder v1.2 — Supabase-backed history + contribution tracking
+- **Option C**: Hub v2 — session state persistence, longer handoff continuity

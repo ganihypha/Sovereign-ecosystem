@@ -210,3 +210,32 @@ Ladder `/counterpart/ladder` stable. `handleAuthFailure()` active. Session label
 - **A**: Bridge Review Desk v1.2 — improve triage + decision flow
 - **B**: Counterpart Ladder v1.2 — Supabase-backed history + contribution tracking
 - **C**: Chamber Console v1.2 — Supabase governance queue (replace in-memory)
+
+---
+
+## v2.7 — 2026-04-13 (HUB-13 Hardening)
+
+**Session**: HUB-13
+**Status**: VERIFIED
+**Build**: hub13 (Bridge), hub12 (Tower)
+**Version**: v1.2.0 (Bridge)
+
+### What Was Done
+- Fixed Bridge label drift: SESSION HUB-05/hub07/v1.1.0 → SESSION HUB-13/hub13/v1.2.0
+- BRIDGE_INBOX refreshed: BR-001/002/005 CLOSED (resolved), added BR-009..014 (HUB-08..13 era signals)
+- BRIDGE_CHECKPOINTS refreshed: 8→9 checkpoints, last_checked 2026-04-13
+- BRIDGE_BOUNDARIES updated: Bridge session_locked HUB-05→HUB-13, Counterpart+Ladder ACTIVE (was DEFERRED)
+- Added POST /bridge/api/item/:id/close route + Close button in Review UI
+- HTML title: Bridge Review Desk v1 → v1.2
+- Module links updated: Hub (HUB-01..06), Chamber (HUB-04/12 — v1.1)
+
+### Live Proof
+- Commit: `2cdcc04`
+- Cloudflare deploy: `7cda943e.sovereign-tower.pages.dev`
+- Bridge labels: SESSION HUB-13, v1.2.0 · HUB-13, build_session: hub13
+- 22/22 tests PASS, zero regressions
+
+### Next Locked Move Options
+- **A**: Chamber Console v1.2 — Supabase governance queue (replace in-memory)
+- **B**: Counterpart Ladder v1.2 — Supabase-backed history + contribution tracking
+- **C**: Hub v2 — session state persistence, longer handoff continuity
