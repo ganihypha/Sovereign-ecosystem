@@ -1839,3 +1839,111 @@ Both caused by auth failures (expired token, JWT_SECRET mismatch between old/new
 - **Option B**: Bridge Review Desk v1.2
 - **Option C**: Counterpart Ladder v1.2 — Supabase history + contribution tracking
 
+
+---
+
+## SESSION HUB-12 — Chamber Console v1.1 Hardening
+**Date**: 2026-04-13  
+**build_session**: hub12  
+**Status**: VERIFIED  
+**Type**: Hardening / Runtime Recovery — No new product lanes  
+
+### Scope Decision
+HUB-12 = Chamber Console v1.1 Hardening only.
+- Fix missing UI routes causing HTTP 500
+- Update session/version labels
+- Refresh truth-sync + maintenance data to reflect current reality
+- Out-of-scope: new public modules, auth redesign, bridge/ladder expansion
+
+### Reality Lock Findings
+| Route | Before | After |
+|-------|--------|-------|
+| GET /health | 200 hub11 | 200 hub12 |
+| GET /chamber | 200 | 200 |
+| GET /chamber/inbox | 200 | 200 |
+| GET /chamber/decision-board | 200 | 200 |
+| GET /chamber/audit | 200 | 200 |
+| GET /chamber/truth-sync | 200 | 200 |
+| GET /chamber/maintenance | 200 | 200 |
+| GET /chamber/governance | **500 ERROR** | **200 FIXED** |
+| GET /chamber/reminders | **500 ERROR** | **200 FIXED** |
+| GET /chamber/health | **500 ERROR** | **200 FIXED** |
+
+API routes `/chamber/api/status`, `governance`, `reminders`, `health-check` → 404 (never existed, unchanged)  
+API routes `/chamber/api/summary`, `inbox`, `audit`, `truth-sync`, `maintenance`, `blockers` → all OK  
+CHAMBER_BUILD_SESSION was 'hub04' → stale  
+
+### Root Cause
+1. **RC-1**: Routes `/chamber/governance`, `/chamber/reminders`, `/chamber/health` tidak terdaftar di `chamberRouter` — Hono sub-router melempar error "this[#n] is not a function" yang ditangkap app-level `onError()` sebagai HTTP 500
+2. **RC-2**: `CHAMBER_BUILD_SESSION = 'hub04'` — stale sejak HUB-04
+3. **RC-3**: Truth sync items masih merujuk HUB-04/03/02 yang obsolete
+4. **RC-4**: Audit entries hanya mencakup hub04 decisions, tidak ada record HUB-09..11
+5. **RC-5**: Audit filter buttons di UI menampilkan HUB-04/03/02 (tidak relevan)
+
+### What Was Fixed
+- **D-1**: Tambah `GET /chamber/governance` — governance overview dengan summary cards dan item list
+- **D-2**: Tambah `GET /chamber/reminders` — founder action reminders dari `/api/summary`
+- **D-3**: Tambah `GET /chamber/health` — runtime health + governance health + maintenance checks
+- **D-4**: Update `CHAMBER_BUILD_SESSION`: `'hub04'` → `'hub12'`
+- **D-5**: Update `CHAMBER_VERSION`: `'1.0.0'` → `'1.1.0'`
+- **D-6**: Update `TOWER_BUILD_SESSION`: `'hub11'` → `'hub12'` (app-config.ts)
+- **D-7**: Update UI badge: `v1 — HUB-04` → `v1.1 — HUB-12`
+- **D-8**: Refresh TRUTH_SYNC_ITEMS (7 items) — reflect HUB-11 verified state
+- **D-9**: Refresh MAINTENANCE_CHECKS (+MC-009 ladder, +MC-010 chamber fix)
+- **D-10**: Refresh AUDIT_ENTRIES (+AE-005..AE-007 for HUB-09/10/11/12)
+- **D-11**: Update audit filter buttons: HUB-04/03/02 → HUB-12/11/10/09/04
+
+### Test Matrix Result
+| # | Test | Result |
+|---|------|--------|
+| 1 | GET /chamber HTTP 200 | ✅ PASS |
+| 2 | GET /chamber/inbox HTTP 200 | ✅ PASS |
+| 3 | GET /chamber/decision-board HTTP 200 | ✅ PASS |
+| 4 | GET /chamber/audit HTTP 200 | ✅ PASS |
+| 5 | GET /chamber/truth-sync HTTP 200 | ✅ PASS |
+| 6 | GET /chamber/maintenance HTTP 200 | ✅ PASS |
+| 7 | GET /chamber/governance HTTP 200 | ✅ PASS (was 500) |
+| 8 | GET /chamber/reminders HTTP 200 | ✅ PASS (was 500) |
+| 9 | GET /chamber/health HTTP 200 | ✅ PASS (was 500) |
+| 10 | API summary session=hub12 | ✅ PASS |
+| 11 | API inbox session=hub12 | ✅ PASS |
+| 12 | API audit session=hub12 | ✅ PASS |
+| 13 | API truth-sync session=hub12 | ✅ PASS |
+| 14 | API maintenance session=hub12 | ✅ PASS |
+| 15 | API blockers session=hub12 | ✅ PASS |
+| 16 | Auth: no token → AUTH_MISSING_TOKEN | ✅ PASS |
+| 17 | Auth: invalid token → AUTH_INVALID_TOKEN | ✅ PASS |
+| 18 | Auth: unknown API route → CHAMBER_ROUTE_NOT_FOUND | ✅ PASS |
+| 19 | UI label: "HUB-12" visible | ✅ PASS |
+| 20 | UI label: "v1.1" visible | ✅ PASS |
+| 21 | Session label: hub12 in header | ✅ PASS |
+| 22 | Hub routes not broken | ✅ PASS |
+| 23 | Bridge routes not broken | ✅ PASS |
+| 24 | Counterpart/ladder not broken | ✅ PASS |
+| 25 | Auth exchange still works | ✅ PASS |
+
+**25/25 PASS — VERIFIED**
+
+### Deploy Result
+- **Commit**: `ece26fa` — `fix(hub-12): Chamber Console v1.1 hardening — missing UI routes, session labels, truth-sync refresh`
+- **GitHub push**: `dd8ef08..ece26fa  main -> main`
+- **Cloudflare deploy URL**: `https://4d3b8091.sovereign-tower.pages.dev`
+- **Build size**: 611.23 kB (gzip 151.02 kB)
+- **Production health**: `build_session=hub12, status=ok`
+
+### Remaining Gaps (DEFERRED)
+- `GET /api/chamber/status` — never existed, DEFERRED
+- `GET /api/chamber/governance` — never existed, DEFERRED
+- `GET /api/chamber/reminders` — never existed, DEFERRED
+- `GET /api/chamber/health-check` — never existed, DEFERRED
+- Supabase-backed governance queue — DEFERRED
+- Real-time truth-sync auto-check — DEFERRED
+- B-010 Fonnte webhook — OPEN (external dependency)
+- B-012 repo visibility decision — DEFERRED (founder's call)
+
+### HUB-12 Closeout
+**Status**: VERIFIED  
+**Next Locked Move Options**:
+- **Option A**: Bridge Review Desk v1.2 — improve triage + decision flow
+- **Option B**: Counterpart Ladder v1.2 — Supabase-backed history + contribution tracking
+- **Option C**: Chamber Console v1.2 — Supabase governance queue (replace in-memory)

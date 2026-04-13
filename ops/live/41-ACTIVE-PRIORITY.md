@@ -179,3 +179,34 @@ HUB-01 — ✅ COMPLETE. Next session:
 ### HUB-10 Status Correction
 HUB-10 was marked PARTIAL (not VERIFIED). HUB-11 is the completion that achieves VERIFIED for the ladder surface.
 
+
+---
+
+## v2.6 — 2026-04-13 (HUB-12 Hardening)
+
+**Session**: HUB-12  
+**Status**: VERIFIED  
+**Build**: hub12  
+**Version**: v1.1.0  
+
+### What Was Done
+- Fixed HTTP 500 on `/chamber/governance`, `/chamber/reminders`, `/chamber/health` (missing route handlers → added)
+- Updated `CHAMBER_BUILD_SESSION`: hub04 → hub12; `CHAMBER_VERSION`: 1.0.0 → 1.1.0
+- Updated `TOWER_BUILD_SESSION`: hub11 → hub12
+- Refreshed Truth Sync items, Maintenance Checks, Audit Entries to reflect HUB-11 reality
+- Updated audit filter buttons in Chamber UI
+
+### Live Proof
+- Commit: `ece26fa`
+- Cloudflare deploy: `4d3b8091.sovereign-tower.pages.dev`
+- Production health: `build_session=hub12, status=ok`
+- 25/25 tests PASS, zero regressions
+
+### HUB-11 Status Correction
+HUB-11 (Counterpart Access Ladder v1.1.1 Runtime Recovery) — **VERIFIED**  
+Ladder `/counterpart/ladder` stable. `handleAuthFailure()` active. Session label hub11.
+
+### Next Locked Move Options
+- **A**: Bridge Review Desk v1.2 — improve triage + decision flow
+- **B**: Counterpart Ladder v1.2 — Supabase-backed history + contribution tracking
+- **C**: Chamber Console v1.2 — Supabase governance queue (replace in-memory)
