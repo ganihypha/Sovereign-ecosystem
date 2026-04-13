@@ -159,3 +159,23 @@ HUB-01 — ✅ COMPLETE. Next session:
 
 - v2.3 (2026-04-13): **HUB-09** Counterpart Access Ladder v1 — 5 UI screens, 6 bounded APIs, Levels 0-4 model, founder-only promotion authority, verified & deployed live (commit 7d5b504, deploy c02d1d3e). Route order bug resolved: accessLadderRouter registered before counterpartRouter.
 - v2.4 (2026-04-13): **HUB-10** Counterpart Access Ladder v1.1 Hardening — mobile responsive sidebar (hamburger toggle + CSS 768px breakpoint), auth token persistence hardened (localStorage + sessionStorage dual-write + DOMContentLoaded fallback), error handlers improved (informative UI + re-authenticate button), session labels corrected (HUB-10 / v1.1.0), sidebar level label dynamic, badgeHtml multi-underscore fix. Build: 593.98 kB. All 20+ tests PASS. VERIFIED & DEPLOYED LIVE (commit 3b796c6, deploy 846dffd1). build_session=hub10, SESSION HUB-10, v1.1.0 live at sovereign-tower.pages.dev.
+
+---
+## v2.5 — 2026-04-13 — HUB-11 Runtime Recovery (Access Ladder v1.1.1)
+
+**Session**: HUB-11 | **Status**: VERIFIED | **Build**: hub11 | **Version**: v1.1.1
+
+### What Was Fixed
+- **Field name mismatch**: `next_level.next_level_id/.next_level_label/.requirements` → `.id/.label/.promotion_criteria`
+- **Silent auth failure**: `if (!d.success) return` → `handleAuthFailure()` on all 4 onLadderReady handlers
+- **initAuth race condition**: `setTimeout(50ms)` → `requestAnimationFrame` loop
+- **Session labels**: HUB-10 → HUB-11 throughout; v1.1.0 → v1.1.1
+
+### Verified Live
+- Commit: `de81428` | CF Deploy: `fe3080ad.sovereign-tower.pages.dev`
+- Production health: `build_session=hub11, status=ok`
+- 19/19 tests PASS — zero regressions
+
+### HUB-10 Status Correction
+HUB-10 was marked PARTIAL (not VERIFIED). HUB-11 is the completion that achieves VERIFIED for the ladder surface.
+

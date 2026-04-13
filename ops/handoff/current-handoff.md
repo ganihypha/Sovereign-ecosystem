@@ -1702,3 +1702,140 @@ Alasan: screenshot produksi menunjukkan halaman Ladder live tapi kosong/under-po
 **Option A (Recommended):** Chamber Console v1.1 Hardening — Supabase-backed governance queue + founder review surface
 **Option B:** Bridge Review Desk v1.2 — refined triage + structured review
 **Option C:** Counterpart Ladder v1.2 — real contribution tracking + Supabase-backed history
+
+---
+
+## SESSION HUB-11 — Counterpart Access Ladder v1.1.1 Runtime Recovery
+**Date**: 2026-04-13
+**Build Session**: hub11
+**Version**: v1.1.1
+**Status**: VERIFIED — Live in production
+
+---
+
+### SCOPE DECISION
+HUB-11 = runtime recovery only. No new features. Fix the production data-loading failure on `/counterpart/ladder` that left HUB-10 as PARTIAL.
+
+---
+
+### REALITY LOCK FINDINGS
+- `build_session=hub11`, `status=ok` on production ✅
+- All 5 UI routes HTTP 200 ✅
+- All 6 Ladder API routes HTTP 200 with valid token ✅
+- Auth exchange endpoint live and operational ✅
+
+---
+
+### REPRODUCED PRODUCTION FAILURE
+**Symptom**: "Gagal memuat data ladder" shown OR skeleton loaders remain permanently.
+
+**Two failure modes**:
+1. **Silent skeleton freeze** — `if (!d.success) return` silently exits when API returns auth error; user sees skeleton loaders indefinitely with no hint
+2. **Visible error** — network/parse error triggers `catch(e)` showing "Gagal memuat data ladder" but with no actionable next step
+
+Both caused by auth failures (expired token, JWT_SECRET mismatch between old/new deployments).
+
+---
+
+### ROOT CAUSE (5 confirmed)
+
+| # | Location | Cause | Impact |
+|---|----------|-------|--------|
+| 1 | `next_level` render | Used `next_level.next_level_id` / `next_level_label` / `requirements` — field names don't exist in API response | Next Level card blank or JS TypeError |
+| 2 | Overview `onLadderReady` | `if (!d.success) return` — silent exit on auth failure | Skeleton freeze, no error shown |
+| 3 | Criteria `onLadderReady` | Same silent exit | Same |
+| 4 | History `onLadderReady` | Same silent exit | Same |
+| 5 | `initAuth` timing | `setTimeout(50ms)` could fire before `onLadderReady` registered on slow devices | Race condition |
+
+---
+
+### WHAT WAS FIXED (HUB-11)
+
+| Fix | File | Lines |
+|-----|------|-------|
+| `next_level.id` (was `.next_level_id`) | access-ladder.ts | overview template |
+| `next_level.label` (was `.next_level_label`) | access-ladder.ts | overview template |
+| `next_level.promotion_criteria` (was `.requirements`) | access-ladder.ts | overview template |
+| `handleAuthFailure()` function added to layout | access-ladder.ts | ladderLayout script |
+| All 4 `onLadderReady` handlers: `if (!d.success) return` → `handleAuthFailure()` | access-ladder.ts | 4 locations |
+| `initAuth` timing: `setTimeout(50)` → `requestAnimationFrame` loop | access-ladder.ts | initAuth IIFE |
+| Session labels: HUB-10 → HUB-11 throughout | access-ladder.ts, app-config.ts | multiple |
+| LADDER_VERSION: 1.1.0 → 1.1.1 | access-ladder.ts | const |
+| TOWER_BUILD_SESSION: hub10 → hub11 | app-config.ts | const |
+
+---
+
+### TEST MATRIX RESULT (HUB-11)
+
+| Test | Result |
+|------|--------|
+| F1: UI routes (7) HTTP 200 | ✅ PASS |
+| F2: API routes (6) success=hub11 | ✅ PASS |
+| F3: No token → AUTH_MISSING_TOKEN | ✅ PASS |
+| F3: Bad token → AUTH_INVALID_TOKEN | ✅ PASS |
+| F3: Level 99 → INVALID_LEVEL_ID | ✅ PASS |
+| F3: Level abc → INVALID_LEVEL_ID | ✅ PASS |
+| F3: Unknown route → LADDER_ROUTE_NOT_FOUND | ✅ PASS |
+| F4: HUB-11 labels present (5 occurrences) | ✅ PASS |
+| F4: v1.1.1 present (3 occurrences) | ✅ PASS |
+| F4: handleAuthFailure present (2 per page) | ✅ PASS |
+| F4: next_level_id (old bug) = 0 occurrences | ✅ PASS |
+| F5: next_level.id/label/promotion_criteria correct | ✅ PASS |
+| F6: Mobile CSS (hamburger, 768px, overlay) | ✅ PASS |
+| F6: requestAnimationFrame present | ✅ PASS |
+| F7: Counterpart adjacent APIs (/summary /access /scope /boundaries) | ✅ PASS |
+| F8: Global regression (/hub /chamber /bridge /counterpart /health) | ✅ PASS |
+| F9: health build_session=hub11 | ✅ PASS |
+| F10: handleAuthFailure on 4 pages | ✅ PASS |
+| F11: Expired token → AUTH_EXPIRED_TOKEN (not silent) | ✅ PASS |
+
+**Total: 19/19 tests PASS — zero regressions**
+
+---
+
+### DEPLOY / LIVE RESULT
+
+- **Commit**: `de81428` — `fix(hub-11): runtime recovery`
+- **GitHub Push**: `afef946..de81428 main → main` ✅
+- **CF Deploy**: `fe3080ad.sovereign-tower.pages.dev` ✅
+- **Production health**: `build_session=hub11, status=ok` ✅
+- **Production ladder**: SESSION HUB-11, v1.1.1, HTTP 200 ✅
+- **Build size**: 596.39 kB (gzip 148.91 kB)
+
+---
+
+### REMAINING GAPS (deferred)
+
+| Gap | Status |
+|-----|--------|
+| Supabase-backed ladder history | DEFERRED |
+| Multi-user auth enforcement (real level permissions) | DEFERRED |
+| /history?type=PROMOTION filter UI | DEFERRED |
+| Self-report contribution UI | DEFERRED |
+| Production MASTER_PIN live test (can't test from sandbox) | BUILD-VERIFIED — exchange endpoint HTTP 401 on wrong PIN |
+
+---
+
+### HUB-11 CLOSEOUT DECISION
+**VERIFIED** — Ladder runtime recovery complete. Production live with:
+- No silent auth failures
+- Correct next_level field mapping
+- handleAuthFailure on all 4 pages
+- Session labels aligned (hub11 / v1.1.1)
+- Mobile responsive intact
+- Zero regressions on hub/chamber/bridge/counterpart
+
+---
+
+### AUTH CONTINUITY
+- MASTER_PIN, JWT_SECRET, TOKEN_KEY (`hub_jwt`): unchanged
+- accessLadderRouter precedes counterpartRouter: unchanged
+- No auth drift
+
+---
+
+### NEXT LOCKED MOVE (recommended)
+- **Option A**: Chamber Console v1.1 Hardening (Supabase-backed governance queue)
+- **Option B**: Bridge Review Desk v1.2
+- **Option C**: Counterpart Ladder v1.2 — Supabase history + contribution tracking
+
