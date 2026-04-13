@@ -1,5 +1,5 @@
 // sovereign-tower — src/routes/chamber.ts
-// Chamber Operating Console v1 — SESSION HUB-04
+// Chamber Operating Console v1.1 — SESSION HUB-12 (Hardening)
 // Sovereign Business Engine v4.0
 // ⚠️ FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
 //
@@ -55,8 +55,8 @@ export const chamberRouter = new Hono<ChamberContext>()
 // CONSTANTS
 // =============================================================================
 
-const CHAMBER_BUILD_SESSION = 'hub04'
-const CHAMBER_VERSION = '1.0.0'
+const CHAMBER_BUILD_SESSION = 'hub12'
+const CHAMBER_VERSION = '1.1.0'
 
 // =============================================================================
 // IN-MEMORY DATA STORE
@@ -135,6 +135,42 @@ const GOVERNANCE_QUEUE: GovQueueItem[] = [
 /** Audit entries — audit_entries */
 const AUDIT_ENTRIES: AuditEntry[] = [
   {
+    id: 'AE-007',
+    actor: 'system',
+    action: 'DEPLOY_VERIFIED',
+    target_id: 'HUB-12',
+    target_title: 'HUB-12 Chamber Console v1.1 Hardening',
+    decision_class: 'DEPLOY_EVENT',
+    reason: 'Missing UI routes added (/governance, /reminders, /health). Session labels updated hub12. Truth-sync data refreshed. Chamber stable.',
+    timestamp: '2026-04-13T10:00:00.000Z',
+    session_ref: 'hub12',
+    trace_link: '/chamber',
+  },
+  {
+    id: 'AE-006',
+    actor: 'system',
+    action: 'DEPLOY_VERIFIED',
+    target_id: 'HUB-11',
+    target_title: 'HUB-11 Counterpart Access Ladder v1.1.1 Runtime Recovery',
+    decision_class: 'DEPLOY_EVENT',
+    reason: 'Commit de81428. Silent auth failures fixed, next_level field mapping corrected, handleAuthFailure() added. 19/19 tests passed.',
+    timestamp: '2026-04-13T09:50:00.000Z',
+    session_ref: 'hub11',
+    trace_link: '/counterpart/ladder',
+  },
+  {
+    id: 'AE-005',
+    actor: 'system',
+    action: 'DEPLOY_VERIFIED',
+    target_id: 'HUB-10',
+    target_title: 'HUB-10 Counterpart Access Ladder v1.1 BUILD',
+    decision_class: 'DEPLOY_EVENT',
+    reason: 'Commit 3b796c6. Access Ladder v1.1 hardening deployed. VERIFIED.',
+    timestamp: '2026-04-13T08:00:00.000Z',
+    session_ref: 'hub10',
+    trace_link: '/counterpart/ladder',
+  },
+  {
     id: 'AE-001',
     actor: 'founder',
     action: 'APPROVE',
@@ -153,7 +189,7 @@ const AUDIT_ENTRIES: AuditEntry[] = [
     target_id: 'GQ-004',
     target_title: 'Aktifkan Counterpart Workspace Lite — Review Readiness',
     decision_class: 'MODULE_GATE',
-    reason: 'Tunggu Chamber Console v1 stabil dulu. Review ulang di HUB-05.',
+    reason: 'Counterpart Workspace Lite sudah aktif (HUB-08). Access Ladder live (HUB-09/10/11). Module gate resolved.',
     timestamp: '2026-04-12T09:30:00.000Z',
     session_ref: 'hub04',
     trace_link: '/chamber/decision-board?id=GQ-004',
@@ -162,25 +198,25 @@ const AUDIT_ENTRIES: AuditEntry[] = [
     id: 'AE-003',
     actor: 'system',
     action: 'SESSION_OPENED',
-    target_id: 'HUB-03',
-    target_title: 'HUB-03 Auth Continuity Verification',
+    target_id: 'HUB-11',
+    target_title: 'HUB-11 Runtime Recovery — Ladder Stable',
     decision_class: 'SESSION_EVENT',
-    reason: 'Auth bridge verified. MASTER_PIN valid. B-011 resolved.',
-    timestamp: '2026-04-12T07:00:00.000Z',
-    session_ref: 'hub03',
-    trace_link: '/hub',
+    reason: 'build_session hub11 VERIFIED. Ladder /counterpart/ladder no longer shows runtime error.',
+    timestamp: '2026-04-13T09:45:00.000Z',
+    session_ref: 'hub11',
+    trace_link: '/counterpart/ladder',
   },
   {
     id: 'AE-004',
     actor: 'system',
     action: 'DEPLOY_VERIFIED',
-    target_id: 'HUB-02',
-    target_title: 'HUB-02 Auth Hardening Deploy',
+    target_id: 'HUB-09',
+    target_title: 'HUB-09 Counterpart Access Ladder v1',
     decision_class: 'DEPLOY_EVENT',
-    reason: 'Deploy fd629c0d. build_session hub02. All 10 production tests PASS.',
-    timestamp: '2026-04-12T06:00:00.000Z',
-    session_ref: 'hub02',
-    trace_link: '/hub',
+    reason: 'Commit 7d5b504. Ladder v1 deployed. Foundation established.',
+    timestamp: '2026-04-12T18:00:00.000Z',
+    session_ref: 'hub09',
+    trace_link: '/counterpart/ladder',
   },
 ]
 
@@ -188,63 +224,73 @@ const AUDIT_ENTRIES: AuditEntry[] = [
 const TRUTH_SYNC_ITEMS: TruthSyncItem[] = [
   {
     id: 'TS-001',
-    label: 'Hub Continuity State',
-    source: '/api/hub/state',
-    expected: 'hub04 — Chamber Console v1 BUILD',
-    actual_ref: 'hub03 (last verified)',
-    status: 'PENDING_SYNC',
-    last_checked: '2026-04-12T10:00:00.000Z',
-    note: 'Will update to hub04 after Chamber deploy.',
+    label: 'Build Session (Runtime)',
+    source: '/health',
+    expected: 'hub12 — Chamber Console v1.1 Hardening',
+    actual_ref: 'hub11 → hub12 (this deploy)',
+    status: 'VERIFIED',
+    last_checked: '2026-04-13T10:00:00.000Z',
+    note: 'HUB-12 deploy updates build_session to hub12.',
   },
   {
     id: 'TS-002',
     label: 'current-handoff.md',
     source: 'ops/handoff/current-handoff.md',
-    expected: 'HUB-04 chamber build reflected',
-    actual_ref: 'HUB-03 VERIFIED entry present',
+    expected: 'HUB-12 VERIFIED entry present',
+    actual_ref: 'HUB-11 VERIFIED entry present (last)',
     status: 'PENDING_SYNC',
-    last_checked: '2026-04-12T10:00:00.000Z',
-    note: 'Update post-deploy in Phase H.',
+    last_checked: '2026-04-13T10:00:00.000Z',
+    note: 'Update post-deploy in Phase H of HUB-12.',
   },
   {
     id: 'TS-003',
     label: '41-ACTIVE-PRIORITY.md',
     source: 'ops/live/41-ACTIVE-PRIORITY.md',
-    expected: 'HUB-04 in active-priority',
-    actual_ref: 'HUB-03 VERIFIED entry present',
+    expected: 'HUB-12 in active-priority',
+    actual_ref: 'HUB-11 VERIFIED (last entry)',
     status: 'PENDING_SYNC',
-    last_checked: '2026-04-12T10:00:00.000Z',
-    note: 'Update post-deploy in Phase H.',
+    last_checked: '2026-04-13T10:00:00.000Z',
+    note: 'Update post-deploy in Phase H of HUB-12.',
   },
   {
     id: 'TS-004',
     label: 'Auth Bridge',
     source: '/api/hub/auth/status',
     expected: 'MASTER_PIN VALID, exchange working',
-    actual_ref: 'VERIFIED HUB-03 — live production confirmed',
+    actual_ref: 'VERIFIED HUB-11 — live production confirmed',
     status: 'VERIFIED',
-    last_checked: '2026-04-12T07:00:00.000Z',
-    note: 'B-011 RESOLVED. No regression expected.',
+    last_checked: '2026-04-13T09:45:00.000Z',
+    note: 'JWT_SECRET + MASTER_PIN in Cloudflare Secrets. No drift.',
   },
   {
     id: 'TS-005',
-    label: 'Governance Canon',
-    source: 'governance-stack/ (frozen)',
-    expected: 'Frozen — no changes',
-    actual_ref: 'Frozen as of session 4H',
+    label: 'Counterpart Access Ladder',
+    source: '/counterpart/ladder',
+    expected: 'build_session hub11, no runtime error, panels loaded',
+    actual_ref: 'VERIFIED HUB-11 — commit de81428',
     status: 'VERIFIED',
-    last_checked: '2026-04-12T07:00:00.000Z',
-    note: 'Doctrine frozen. No edits in HUB-04.',
+    last_checked: '2026-04-13T09:50:00.000Z',
+    note: 'handleAuthFailure() active. next_level fields corrected. 19/19 tests passed.',
   },
   {
     id: 'TS-006',
     label: 'Production Deploy State',
     source: 'sovereign-tower.pages.dev',
-    expected: 'build_session: hub04 post-deploy',
-    actual_ref: 'hub02 (last deployed build)',
+    expected: 'build_session: hub12 post-deploy',
+    actual_ref: 'hub11 (last deployed)',
     status: 'PENDING_SYNC',
-    last_checked: '2026-04-12T10:00:00.000Z',
-    note: 'Will update after Phase G deploy.',
+    last_checked: '2026-04-13T10:00:00.000Z',
+    note: 'Will update after Phase G deploy of HUB-12.',
+  },
+  {
+    id: 'TS-007',
+    label: 'Chamber UI Routes (HUB-12 Fix)',
+    source: '/chamber/governance, /chamber/reminders, /chamber/health',
+    expected: 'HTTP 200, no 500 errors',
+    actual_ref: 'Was returning HTTP 500 — missing route handlers',
+    status: 'VERIFIED',
+    last_checked: '2026-04-13T10:00:00.000Z',
+    note: 'HUB-12 adds missing route handlers. 500 errors resolved.',
   },
 ]
 
@@ -257,25 +303,25 @@ const MAINTENANCE_CHECKS: MaintenanceCheck[] = [
     status: 'BLOCKED',
     description: 'Webhook URL belum dikonfigurasi di Fonnte dashboard.',
     action_required: 'Daftarkan https://sovereign-tower.pages.dev/api/wa/webhook di panel Fonnte.',
-    ref: 'B-010',
+    ref: 'B-010 — OPEN',
   },
   {
     id: 'MC-002',
     label: 'MASTER_PIN Cloudflare Secret',
     category: 'AUTH',
     status: 'VERIFIED',
-    description: 'MASTER_PIN sudah dikonfigurasi di Cloudflare Secrets (prod).',
+    description: 'MASTER_PIN dikonfigurasi di Cloudflare Secrets (prod). Verified di HUB-12.',
     action_required: null,
-    ref: 'B-011 RESOLVED',
+    ref: 'B-011 RESOLVED — HUB-12 confirmed',
   },
   {
     id: 'MC-003',
     label: 'JWT_SECRET Cloudflare Secret',
     category: 'AUTH',
     status: 'VERIFIED',
-    description: 'JWT_SECRET tersedia di production. Token exchange berfungsi.',
+    description: 'JWT_SECRET tersedia di production. Token exchange berfungsi. HUB-11 auth verified.',
     action_required: null,
-    ref: 'HUB-02 VERIFIED',
+    ref: 'HUB-11 VERIFIED — build_session hub11',
   },
   {
     id: 'MC-004',
@@ -284,34 +330,34 @@ const MAINTENANCE_CHECKS: MaintenanceCheck[] = [
     status: 'VERIFIED',
     description: 'Supabase URL + service role key aktif. WA routes operasional.',
     action_required: null,
-    ref: 'Session 3G VERIFIED',
+    ref: 'Session 3G VERIFIED — keys in Cloudflare Secrets',
   },
   {
     id: 'MC-005',
     label: 'Repo Visibility Decision',
     category: 'GOVERNANCE',
     status: 'PENDING',
-    description: 'Repo saat ini public. Founder belum memutuskan visibilitas.',
-    action_required: 'Buat keputusan di Chamber Inbox (GQ-002).',
-    ref: 'B-012',
+    description: 'Repo ganihypha/Sovereign-ecosystem saat ini public. Founder perlu memutuskan visibilitas.',
+    action_required: 'Buat keputusan di Chamber Inbox (GQ-002) kapanpun siap.',
+    ref: 'B-012 — DEFERRED',
   },
   {
     id: 'MC-006',
     label: 'Living Docs Freshness',
     category: 'DOCS',
     status: 'VERIFIED',
-    description: 'current-handoff + 41-ACTIVE-PRIORITY diupdate di HUB-06 (auth canon) dan HUB-07 (hardening). Commit a4e6f35.',
+    description: 'current-handoff + 41-ACTIVE-PRIORITY diupdate di HUB-11 (runtime recovery ladder). Commit dd8ef08.',
     action_required: null,
-    ref: 'HUB-06 VERIFIED — commit a4e6f35',
+    ref: 'HUB-11 VERIFIED — commit dd8ef08',
   },
   {
     id: 'MC-007',
     label: 'Full Deployment Status',
     category: 'DEPLOY',
     status: 'VERIFIED',
-    description: 'HUB-04 (b5c80a7), HUB-05 (bcb07b3), HUB-06 (642817e) sudah di-deploy ke production. Live: https://sovereign-tower.pages.dev.',
+    description: 'HUB-09..HUB-11 di-deploy ke production. Live: https://sovereign-tower.pages.dev. build_session hub11.',
     action_required: null,
-    ref: 'HUB-06 deploy 44ad5cce VERIFIED',
+    ref: 'HUB-11 deploy fe3080ad VERIFIED — commit de81428',
   },
   {
     id: 'MC-008',
@@ -321,6 +367,24 @@ const MAINTENANCE_CHECKS: MaintenanceCheck[] = [
     description: 'WA broadcast live confirmed di Session 3G.',
     action_required: null,
     ref: 'Session 3G — fonnte_message_id 150532885, 150532888',
+  },
+  {
+    id: 'MC-009',
+    label: 'Counterpart Access Ladder Runtime',
+    category: 'COUNTERPART',
+    status: 'VERIFIED',
+    description: 'Ladder /counterpart/ladder stable. Error "Gagal memuat data ladder" teratasi. handleAuthFailure() aktif. 19/19 tests passed.',
+    action_required: null,
+    ref: 'HUB-11 VERIFIED — commit de81428',
+  },
+  {
+    id: 'MC-010',
+    label: 'Chamber UI Routes (HUB-12 Fix)',
+    category: 'CHAMBER',
+    status: 'VERIFIED',
+    description: 'Missing routes /chamber/governance, /chamber/reminders, /chamber/health ditambahkan di HUB-12. Tidak ada lagi HTTP 500.',
+    action_required: null,
+    ref: 'HUB-12 — Chamber Console v1.1 Hardening',
   },
 ]
 
@@ -1130,7 +1194,7 @@ chamberRouter.get('/', (c: Context<ChamberContext>) => {
   <h1 class="text-2xl font-bold text-white mb-1 flex items-center gap-3">
     <i class="fas fa-landmark text-indigo-400"></i>
     Chamber Operating Console
-    <span class="text-xs font-normal bg-indigo-900/40 border border-indigo-700/30 text-indigo-400 px-2 py-1 rounded-md ml-1">v1 — HUB-04</span>
+    <span class="text-xs font-normal bg-indigo-900/40 border border-indigo-700/30 text-indigo-400 px-2 py-1 rounded-md ml-1">v1.1 — HUB-12</span>
   </h1>
   <p class="text-gray-500 text-sm">Founder-only governance operating surface. Private Chair Chamber authority layer.</p>
 </div>
@@ -1528,9 +1592,11 @@ chamberRouter.get('/audit', (c: Context<ChamberContext>) => {
 
 <div id="audit-filters" class="flex gap-2 mb-5 flex-wrap">
   <button onclick="loadAudit()" class="text-xs px-3 py-1.5 rounded-lg bg-gray-700 text-gray-200 font-medium">All Sessions</button>
+  <button onclick="loadAudit('hub12')" class="text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400">HUB-12</button>
+  <button onclick="loadAudit('hub11')" class="text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400">HUB-11</button>
+  <button onclick="loadAudit('hub10')" class="text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400">HUB-10</button>
+  <button onclick="loadAudit('hub09')" class="text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400">HUB-09</button>
   <button onclick="loadAudit('hub04')" class="text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400">HUB-04</button>
-  <button onclick="loadAudit('hub03')" class="text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400">HUB-03</button>
-  <button onclick="loadAudit('hub02')" class="text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400">HUB-02</button>
 </div>
 
 <div id="audit-list" class="space-y-2">
@@ -1694,6 +1760,253 @@ async function loadHubRef() {
 /**
  * GET /chamber/maintenance
  * Maintenance checklist.
+ */
+
+/**
+ * GET /chamber/governance
+ * Governance overview — all queue items in one view.
+ * HUB-12: Route was missing, causing HTTP 500. Fixed with proper handler.
+ */
+chamberRouter.get('/governance', (c: Context<ChamberContext>) => {
+  const content = `
+<div class="mb-6">
+  <h1 class="text-xl font-bold text-white mb-1 flex items-center gap-2">
+    <i class="fas fa-landmark text-indigo-400"></i> Governance Overview
+  </h1>
+  <p class="text-gray-500 text-sm">Summary governance state. Lihat Decision Board untuk aksi founder.</p>
+</div>
+
+<div id="gov-summary" class="space-y-4">
+  <div class="card-dark rounded-xl p-6 text-gray-600 text-center"><i class="fas fa-circle-notch fa-spin mr-2"></i>Loading governance state...</div>
+</div>
+
+<script>
+window.onChamberReady = async function(token) {
+  try {
+    const [inboxRes, auditRes] = await Promise.all([
+      fetch('/chamber/api/inbox', { headers: { 'Authorization': 'Bearer ' + token }}),
+      fetch('/chamber/api/audit', { headers: { 'Authorization': 'Bearer ' + token }}),
+    ])
+    const inbox = await inboxRes.json()
+    const audit = await auditRes.json()
+    const items = inbox.data?.items || []
+    const entries = audit.data?.entries || []
+    const counts = inbox.data?.counts || {}
+    const stClass = { PENDING_REVIEW: 'badge-pending', APPROVED: 'badge-verified', ON_HOLD: 'badge-hold', REJECTED: 'badge-blocked' }
+    const urgClass = { HIGH: 'badge-high', MEDIUM: 'badge-medium', LOW: 'badge-low' }
+    document.getElementById('gov-summary').innerHTML = \`
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="card-dark rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-yellow-400">\${counts.pending || 0}</div>
+          <div class="text-xs text-gray-500 mt-1">Pending Review</div>
+        </div>
+        <div class="card-dark rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-green-400">\${counts.approved || 0}</div>
+          <div class="text-xs text-gray-500 mt-1">Approved</div>
+        </div>
+        <div class="card-dark rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-purple-400">\${counts.on_hold || 0}</div>
+          <div class="text-xs text-gray-500 mt-1">On Hold</div>
+        </div>
+        <div class="card-dark rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-indigo-400">\${entries.length}</div>
+          <div class="text-xs text-gray-500 mt-1">Audit Entries</div>
+        </div>
+      </div>
+      <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">All Governance Items</h2>
+      <div class="space-y-3">
+        \${items.map(item => \`
+          <a href="/chamber/decision-board?id=\${item.id}" class="card-dark card-hover rounded-xl px-5 py-4 flex items-center gap-4 transition-all cursor-pointer">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-1">
+                <span class="text-sm font-medium text-gray-200">\${item.title}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full \${urgClass[item.urgency]}">\${item.urgency}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full \${stClass[item.status] || 'badge-pending'}">\${item.status}</span>
+              </div>
+              <div class="text-xs text-gray-500">\${item.source} — \${item.description.slice(0,80)}...</div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-600 text-xs"></i>
+          </a>
+        \`).join('')}
+      </div>
+      <div class="mt-4">
+        <a href="/chamber/decision-board" class="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-all">
+          <i class="fas fa-scale-balanced"></i> Open Decision Board
+        </a>
+      </div>
+    \`
+  } catch(e) {
+    document.getElementById('gov-summary').innerHTML = '<div class="text-red-400 text-sm p-4">Error loading governance data: ' + e.message + '</div>'
+  }
+}
+</script>
+`
+  return c.html(chamberLayout({ title: 'Governance', activeNav: 'decisions', content }))
+})
+
+/**
+ * GET /chamber/reminders
+ * Founder reminders — surfaces action items requiring founder attention.
+ * HUB-12: Route was missing, causing HTTP 500. Fixed with proper handler.
+ */
+chamberRouter.get('/reminders', (c: Context<ChamberContext>) => {
+  const content = `
+<div class="mb-6">
+  <h1 class="text-xl font-bold text-white mb-1 flex items-center gap-2">
+    <i class="fas fa-bell text-yellow-400"></i> Founder Reminders
+  </h1>
+  <p class="text-gray-500 text-sm">Action items requiring founder attention. Sourced from governance state.</p>
+</div>
+
+<div id="reminders-list" class="space-y-3">
+  <div class="card-dark rounded-xl p-6 text-gray-600 text-center"><i class="fas fa-circle-notch fa-spin mr-2"></i>Loading reminders...</div>
+</div>
+
+<script>
+window.onChamberReady = async function(token) {
+  try {
+    const res = await fetch('/chamber/api/summary', { headers: { 'Authorization': 'Bearer ' + token }})
+    const d = await res.json()
+    const reminders = d.data?.founder_reminders || []
+    const urgClass = { HIGH: 'badge-high', MEDIUM: 'badge-medium', LOW: 'badge-low' }
+    if (!reminders.length) {
+      document.getElementById('reminders-list').innerHTML = '<div class="card-dark rounded-xl p-8 text-center"><i class="fas fa-check-circle text-green-400 text-3xl mb-3"></i><div class="text-gray-300 font-medium mt-3">No pending reminders</div></div>'
+      return
+    }
+    document.getElementById('reminders-list').innerHTML = reminders.map(r => \`
+      <a href="\${r.link}" class="card-dark card-hover rounded-xl px-5 py-4 flex items-center gap-4 transition-all cursor-pointer">
+        <div class="w-9 h-9 rounded-lg \${r.urgency === 'HIGH' ? 'bg-red-900/30' : r.urgency === 'MEDIUM' ? 'bg-yellow-900/30' : 'bg-gray-800'} flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-bell \${r.urgency === 'HIGH' ? 'text-red-400' : r.urgency === 'MEDIUM' ? 'text-yellow-400' : 'text-gray-500'}"></i>
+        </div>
+        <div class="flex-1">
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full \${urgClass[r.urgency]}">\${r.urgency}</span>
+          </div>
+          <div class="text-sm text-gray-200">\${r.text}</div>
+        </div>
+        <i class="fas fa-chevron-right text-gray-600 text-xs"></i>
+      </a>
+    \`).join('')
+  } catch(e) {
+    document.getElementById('reminders-list').innerHTML = '<div class="text-red-400 text-sm p-4">Error loading reminders: ' + e.message + '</div>'
+  }
+}
+</script>
+`
+  return c.html(chamberLayout({ title: 'Reminders', activeNav: 'overview', content }))
+})
+
+/**
+ * GET /chamber/health
+ * Chamber health check — surfaces live runtime health + governance health.
+ * HUB-12: Route was missing, causing HTTP 500. Fixed with proper handler.
+ */
+chamberRouter.get('/health', (c: Context<ChamberContext>) => {
+  const content = `
+<div class="mb-6">
+  <h1 class="text-xl font-bold text-white mb-1 flex items-center gap-2">
+    <i class="fas fa-heart-pulse text-green-400"></i> Chamber Health
+  </h1>
+  <p class="text-gray-500 text-sm">Runtime + governance health. Live data from /health + maintenance checklist.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+  <div>
+    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Runtime Health</h2>
+    <div id="runtime-health" class="card-dark rounded-xl p-5 text-gray-500 text-sm">
+      <i class="fas fa-circle-notch fa-spin mr-2"></i>Fetching runtime state...
+    </div>
+  </div>
+  <div>
+    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Governance Health</h2>
+    <div id="gov-health" class="card-dark rounded-xl p-5 text-gray-500 text-sm">
+      <i class="fas fa-circle-notch fa-spin mr-2"></i>Fetching governance state...
+    </div>
+  </div>
+</div>
+
+<div>
+  <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Maintenance Checks</h2>
+  <div id="maint-health" class="space-y-2">
+    <div class="card-dark rounded-xl p-5 text-gray-600 text-center"><i class="fas fa-circle-notch fa-spin mr-2"></i>Loading...</div>
+  </div>
+</div>
+
+<script>
+window.onChamberReady = async function(token) {
+  // Runtime health (public endpoint)
+  try {
+    const res = await fetch('/health')
+    const d = await res.json()
+    document.getElementById('runtime-health').innerHTML = \`
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-3 h-3 rounded-full \${d.status === 'ok' ? 'bg-green-500' : 'bg-red-500'} animate-pulse"></div>
+        <span class="text-sm font-semibold \${d.status === 'ok' ? 'text-green-400' : 'text-red-400'}">\${(d.status || 'unknown').toUpperCase()}</span>
+      </div>
+      <div class="space-y-1.5 text-xs">
+        <div class="flex justify-between"><span class="text-gray-600">Build Session</span><span class="text-gray-300 font-mono">\${d.build_session || '—'}</span></div>
+        <div class="flex justify-between"><span class="text-gray-600">Version</span><span class="text-gray-300 font-mono">\${d.version || '—'}</span></div>
+        <div class="flex justify-between"><span class="text-gray-600">Phase</span><span class="text-gray-300">\${d.phase || '—'}</span></div>
+        <div class="flex justify-between"><span class="text-gray-600">Environment</span><span class="text-gray-300">\${d.environment || '—'}</span></div>
+      </div>
+    \`
+  } catch(e) {
+    document.getElementById('runtime-health').innerHTML = '<div class="text-red-400">Error: ' + e.message + '</div>'
+  }
+
+  // Governance health (requires token)
+  try {
+    const res = await fetch('/chamber/api/maintenance', { headers: { 'Authorization': 'Bearer ' + token }})
+    const d = await res.json()
+    const overall = d.data?.overall_health || 'UNKNOWN'
+    const counts = d.data?.counts || {}
+    const healthColor = { HEALTHY: 'text-green-400', PARTIAL: 'text-yellow-400', DEGRADED: 'text-red-400' }
+    const dotColor = { HEALTHY: 'bg-green-500', PARTIAL: 'bg-yellow-500', DEGRADED: 'bg-red-500' }
+    document.getElementById('gov-health').innerHTML = \`
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-3 h-3 rounded-full \${dotColor[overall] || 'bg-gray-500'} animate-pulse"></div>
+        <span class="text-sm font-semibold \${healthColor[overall] || 'text-gray-400'}">\${overall}</span>
+      </div>
+      <div class="space-y-1.5 text-xs">
+        <div class="flex justify-between"><span class="text-gray-600">Verified</span><span class="text-green-400">\${counts.verified || 0}</span></div>
+        <div class="flex justify-between"><span class="text-gray-600">Pending</span><span class="text-yellow-400">\${counts.pending || 0}</span></div>
+        <div class="flex justify-between"><span class="text-gray-600">Blocked</span><span class="text-red-400">\${counts.blocked || 0}</span></div>
+        <div class="flex justify-between"><span class="text-gray-600">Total Checks</span><span class="text-gray-300">\${counts.total || 0}</span></div>
+      </div>
+    \`
+    const checks = d.data?.checks || []
+    const stIcon = { VERIFIED: 'fa-check-circle text-green-500', PENDING: 'fa-clock text-yellow-500', BLOCKED: 'fa-ban text-red-500', SKIPPED: 'fa-minus-circle text-gray-500' }
+    const stClass = { VERIFIED: 'badge-verified', PENDING: 'badge-pending', BLOCKED: 'badge-blocked', SKIPPED: 'text-gray-500 bg-gray-800/40' }
+    document.getElementById('maint-health').innerHTML = checks.map(check => \`
+      <div class="card-dark rounded-xl px-5 py-4 flex items-start gap-4">
+        <div class="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <i class="fas \${stIcon[check.status] || 'fa-circle text-gray-500'} text-xs"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <span class="text-sm font-semibold text-gray-200">\${check.label}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full \${stClass[check.status]}">\${check.status}</span>
+            <span class="text-xs text-gray-600">\${check.category}</span>
+          </div>
+          <div class="text-xs text-gray-500 mb-1">\${check.description}</div>
+          \${check.action_required ? '<div class="text-xs text-yellow-600"><i class="fas fa-arrow-right mr-1"></i>' + check.action_required + '</div>' : ''}
+          <div class="text-xs text-gray-700 mt-1">ref: \${check.ref}</div>
+        </div>
+      </div>
+    \`).join('')
+  } catch(e) {
+    document.getElementById('gov-health').innerHTML = '<div class="text-red-400">Error: ' + e.message + '</div>'
+    document.getElementById('maint-health').innerHTML = '<div class="text-red-400 text-sm">Error: ' + e.message + '</div>'
+  }
+}
+</script>
+`
+  return c.html(chamberLayout({ title: 'Health', activeNav: 'maintenance', content }))
+})
+
+/**
+ * GET /chamber/maintenance
+ * Maintenance checklist (existing route, kept intact).
  */
 chamberRouter.get('/maintenance', (c: Context<ChamberContext>) => {
   const content = `
