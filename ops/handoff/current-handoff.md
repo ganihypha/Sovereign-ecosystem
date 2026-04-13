@@ -1534,3 +1534,88 @@ atau
 - No auth drift occurred
 - Counterpart reuses existing Hub auth model (as intended)
 
+
+---
+
+## SESSION HUB-09 — Counterpart Access Ladder v1
+**Date:** 2026-04-13
+**Status:** ✅ VERIFIED & DEPLOYED LIVE
+**Commit:** `7d5b504` (feat) | **Deploy:** `c02d1d3e.sovereign-tower.pages.dev`
+
+### Reality Lock Findings
+- HUB-08 artifacts verified: `/counterpart` + 9 APIs all HTTP 200
+- `access-ladder.ts` (1294 lines) existed untracked from prior session
+- File quality verified — 5 UI screens + 6 bounded APIs complete
+- Root cause found: `accessLadderRouter` was NOT wired to `app.ts`
+- Route order bug fixed: `accessLadderRouter` must be registered BEFORE `counterpartRouter` (catch-all conflict)
+
+### What Was Built / Changed
+| File | Change | Lines |
+|------|--------|-------|
+| `src/routes/access-ladder.ts` | NEW — Access Ladder v1 (5 UI + 6 API) | 1294 |
+| `src/app.ts` | Import + register accessLadderRouter (before counterpartRouter) | +14 |
+| `src/lib/app-config.ts` | 10 LADDER route constants + TOWER_BUILD_SESSION → hub09 | +14 |
+
+### Access Ladder Model
+- **Level 0 — Observer (Lite):** CURRENT · Entry level, bounded participation
+- **Level 1 — Contributor:** LOCKED · 3+ accepted contributions required
+- **Level 2 — Reviewed Contributor:** LOCKED · 2 full review cycles + assignments
+- **Level 3 — Trusted Counterpart:** LOCKED · 5 review cycles + explicit founder endorsement
+- **Level 4 — Designated Partner:** FOUNDER_GRANTED · Only founder can grant, never auto-promoted
+- All promotions: founder review required, no auto-promotion, founder can reject/delay anytime
+
+### Route Board
+| Type | Path | Status |
+|------|------|--------|
+| UI | GET /counterpart/ladder | ✅ HTTP 200 |
+| UI | GET /counterpart/ladder/criteria | ✅ HTTP 200 |
+| UI | GET /counterpart/ladder/history | ✅ HTTP 200 |
+| UI | GET /counterpart/ladder/notice | ✅ HTTP 200 |
+| UI | GET /counterpart/ladder/level/:id | ✅ HTTP 200 |
+| API | GET /counterpart/api/ladder/overview | ✅ success=True |
+| API | GET /counterpart/api/ladder/current | ✅ success=True |
+| API | GET /counterpart/api/ladder/criteria | ✅ success=True |
+| API | GET /counterpart/api/ladder/history | ✅ success=True |
+| API | GET /counterpart/api/ladder/level/:id | ✅ LEVEL_0-4 verified |
+| API | GET /counterpart/api/ladder/* (404) | ✅ LADDER_ROUTE_NOT_FOUND |
+
+### Test Board
+| Test | Result |
+|------|--------|
+| 5 UI routes HTTP 200 | ✅ PASS |
+| 4 main API routes success=True | ✅ PASS |
+| Level detail /level/0,2,4 | ✅ PASS |
+| No-token → AUTH_MISSING_TOKEN | ✅ PASS |
+| /level/99 → INVALID_LEVEL_ID | ✅ PASS |
+| /level/abc → INVALID_LEVEL_ID | ✅ PASS |
+| Unknown /api/ladder/* → 404 | ✅ PASS |
+| HUB-08 counterpart original APIs | ✅ PASS |
+| /hub, /chamber, /bridge regression | ✅ PASS |
+| Live /health session=hub09 | ✅ PASS |
+| Live ladder UI + API | ✅ PASS |
+
+### Push / Deploy Board
+| Item | Value | Status |
+|------|-------|--------|
+| Commit | `7d5b504` | ✅ PUSHED to origin main |
+| GitHub | `5f53f93..7d5b504` on main | ✅ |
+| Cloudflare Deploy | `c02d1d3e.sovereign-tower.pages.dev` | ✅ LIVE |
+| Build size | 588.90 kB (gzip 147.20 kB) | ✅ |
+| Live proof: /health build_session | `hub09` | ✅ |
+| Live proof: /counterpart/ladder | HTTP 200 | ✅ |
+| Live proof: /counterpart/api/ladder/overview | success=True | ✅ |
+
+### HUB-09 Closeout Decision
+**VERIFIED**
+
+### Auth Stability
+- MASTER_PIN: UNCHANGED
+- JWT_SECRET: UNCHANGED
+- TOKEN_KEY: UNCHANGED (`hub_jwt`)
+- No auth drift — accessLadderRouter reuses `/counterpart/api/*` middleware
+- Route order fix documented: accessLadderRouter BEFORE counterpartRouter
+
+### NEXT LOCKED MOVE
+**Option A (Recommended):** Chamber Console v1.1 Hardening — Supabase-backed governance queue
+**Option B:** Bridge Review Desk v1.2 — refined triage + structured review
+**Option C:** Counterpart Access Ladder v1.1 — filter/query on history, level-specific visibility
