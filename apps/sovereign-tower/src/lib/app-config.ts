@@ -12,7 +12,7 @@
 
 export const TOWER_APP_NAME = 'Sovereign Tower' as const
 export const TOWER_APP_VERSION = '0.1.0' as const
-export const TOWER_BUILD_SESSION = 'hub08' as const
+export const TOWER_BUILD_SESSION = 'hub09' as const
 export const TOWER_PHASE = 'phase-3' as const
 export const TOWER_DESCRIPTION = 'Private founder-only command center — Sovereign Business Engine v4.0'
 
@@ -181,6 +181,18 @@ export const TOWER_ROUTES = {
   COUNTERPART_API_OUTCOMES: '/counterpart/api/outcomes',
   COUNTERPART_API_CONTRIBUTIONS: '/counterpart/api/contributions',
   COUNTERPART_API_BOUNDARIES: '/counterpart/api/boundaries',
+  // HUB-09 Access Ladder v1 — UI routes
+  COUNTERPART_LADDER: '/counterpart/ladder',
+  COUNTERPART_LADDER_LEVEL: '/counterpart/ladder/level',
+  COUNTERPART_LADDER_CRITERIA: '/counterpart/ladder/criteria',
+  COUNTERPART_LADDER_HISTORY: '/counterpart/ladder/history',
+  COUNTERPART_LADDER_NOTICE: '/counterpart/ladder/notice',
+  // HUB-09 Access Ladder v1 — API routes
+  COUNTERPART_API_LADDER_OVERVIEW: '/counterpart/api/ladder/overview',
+  COUNTERPART_API_LADDER_CURRENT: '/counterpart/api/ladder/current',
+  COUNTERPART_API_LADDER_CRITERIA: '/counterpart/api/ladder/criteria',
+  COUNTERPART_API_LADDER_HISTORY: '/counterpart/api/ladder/history',
+  COUNTERPART_API_LADDER_LEVEL: '/counterpart/api/ladder/level',
 } as const
 
 export type TowerRoute = (typeof TOWER_ROUTES)[keyof typeof TOWER_ROUTES]

@@ -24,6 +24,7 @@ import { hubRouter } from './routes/hub'
 import { chamberRouter } from './routes/chamber'
 import { bridgeRouter } from './routes/bridge'
 import { counterpartRouter } from './routes/counterpart'
+import { accessLadderRouter } from './routes/access-ladder'
 
 // =============================================================================
 // APP FACTORY
@@ -188,6 +189,19 @@ export function createApp(): TowerApp {
   app.use('/counterpart/api/*', async (c, next) => {
     return founderOnly()(c, next)
   })
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // HUB-09: Counterpart Access Ladder v1 — MUST register BEFORE counterpartRouter
+  // Downstream layer di bawah Counterpart Workspace Lite v1
+  // IMPORTANT: accessLadderRouter registered FIRST so /counterpart/api/ladder/*
+  //            and /counterpart/ladder/* routes are matched before counterpartRouter's
+  //            catch-all /api/* handler intercepts them.
+  // Auth: /counterpart/api/* middleware above (JWT + founderOnly) already covers
+  //       /counterpart/api/ladder/* API routes automatically via path prefix match.
+  // ─────────────────────────────────────────────────────────────────────────
+  app.route('/counterpart', accessLadderRouter)
+
+  // counterpartRouter registered AFTER accessLadderRouter to prevent catch-all conflict
   app.route('/counterpart', counterpartRouter)
 
   // ─────────────────────────────────────────────────────────────────────────
