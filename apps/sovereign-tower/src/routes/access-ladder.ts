@@ -1,5 +1,5 @@
 // sovereign-tower — src/routes/access-ladder.ts
-// Counterpart Access Ladder v1 — SESSION HUB-09
+// Counterpart Access Ladder v1.1 — SESSION HUB-10 (Hardening)
 // Sovereign Business Engine v4.0
 // ⚠️ FOUNDER GOVERNANCE LAYER — PT WASKITA CAKRAWARTI DIGITAL ⚠️
 //
@@ -40,8 +40,8 @@ import { verifyJwt } from '@sovereign/auth'
 // CONSTANTS
 // =============================================================================
 
-const LADDER_BUILD_SESSION = 'hub09'
-const LADDER_VERSION = '1.0.0'
+const LADDER_BUILD_SESSION = 'hub10'
+const LADDER_VERSION = '1.1.0'
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -677,7 +677,7 @@ function ladderLayout({
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0e1a; color: #e2e8f0; }
     ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #1a1f2e; } ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
     .auth-overlay { position: fixed; inset: 0; background: #0a0e1a; display: flex; align-items: center; justify-content: center; z-index: 9999; }
-    .auth-card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 2rem; width: 100%; max-width: 360px; }
+    .auth-card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 2rem; width: 100%; max-width: 360px; margin: 1rem; }
     .card { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 1.25rem; }
     .btn-primary { background: #7c3aed; color: white; border: none; padding: .6rem 1.25rem; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s; }
     .btn-primary:hover { background: #6d28d9; }
@@ -693,6 +693,17 @@ function ladderLayout({
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     .progress-bar-bg { background: #1f2937; border-radius: 9999px; height: 8px; overflow: hidden; }
     .progress-bar-fill { background: linear-gradient(90deg, #7c3aed, #a78bfa); border-radius: 9999px; height: 100%; transition: width .5s ease; }
+    /* SIDEBAR TOGGLE — mobile responsive */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 40; }
+    #sidebar-panel { transition: transform .25s ease; }
+    @media (max-width: 768px) {
+      #sidebar-toggle-btn { display: flex !important; }
+      #sidebar-panel { position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; transform: translateX(-100%); width: 220px !important; }
+      #sidebar-panel.is-open { transform: translateX(0); }
+      .sidebar-overlay.is-visible { display: block; }
+      #main-content-area { padding: 1rem !important; }
+      .mobile-hide { display: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -703,7 +714,7 @@ function ladderLayout({
     <div style="text-align:center; margin-bottom:1.5rem;">
       <div style="font-size:2rem; margin-bottom:.5rem;">🪜</div>
       <h2 style="font-size:1.1rem; font-weight:700; color:#e2e8f0;">Access Ladder</h2>
-      <p style="font-size:12px; color:#6b7280; margin-top:.25rem;">Earned Access Progression — HUB-09</p>
+      <p style="font-size:12px; color:#6b7280; margin-top:.25rem;">Earned Access Progression — HUB-10</p>
     </div>
     <div style="margin-bottom:1rem;">
       <label style="font-size:12px; color:#9ca3af; display:block; margin-bottom:6px;">Master PIN</label>
@@ -718,52 +729,60 @@ function ladderLayout({
     <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #1f2937; text-align:center;">
       <p style="font-size:11px; color:#4b5563;">
         <i class="fas fa-stairs" style="color:#7c3aed;"></i>
-        Counterpart Access Ladder v${LADDER_VERSION} · SESSION HUB-09
+        Counterpart Access Ladder v${LADDER_VERSION} · SESSION HUB-10
       </p>
     </div>
   </div>
 </div>
 
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <!-- MAIN LAYOUT -->
-<div id="main-app" style="display:none; flex-direction:column; height:100vh; overflow:hidden;">
+<div id="main-app" style="display:none; flex-direction:column; min-height:100vh;">
   <!-- TOPBAR -->
-  <div style="background:#111827; border-bottom:1px solid #1f2937; padding:0 1.25rem; height:52px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-    <div style="display:flex; align-items:center; gap:.75rem;">
-      <span style="font-size:1.1rem;">🤝</span>
-      <span style="font-weight:700; font-size:14px; color:#e2e8f0;">Counterpart Workspace</span>
-      <span style="font-size:11px; color:#6b7280;">· Access Ladder v${LADDER_VERSION}</span>
-      <span style="background:rgba(139,92,246,.2); border:1px solid rgba(139,92,246,.3); color:#c4b5fd; font-size:10px; padding:2px 8px; border-radius:9999px; margin-left:4px;"><i class="fas fa-stairs"></i> HUB-09</span>
+  <div style="background:#111827; border-bottom:1px solid #1f2937; padding:0 1rem; height:52px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; position:sticky; top:0; z-index:30;">
+    <div style="display:flex; align-items:center; gap:.6rem;">
+      <!-- Hamburger button (mobile only) -->
+      <button id="sidebar-toggle-btn" onclick="toggleSidebar()" style="display:none; background:none; border:1px solid #374151; color:#9ca3af; width:32px; height:32px; border-radius:6px; cursor:pointer; align-items:center; justify-content:center; flex-shrink:0;">
+        <i class="fas fa-bars" style="font-size:12px;"></i>
+      </button>
+      <span style="font-size:1rem;">🤝</span>
+      <span style="font-weight:700; font-size:13px; color:#e2e8f0;">Counterpart</span>
+      <span class="mobile-hide" style="font-size:11px; color:#6b7280;">· Access Ladder v${LADDER_VERSION}</span>
+      <span style="background:rgba(139,92,246,.2); border:1px solid rgba(139,92,246,.3); color:#c4b5fd; font-size:10px; padding:2px 7px; border-radius:9999px;"><i class="fas fa-stairs"></i> <span class="mobile-hide">HUB-10</span></span>
     </div>
-    <div style="display:flex; align-items:center; gap:.75rem;">
-      <span style="font-size:11px; color:#34d399;"><i class="fas fa-circle" style="font-size:8px;"></i> Bounded</span>
-      <div style="display:flex; gap:.5rem; font-size:11px;">
+    <div style="display:flex; align-items:center; gap:.6rem;">
+      <span class="mobile-hide" style="font-size:11px; color:#34d399;"><i class="fas fa-circle" style="font-size:8px;"></i> Bounded</span>
+      <div class="mobile-hide" style="display:flex; gap:.5rem; font-size:11px;">
         <a href="/hub" style="color:#6b7280; text-decoration:none;">Hub</a>
         <span style="color:#374151;">·</span>
         <a href="/counterpart" style="color:#6b7280; text-decoration:none;">Workspace</a>
       </div>
-      <button onclick="doLogout()" style="background:none; border:1px solid #374151; color:#9ca3af; padding:4px 10px; border-radius:6px; font-size:12px; cursor:pointer;">
+      <button onclick="doLogout()" style="background:none; border:1px solid #374151; color:#9ca3af; padding:4px 10px; border-radius:6px; font-size:12px; cursor:pointer;" title="Logout">
         <i class="fas fa-right-from-bracket"></i>
       </button>
     </div>
   </div>
 
   <!-- BODY: SIDEBAR + CONTENT -->
-  <div style="display:flex; flex:1; overflow:hidden;">
+  <div style="display:flex; flex:1;">
     <!-- SIDEBAR -->
-    <div style="width:200px; background:#0d1117; border-right:1px solid #1f2937; display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto; padding:1rem .75rem;">
+    <div id="sidebar-panel" style="width:210px; background:#0d1117; border-right:1px solid #1f2937; display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto; padding:1rem .75rem;">
       <nav style="display:flex; flex-direction:column; gap:2px;">
         ${navHtml}
       </nav>
-      <div style="margin-top:auto; padding-top:1rem; border-top:1px solid #1f2937;">
-        <div style="font-size:10px; color:#4b5563; text-align:center; line-height:1.5;">
-          <div style="color:#6b7280;">Level Saat Ini</div>
-          <div style="color:#c4b5fd; font-weight:600;">L0 — Observer</div>
+      <div style="margin-top:auto; padding-top:1rem; border-top:1px solid #1f2937; margin-top:2rem;">
+        <div style="font-size:10px; color:#4b5563; text-align:center; line-height:1.6;">
+          <div style="color:#6b7280; margin-bottom:2px;">Level Saat Ini</div>
+          <div id="sidebar-level-label" style="color:#c4b5fd; font-weight:600;">L0 — Observer (Lite)</div>
+          <div style="color:#4b5563; margin-top:4px; font-size:9px;">SESSION HUB-10</div>
         </div>
       </div>
     </div>
 
     <!-- MAIN CONTENT -->
-    <div style="flex:1; overflow-y:auto; padding:1.5rem;">
+    <div id="main-content-area" style="flex:1; overflow-y:auto; padding:1.5rem; min-width:0;">
       <div id="page-content">
         ${content}
       </div>
@@ -772,12 +791,44 @@ function ladderLayout({
 </div>
 
 <script>
+// ====================================================
+// ACCESS LADDER v1.1 — HUB-10 Hardened Auth + Mobile
+// ====================================================
 const TOKEN_KEY = 'hub_jwt'
 let _token = ''
+let _pageReadyCalled = false
 
 function getToken() { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || '' }
+function saveToken(t) { sessionStorage.setItem(TOKEN_KEY, t); localStorage.setItem(TOKEN_KEY, t) }
 function doLogout() { sessionStorage.removeItem(TOKEN_KEY); localStorage.removeItem(TOKEN_KEY); window.location.reload() }
 function authHeader() { return { Authorization: 'Bearer ' + _token } }
+
+// Sidebar mobile toggle
+function toggleSidebar() {
+  const p = document.getElementById('sidebar-panel')
+  const o = document.getElementById('sidebar-overlay')
+  p.classList.toggle('is-open')
+  o.classList.toggle('is-visible')
+}
+function closeSidebar() {
+  document.getElementById('sidebar-panel').classList.remove('is-open')
+  document.getElementById('sidebar-overlay').classList.remove('is-visible')
+}
+
+function showApp() {
+  document.getElementById('auth-overlay').style.display = 'none'
+  const ma = document.getElementById('main-app')
+  ma.style.display = 'flex'
+  ma.style.flexDirection = 'column'
+}
+
+async function callPageReady() {
+  if (_pageReadyCalled) return
+  _pageReadyCalled = true
+  if (typeof window.onLadderReady === 'function') {
+    await window.onLadderReady(_token)
+  }
+}
 
 async function doExchange() {
   const pin = document.getElementById('pin-input').value.trim()
@@ -788,17 +839,16 @@ async function doExchange() {
   try {
     const res = await axios.post('/api/hub/auth/exchange', { pin })
     if (res.data?.data?.token) {
-      sessionStorage.setItem(TOKEN_KEY, res.data.data.token)
       _token = res.data.data.token
-      document.getElementById('auth-overlay').style.display = 'none'
-      const ma = document.getElementById('main-app')
-      ma.style.display = 'flex'; ma.style.flexDirection = 'column'
-      if (typeof window.onLadderReady === 'function') window.onLadderReady(_token)
+      saveToken(_token)
+      showApp()
+      await callPageReady()
     } else {
       errEl.textContent = res.data?.error?.message || 'PIN tidak valid.'; errEl.style.display = 'block'
     }
   } catch(e) {
-    errEl.textContent = e.response?.data?.error?.message || 'Gagal menghubungi server.'; errEl.style.display = 'block'
+    const msg = e.response?.data?.error?.message || 'Gagal menghubungi server.'
+    errEl.textContent = msg; errEl.style.display = 'block'
   } finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-right-to-bracket"></i> Akses Ladder' }
 }
 
@@ -809,17 +859,26 @@ function formatDate(iso) {
 
 function badgeHtml(status) {
   const map = { CURRENT:'badge-current', LOCKED:'badge-locked', EARNED:'badge-earned', FOUNDER_GRANTED:'badge-founder' }
-  return \`<span class="\${map[status]||'badge-locked'}">\${status.replace('_',' ')}</span>\`
+  return \`<span class="\${map[status]||'badge-locked'}">\${status.replace(/_/g,' ')}</span>\`
 }
 
-;(function(){
+function updateSidebarLevel(levelId, levelLabel) {
+  const el = document.getElementById('sidebar-level-label')
+  if (el) el.textContent = 'L' + levelId + ' \u2014 ' + levelLabel
+}
+
+// Auto-restore token from storage on page load
+;(function initAuth(){
   const saved = getToken()
   if (saved) {
     _token = saved
-    document.getElementById('auth-overlay').style.display = 'none'
-    const ma = document.getElementById('main-app')
-    ma.style.display = 'flex'; ma.style.flexDirection = 'column'
-    setTimeout(() => { if (typeof window.onLadderReady === 'function') window.onLadderReady(_token) }, 100)
+    showApp()
+    // Defer page-specific init until DOM + scripts are fully ready
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(callPageReady, 50)
+    } else {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(callPageReady, 50))
+    }
   }
 })()
 </script>
@@ -925,8 +984,10 @@ window.onLadderReady = async function(token) {
       </div>
     \`
 
+    // Update sidebar level label
+    updateSidebarLevel(current_level.id, current_level.label)
+
     // All levels
-    const levelColors = ['#818cf8','#34d399','#60a5fa','#f59e0b','#f97316']
     document.getElementById('levels-grid').innerHTML = levels.map(lv => \`
       <div class="level-card \${lv.is_current ? 'is-current' : 'is-locked'}" style="border-left:3px solid \${lv.is_current ? '#a78bfa' : '#1f2937'};">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap;">
@@ -937,7 +998,7 @@ window.onLadderReady = async function(token) {
               <div style="font-size:11px; color:#6b7280;">\${lv.code}</div>
             </div>
           </div>
-          <div style="display:flex; gap:.5rem; align-items:center;">
+          <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
             \${badgeHtml(lv.status)}
             <a href="/counterpart/ladder/level/\${lv.id}" style="font-size:11px; color:#818cf8; text-decoration:none; background:#1f2937; padding:3px 10px; border-radius:6px; border:1px solid #374151;">Detail →</a>
           </div>
@@ -946,7 +1007,15 @@ window.onLadderReady = async function(token) {
       </div>
     \`).join('')
   } catch(e) {
-    document.getElementById('current-level-card').innerHTML = '<div style="color:#f87171;font-size:12px;">Gagal memuat data.</div>'
+    console.error('[ladder] overview load error:', e)
+    document.getElementById('current-level-card').innerHTML = \`
+      <div class="card" style="border-color:rgba(248,113,113,.3); background:rgba(248,113,113,.05);">
+        <div style="font-size:12px; color:#f87171; margin-bottom:.5rem;"><i class="fas fa-circle-exclamation"></i> Gagal memuat data ladder</div>
+        <p style="font-size:11px; color:#9ca3af;">Coba refresh halaman atau re-enter PIN jika session telah expired.</p>
+        <button onclick="doLogout()" style="margin-top:.75rem; background:#1f2937; border:1px solid #374151; color:#9ca3af; padding:4px 12px; border-radius:6px; font-size:12px; cursor:pointer;"><i class="fas fa-rotate-right"></i> Re-authenticate</button>
+      </div>\`
+    document.getElementById('progress-section').innerHTML = ''
+    document.getElementById('levels-grid').innerHTML = ''
   }
 }
 </script>`
@@ -1055,7 +1124,13 @@ window.onLadderReady = async function(token) {
       \` : ''}
     \`
   } catch(e) {
-    document.getElementById('level-detail').innerHTML = '<div style="color:#f87171;font-size:12px;">Gagal memuat data.</div>'
+    console.error('[ladder] level detail error:', e)
+    document.getElementById('level-detail').innerHTML = \`
+      <div class="card" style="border-color:rgba(248,113,113,.3);">
+        <div style="font-size:12px; color:#f87171; margin-bottom:.4rem;"><i class="fas fa-circle-exclamation"></i> Gagal memuat detail level</div>
+        <p style="font-size:11px; color:#9ca3af;">Coba refresh atau re-authenticate.</p>
+        <button onclick="doLogout()" style="margin-top:.6rem; background:#1f2937; border:1px solid #374151; color:#9ca3af; padding:4px 12px; border-radius:6px; font-size:12px; cursor:pointer;"><i class="fas fa-rotate-right"></i> Re-authenticate</button>
+      </div>\`
   }
 }
 </script>`
@@ -1138,7 +1213,13 @@ window.onLadderReady = async function(token) {
       </div>
     \`
   } catch(e) {
-    document.getElementById('criteria-content').innerHTML = '<div style="color:#f87171;font-size:12px;">Gagal memuat data.</div>'
+    console.error('[ladder] criteria load error:', e)
+    document.getElementById('criteria-content').innerHTML = \`
+      <div class="card" style="border-color:rgba(248,113,113,.3);">
+        <div style="font-size:12px; color:#f87171; margin-bottom:.4rem;"><i class="fas fa-circle-exclamation"></i> Gagal memuat kriteria</div>
+        <p style="font-size:11px; color:#9ca3af;">Coba refresh atau re-authenticate jika session expired.</p>
+        <button onclick="doLogout()" style="margin-top:.6rem; background:#1f2937; border:1px solid #374151; color:#9ca3af; padding:4px 12px; border-radius:6px; font-size:12px; cursor:pointer;"><i class="fas fa-rotate-right"></i> Re-authenticate</button>
+      </div>\`
   }
 }
 </script>`
@@ -1210,7 +1291,13 @@ window.onLadderReady = async function(token) {
       }
     \`
   } catch(e) {
-    document.getElementById('history-content').innerHTML = '<div style="color:#f87171;font-size:12px;">Gagal memuat data.</div>'
+    console.error('[ladder] history load error:', e)
+    document.getElementById('history-content').innerHTML = \`
+      <div class="card" style="border-color:rgba(248,113,113,.3);">
+        <div style="font-size:12px; color:#f87171; margin-bottom:.4rem;"><i class="fas fa-circle-exclamation"></i> Gagal memuat history</div>
+        <p style="font-size:11px; color:#9ca3af;">Coba refresh atau re-authenticate jika session expired.</p>
+        <button onclick="doLogout()" style="margin-top:.6rem; background:#1f2937; border:1px solid #374151; color:#9ca3af; padding:4px 12px; border-radius:6px; font-size:12px; cursor:pointer;"><i class="fas fa-rotate-right"></i> Re-authenticate</button>
+      </div>\`
   }
 }
 </script>`
