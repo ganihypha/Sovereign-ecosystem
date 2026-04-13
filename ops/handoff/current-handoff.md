@@ -1619,3 +1619,86 @@ atau
 **Option A (Recommended):** Chamber Console v1.1 Hardening — Supabase-backed governance queue
 **Option B:** Bridge Review Desk v1.2 — refined triage + structured review
 **Option C:** Counterpart Access Ladder v1.1 — filter/query on history, level-specific visibility
+
+---
+
+## SESSION HUB-10 — COUNTERPART ACCESS LADDER v1.1 HARDENING
+
+**Date**: 2026-04-13
+**Build Session**: hub10
+**Version**: Counterpart Access Ladder v1.1.0
+**Status**: VERIFIED — live in production
+
+### Scope Decision
+DEFAULT LOCKED MOVE: Counterpart Access Ladder v1.1 Hardening
+
+Alasan: screenshot produksi menunjukkan halaman Ladder live tapi kosong/under-populated. Masalah bukan fatal crash, melainkan kombinasi dari mobile layout issues, auth state tidak optimal, dan missing visual polish. HUB-10 menyelesaikan semua ini.
+
+### Reality Lock Findings
+| Item | Status |
+|------|--------|
+| Production health | ✅ VERIFIED: status=ok, session=hub10 |
+| /counterpart/ladder UI | ✅ VERIFIED: HTTP 200, renders auth gate |
+| Ladder API routes | ✅ VERIFIED: all 6 endpoints success=True |
+| Adjacent routes (hub/chamber/bridge/counterpart) | ✅ VERIFIED: all HTTP 200 |
+
+### Root Cause Assessment
+1. **Mobile layout**: sidebar 200px fixed width memakan ~45% layar di mobile → **FIXED**: hamburger toggle + CSS media query 768px
+2. **Token auto-restore**: `setTimeout 100ms` race condition → **FIXED**: DOMContentLoaded fallback + `_pageReadyCalled` guard
+3. **Error states**: `Gagal memuat data.` tanpa guidance → **FIXED**: informative error UI + re-authenticate button
+4. **Session labels**: HUB-09 / v1.0.0 masih muncul → **FIXED**: all updated to HUB-10 / v1.1.0
+5. **Sidebar level indicator**: static `L0 — Observer` → **FIXED**: `updateSidebarLevel()` updates dynamically after data load
+
+### What Was Hardened / Fixed
+- `access-ladder.ts`: v1.0.0 → v1.1.0, `LADDER_BUILD_SESSION`: hub09 → hub10
+- Mobile responsive: `#sidebar-panel` transition + `#sidebar-toggle-btn` hamburger + `.sidebar-overlay` + `.mobile-hide` + `@media (max-width: 768px)` rules
+- Auth: `saveToken()` → both sessionStorage + localStorage; `callPageReady()` dedup guard; `initAuth()` DOMContentLoaded fallback
+- `updateSidebarLevel()`: dynamic sidebar level label update setelah API load
+- Error handlers: informative UI dengan re-authenticate button di semua 3 pages (level-detail, criteria, history)
+- `badgeHtml()`: fixed `replace('_',' ')` → `replace(/_/g,' ')` untuk multi-underscore labels
+- Topbar: compact mobile-safe layout dengan `.mobile-hide` classes
+- `app-config.ts`: `TOWER_BUILD_SESSION` hub09 → hub10; comment labels updated
+
+### Test Matrix Result
+| Test | Result |
+|------|--------|
+| F1: 7 UI routes HTTP 200 | ✅ PASS |
+| F2: 4 API routes + 5 level details | ✅ PASS |
+| F3: B1 No-token → AUTH_MISSING_TOKEN | ✅ PASS |
+| F3: B2 /level/99 → INVALID_LEVEL_ID | ✅ PASS |
+| F3: B3 /level/abc → INVALID_LEVEL_ID | ✅ PASS |
+| F3: B4 Unknown → LADDER_ROUTE_NOT_FOUND | ✅ PASS |
+| F4: Session label hub10 + v1.1.0 | ✅ PASS |
+| F5: Mobile CSS responsive rules present | ✅ PASS |
+| F6: HUB-08 counterpart original APIs | ✅ PASS |
+| F7: /hub /chamber /bridge /counterpart /health | ✅ PASS |
+
+### Deploy / Live Result
+| Item | Value | Status |
+|------|-------|--------|
+| Commit | `3b796c6` | ✅ PUSHED to origin main |
+| Cloudflare Deploy | `846dffd1.sovereign-tower.pages.dev` | ✅ LIVE |
+| Build size | 593.98 kB (gzip 148.43 kB) | ✅ |
+| Live: /health build_session | `hub10` | ✅ VERIFIED |
+| Live: /counterpart/ladder SESSION label | `SESSION HUB-10` | ✅ VERIFIED |
+| Live: /counterpart/ladder version | `v1.1.0` | ✅ VERIFIED |
+| Live: all ladder UI routes | HTTP 200 | ✅ VERIFIED |
+
+### Remaining Gaps
+- **DEFERRED**: True multi-user auth enforcement (ladder v1 honest simulation, unchanged by design)
+- **DEFERRED**: Supabase-backed ladder history (real event log per counterpart)
+- **DEFERRED**: Filter/query on history page (/counterpart/ladder/history?type=PROMOTION)
+- **DEFERRED**: Counterpart self-report contribution flow from ladder UI
+
+### HUB-10 Closeout Decision
+**VERIFIED** — Ladder v1.1 adalah hardening yang meaningful:
+- Mobile usable ✅
+- Auth restore reliable ✅
+- Error states informative ✅
+- Session labels correct ✅
+- Production live ✅
+
+### NEXT LOCKED MOVE
+**Option A (Recommended):** Chamber Console v1.1 Hardening — Supabase-backed governance queue + founder review surface
+**Option B:** Bridge Review Desk v1.2 — refined triage + structured review
+**Option C:** Counterpart Ladder v1.2 — real contribution tracking + Supabase-backed history

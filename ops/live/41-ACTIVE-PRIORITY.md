@@ -158,3 +158,4 @@ HUB-01 — ✅ COMPLETE. Next session:
 *Sovereign OS — Doc 41 | Founder-Only*
 
 - v2.3 (2026-04-13): **HUB-09** Counterpart Access Ladder v1 — 5 UI screens, 6 bounded APIs, Levels 0-4 model, founder-only promotion authority, verified & deployed live (commit 7d5b504, deploy c02d1d3e). Route order bug resolved: accessLadderRouter registered before counterpartRouter.
+- v2.4 (2026-04-13): **HUB-10** Counterpart Access Ladder v1.1 Hardening — mobile responsive sidebar (hamburger toggle + CSS 768px breakpoint), auth token persistence hardened (localStorage + sessionStorage dual-write + DOMContentLoaded fallback), error handlers improved (informative UI + re-authenticate button), session labels corrected (HUB-10 / v1.1.0), sidebar level label dynamic, badgeHtml multi-underscore fix. Build: 593.98 kB. All 20+ tests PASS. VERIFIED & DEPLOYED LIVE (commit 3b796c6, deploy 846dffd1). build_session=hub10, SESSION HUB-10, v1.1.0 live at sovereign-tower.pages.dev.
