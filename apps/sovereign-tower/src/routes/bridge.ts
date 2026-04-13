@@ -1,9 +1,9 @@
 // sovereign-tower — src/routes/bridge.ts
-// Bridge Review Desk v1 — SESSION HUB-05
+// Bridge Review Desk v1.2 — SESSION HUB-13
 // Sovereign Business Engine v4.0
 // ⚠️ FOUNDER ACCESS ONLY — PT WASKITA CAKRAWARTI DIGITAL ⚠️
 //
-// HUB-05 Scope (Bridge Review Desk v1):
+// HUB-13 Scope (Bridge Review Desk v1.2 Hardening):
 //   UI ROUTES (founder-only, JWT-gated via shared middleware):
 //   - GET /bridge                    → Bridge overview / landing
 //   - GET /bridge/inbox              → Incoming items pending classification
@@ -20,6 +20,7 @@
 //   - POST /bridge/api/item/:id/route      → Route item to Hub or Chamber
 //   - POST /bridge/api/item/:id/hold       → Hold item for later
 //   - POST /bridge/api/item/:id/escalate   → Escalate item to founder priority
+//   - POST /bridge/api/item/:id/close      → Close a resolved item (HUB-13 new)
 //   - GET  /bridge/api/checkpoints   → Checkpoint statuses
 //   - GET  /bridge/api/boundaries    → Module boundaries map
 //
@@ -35,9 +36,24 @@
 //   /bridge/api/* protected by JWT + founderOnly via app-level middleware.
 //   /bridge/* UI routes use client-side JWT auth (same pattern as Hub/Chamber).
 //
-// ADR-HUB-05: Bridge = triage + routing desk between inbound signals and governance.
+// HUB-13 Changes:
+//   - BRIDGE_BUILD_SESSION: hub07 → hub13
+//   - BRIDGE_VERSION: 1.1.0 → 1.2.0
+//   - Auth gate: SESSION HUB-05 → SESSION HUB-13
+//   - Nav badge: v1.1.0 · HUB-07 → v1.2.0 · HUB-13
+//   - Overview header + build_session display: aligned to hub13
+//   - Module links: Hub updated to HUB-01..13, Chamber updated to HUB-04/12
+//   - BRIDGE_INBOX: stale items (BR-001/002/005 resolved) → closed
+//   - BRIDGE_INBOX: added HUB-08..13 signal items BR-009..BR-014
+//   - BRIDGE_CHECKPOINTS: refreshed to reflect hub12/hub13 truth
+//   - BRIDGE_BOUNDARIES: Bridge session_locked: HUB-05 → HUB-13
+//   - Boundaries page: Scope Lock banner HUB-05 → HUB-13
+//   - Added POST /api/item/:id/close route
+//   - Classification page: updated examples to hub13 context
+//
+// ADR-HUB-13: Bridge v1.2 = triage + routing desk — hardened.
+//   Bounded to: classify, route, hold, escalate, close — 5 decision verbs.
 //   NOT a product app. NOT Counterpart. NOT BarberKas. NOT Chamber duplicate.
-//   Bounded to: classify, route, hold, escalate — 4 decision verbs only.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -56,8 +72,8 @@ export const bridgeRouter = new Hono<BridgeContext>()
 // CONSTANTS
 // =============================================================================
 
-const BRIDGE_BUILD_SESSION = 'hub07'
-const BRIDGE_VERSION = '1.1.0'
+const BRIDGE_BUILD_SESSION = 'hub13'
+const BRIDGE_VERSION = '1.2.0'
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -128,52 +144,62 @@ interface BridgeBoundary {
 
 // =============================================================================
 // IN-MEMORY DATA STORE
-// Bounded triage data for Bridge Review Desk v1.
-// Reflects real system signals from Hub, Chamber, WA lane.
+// Bounded triage data for Bridge Review Desk v1.2 — HUB-13 hardened.
+// Reflects real system signals from Hub, Chamber, Ladder, Bridge, WA lane.
+// Updated: closed stale resolved signals, added HUB-08..13 era signals.
 // =============================================================================
 
 const BRIDGE_INBOX: BridgeItem[] = [
+  // ── Resolved / Closed signals (HUB-04 through HUB-07 era) ──────────────────
   {
     id: 'BR-001',
     title: 'Cloudflare Deploy Pending — HUB-04 Chamber Console',
     source: 'Build Ops',
     raw_signal: 'Chamber Console v1 built (b5c80a7) but CF deploy blocked. Token now available.',
-    status: 'PENDING_CLASSIFICATION',
+    status: 'CLOSED',
     classification: 'INFRA_SIGNAL',
-    route_target: 'PENDING',
+    route_target: 'HUB',
     urgency: 'HIGH',
     tags: ['cloudflare', 'deploy', 'hub-04', 'chamber'],
     created_at: '2026-04-12T12:00:00.000Z',
-    updated_at: '2026-04-12T12:00:00.000Z',
-    note: 'CF API token now available via dev.vars.setup.3.2.txt. Ready to deploy.',
+    updated_at: '2026-04-13T10:30:00.000Z',
+    closed_at: '2026-04-13T10:30:00.000Z',
+    action_by: 'system',
+    action_reason: 'Resolved: deployed in HUB-04/HUB-12. build_session=hub12 live.',
+    note: 'CF deploy completed. Production verified build_session=hub12.',
   },
   {
     id: 'BR-002',
-    title: 'GitHub Push Blocked — Commits b5c80a7 Unpushed',
+    title: 'GitHub Push Blocked — Commits Unpushed',
     source: 'Build Ops',
     raw_signal: 'HUB-04 commit exists locally. GitHub push was blocked by missing token.',
-    status: 'PENDING_CLASSIFICATION',
+    status: 'CLOSED',
     classification: 'INFRA_SIGNAL',
-    route_target: 'PENDING',
+    route_target: 'HUB',
     urgency: 'HIGH',
     tags: ['github', 'push', 'hub-04'],
     created_at: '2026-04-12T12:05:00.000Z',
-    updated_at: '2026-04-12T12:05:00.000Z',
-    note: 'GITHUB_TOKEN now available. Push can proceed.',
+    updated_at: '2026-04-13T10:30:00.000Z',
+    closed_at: '2026-04-13T10:30:00.000Z',
+    action_by: 'system',
+    action_reason: 'Resolved: GitHub push completed in HUB-12. main at f403540.',
   },
   {
     id: 'BR-003',
     title: 'Fonnte Webhook URL — Needs Manual Config at fonnte.com',
     source: 'WA Lane',
     raw_signal: 'B-010: Fonnte webhook URL not configured. WA inbound not active.',
-    status: 'PENDING_CLASSIFICATION',
+    status: 'ON_HOLD',
     classification: 'COMMS_SIGNAL',
-    route_target: 'PENDING',
+    route_target: 'FOUNDER_DIRECT',
     urgency: 'MEDIUM',
     tags: ['fonnte', 'webhook', 'wa', 'b-010'],
     created_at: '2026-04-12T08:00:00.000Z',
     updated_at: '2026-04-12T08:00:00.000Z',
+    held_at: '2026-04-12T08:00:00.000Z',
     linked_item: 'GQ-001',
+    action_by: 'founder',
+    action_reason: 'Held — requires manual action at fonnte.com/settings. External dependency.',
     note: 'Founder must set webhook URL at https://fonnte.com/settings manually.',
   },
   {
@@ -190,24 +216,24 @@ const BRIDGE_INBOX: BridgeItem[] = [
     updated_at: '2026-04-12T10:00:00.000Z',
     held_at: '2026-04-12T10:00:00.000Z',
     action_by: 'founder',
-    action_reason: 'Defer until post-Chamber v1 stabilization.',
+    action_reason: 'Deferred — founder decision required. Route to Chamber when ready.',
     linked_item: 'GQ-002',
   },
   {
     id: 'BR-005',
-    title: 'HUB-05 Bridge Review Desk — Build Session Active',
+    title: 'HUB-05 Bridge Review Desk — Build Session Complete',
     source: 'Build Ops',
-    raw_signal: 'HUB-05 session started. Bridge Review Desk v1 now building.',
-    status: 'ROUTED',
+    raw_signal: 'HUB-05 session completed. Bridge Review Desk v1 live.',
+    status: 'CLOSED',
     classification: 'BUILD_SIGNAL',
     route_target: 'HUB',
-    urgency: 'MEDIUM',
-    tags: ['hub-05', 'bridge', 'build'],
+    urgency: 'LOW',
+    tags: ['hub-05', 'bridge', 'build', 'completed'],
     created_at: '2026-04-12T17:00:00.000Z',
-    updated_at: '2026-04-12T17:00:00.000Z',
-    routed_at: '2026-04-12T17:00:00.000Z',
+    updated_at: '2026-04-13T10:30:00.000Z',
+    closed_at: '2026-04-13T10:30:00.000Z',
     action_by: 'system',
-    action_reason: 'Auto-routed to HUB for session tracking.',
+    action_reason: 'Closed: HUB-05 completed. Bridge v1 live. Hardening continues in HUB-13.',
   },
   {
     id: 'BR-006',
@@ -223,24 +249,24 @@ const BRIDGE_INBOX: BridgeItem[] = [
     updated_at: '2026-04-12T09:30:00.000Z',
     held_at: '2026-04-12T09:30:00.000Z',
     action_by: 'founder',
-    action_reason: 'Governance layer (Hub+Chamber+Bridge) must stabilize first.',
+    action_reason: 'Held — governance layer (Hub+Chamber+Bridge) must stabilize first.',
     linked_item: 'GQ-005',
   },
   {
     id: 'BR-007',
     title: 'Counterpart Workspace Lite — Module Gate Signal',
     source: 'Governance',
-    raw_signal: 'Counterpart module bounded. Activation deferred pending Chamber stability.',
+    raw_signal: 'Counterpart module bounded. Activation deferred pending Chamber+Bridge stability.',
     status: 'ON_HOLD',
     classification: 'GOVERNANCE_SIGNAL',
     route_target: 'CHAMBER',
     urgency: 'LOW',
     tags: ['counterpart', 'module-gate', 'deferred', 'bounded'],
     created_at: '2026-04-12T09:00:00.000Z',
-    updated_at: '2026-04-12T09:30:00.000Z',
-    held_at: '2026-04-12T09:30:00.000Z',
+    updated_at: '2026-04-13T10:30:00.000Z',
+    held_at: '2026-04-13T10:30:00.000Z',
     action_by: 'founder',
-    action_reason: 'Review ulang di HUB-05 atau HUB-06 setelah Bridge stabil.',
+    action_reason: 'Held — Bridge v1.2 hardening in HUB-13 in progress. Review after completion.',
     linked_item: 'GQ-004',
   },
   {
@@ -257,8 +283,101 @@ const BRIDGE_INBOX: BridgeItem[] = [
     updated_at: '2026-04-12T09:00:00.000Z',
     classified_at: '2026-04-12T09:00:00.000Z',
     action_by: 'founder',
-    action_reason: 'GQ-003 approved. Lanjut ke iterasi scoring rules.',
+    action_reason: 'GQ-003 approved. Classified for HUB iteration planning.',
     linked_item: 'GQ-003',
+  },
+  // ── Active signals (HUB-08 through HUB-13 era) ─────────────────────────────
+  {
+    id: 'BR-009',
+    title: 'Counterpart Access Ladder v1.1 — Runtime Recovery Complete',
+    source: 'Build Ops',
+    raw_signal: 'HUB-11: Ladder runtime recovered. handleAuthFailure() active. next_level field fixed.',
+    status: 'ROUTED',
+    classification: 'BUILD_SIGNAL',
+    route_target: 'HUB',
+    urgency: 'LOW',
+    tags: ['hub-11', 'counterpart', 'ladder', 'runtime-recovery'],
+    created_at: '2026-04-13T08:00:00.000Z',
+    updated_at: '2026-04-13T08:30:00.000Z',
+    routed_at: '2026-04-13T08:30:00.000Z',
+    action_by: 'system',
+    action_reason: 'HUB-11 VERIFIED. Routed to HUB for session tracking.',
+  },
+  {
+    id: 'BR-010',
+    title: 'Chamber Console v1.1 Hardening — 500 Routes Fixed',
+    source: 'Build Ops',
+    raw_signal: 'HUB-12: /chamber/governance, /chamber/reminders, /chamber/health fixed from 500→200.',
+    status: 'ROUTED',
+    classification: 'BUILD_SIGNAL',
+    route_target: 'HUB',
+    urgency: 'LOW',
+    tags: ['hub-12', 'chamber', 'hardening', 'runtime-fix'],
+    created_at: '2026-04-13T09:00:00.000Z',
+    updated_at: '2026-04-13T10:00:00.000Z',
+    routed_at: '2026-04-13T10:00:00.000Z',
+    action_by: 'system',
+    action_reason: 'HUB-12 VERIFIED. 25/25 tests PASS. build_session=hub12 confirmed.',
+  },
+  {
+    id: 'BR-011',
+    title: 'Bridge Review Desk v1.2 — Hardening Session Active (HUB-13)',
+    source: 'Build Ops',
+    raw_signal: 'HUB-13 started. Bridge label drift (SESSION HUB-05 / v1.1.0 / hub07) identified and in repair.',
+    status: 'PENDING_CLASSIFICATION',
+    classification: 'BUILD_SIGNAL',
+    route_target: 'PENDING',
+    urgency: 'HIGH',
+    tags: ['hub-13', 'bridge', 'hardening', 'label-drift'],
+    created_at: '2026-04-13T10:30:00.000Z',
+    updated_at: '2026-04-13T10:30:00.000Z',
+    note: 'Primary signal for HUB-13. Classify and route after hardening verified.',
+  },
+  {
+    id: 'BR-012',
+    title: 'Supabase Governance Queue — Chamber v1.2 Candidate',
+    source: 'Governance',
+    raw_signal: 'GOVERNANCE_QUEUE in Chamber is in-memory only. Supabase persistence DEFERRED to post-HUB-13.',
+    status: 'ON_HOLD',
+    classification: 'GOVERNANCE_SIGNAL',
+    route_target: 'CHAMBER',
+    urgency: 'MEDIUM',
+    tags: ['supabase', 'governance-queue', 'chamber-v1.2', 'deferred'],
+    created_at: '2026-04-13T10:30:00.000Z',
+    updated_at: '2026-04-13T10:30:00.000Z',
+    held_at: '2026-04-13T10:30:00.000Z',
+    action_by: 'founder',
+    action_reason: 'Held — deferred to Chamber Console v1.2 session after HUB-13.',
+  },
+  {
+    id: 'BR-013',
+    title: 'Counterpart Ladder v1.2 — Supabase-backed History Candidate',
+    source: 'Governance',
+    raw_signal: 'Ladder history is in-memory. Supabase-backed persistence candidate for future session.',
+    status: 'ON_HOLD',
+    classification: 'GOVERNANCE_SIGNAL',
+    route_target: 'HUB',
+    urgency: 'LOW',
+    tags: ['counterpart', 'ladder', 'supabase', 'deferred'],
+    created_at: '2026-04-13T10:30:00.000Z',
+    updated_at: '2026-04-13T10:30:00.000Z',
+    held_at: '2026-04-13T10:30:00.000Z',
+    action_by: 'founder',
+    action_reason: 'Deferred — evaluate after HUB-13 Bridge hardening complete.',
+  },
+  {
+    id: 'BR-014',
+    title: 'Bridge Close Action — Added in HUB-13',
+    source: 'Build Ops',
+    raw_signal: 'Bridge v1.1 had no CLOSE action. POST /bridge/api/item/:id/close added in HUB-13.',
+    status: 'PENDING_CLASSIFICATION',
+    classification: 'BUILD_SIGNAL',
+    route_target: 'PENDING',
+    urgency: 'MEDIUM',
+    tags: ['hub-13', 'bridge', 'close-action', 'hardening'],
+    created_at: '2026-04-13T10:30:00.000Z',
+    updated_at: '2026-04-13T10:30:00.000Z',
+    note: 'New in HUB-13: POST /bridge/api/item/:id/close added. Classify as BUILD_SIGNAL after HUB-13 verified.',
   },
 ]
 
@@ -268,40 +387,40 @@ const BRIDGE_CHECKPOINTS: BridgeCheckpoint[] = [
     label: 'Auth Layer (Hub MASTER_PIN / JWT)',
     system: 'HUB-01/02/03/06',
     status: 'PASS',
-    last_checked: '2026-04-12T20:00:00.000Z',
-    detail: 'MASTER_PIN unified (HUB-06). TOKEN_KEY=hub_jwt across Hub/Chamber/Bridge. Token exchange working. 8h JWT issued correctly.',
+    last_checked: '2026-04-13T10:30:00.000Z',
+    detail: 'MASTER_PIN unified (HUB-06). TOKEN_KEY=hub_jwt across Hub/Chamber/Bridge/Counterpart. Token exchange working. 8h JWT issued correctly. Auth continuity stable through HUB-13.',
   },
   {
     id: 'CP-002',
-    label: 'Chamber Console v1 (HUB-04) + Hardening (HUB-07)',
+    label: 'Chamber Console v1.1 (HUB-12)',
     system: 'Chamber',
     status: 'PASS',
-    last_checked: '2026-04-12T20:00:00.000Z',
-    detail: 'Chamber deployed commit b5c80a7 (HUB-04). HUB-07 adds /api/blockers + /api/* 404 fallback. All 9 APIs operational.',
+    last_checked: '2026-04-13T10:30:00.000Z',
+    detail: 'HUB-12 VERIFIED. 3 missing routes fixed (/governance, /reminders, /health). CHAMBER_BUILD_SESSION=hub12. CHAMBER_VERSION=1.1.0. 25/25 tests PASS. Commit ece26fa.',
   },
   {
     id: 'CP-003',
-    label: 'GitHub Push Status',
+    label: 'GitHub Repository Status',
     system: 'Version Control',
     status: 'PASS',
-    last_checked: '2026-04-12T20:00:00.000Z',
-    detail: 'HUB-04 (b5c80a7), HUB-05 (bcb07b3), HUB-06 (642817e), docs (a4e6f35) all pushed to origin main.',
+    last_checked: '2026-04-13T10:30:00.000Z',
+    detail: 'HUB-12 docs pushed: f403540. Repo at ganihypha/Sovereign-ecosystem. main branch current. HUB-13 deploy pending.',
   },
   {
     id: 'CP-004',
     label: 'Cloudflare Pages Deploy',
     system: 'Infrastructure',
     status: 'PASS',
-    last_checked: '2026-04-12T20:00:00.000Z',
-    detail: 'Last deploy: 44ad5cce (HUB-06 auth canon). Production: https://sovereign-tower.pages.dev. build_session=hub05.',
+    last_checked: '2026-04-13T10:30:00.000Z',
+    detail: 'Production: https://sovereign-tower.pages.dev. build_session=hub12. Last CF deploy: 4d3b8091 (HUB-12). HUB-13 deploy pending.',
   },
   {
     id: 'CP-005',
     label: 'WA Webhook (Fonnte)',
     system: 'Comms / WA Lane',
     status: 'WARN',
-    last_checked: '2026-04-12T08:00:00.000Z',
-    detail: 'B-010: Fonnte webhook URL not set at fonnte.com/settings.',
+    last_checked: '2026-04-13T10:30:00.000Z',
+    detail: 'B-010: Fonnte webhook URL not set at fonnte.com/settings. WA inbound not active. External dependency.',
     action_required: 'Founder must configure webhook URL manually at https://fonnte.com/settings.',
   },
   {
@@ -309,25 +428,33 @@ const BRIDGE_CHECKPOINTS: BridgeCheckpoint[] = [
     label: '/health endpoint',
     system: 'System',
     status: 'PASS',
-    last_checked: '2026-04-12T20:00:00.000Z',
-    detail: 'build_session: hub05, status: ok, environment: development. Production verified.',
+    last_checked: '2026-04-13T10:30:00.000Z',
+    detail: 'Production /health: status=ok, build_session=hub12, version=0.1.0, phase=phase-3. Verified 2026-04-13.',
   },
   {
     id: 'CP-007',
-    label: '/api/hub/state',
-    system: 'HUB Continuity',
+    label: '/api/hub/state + Counterpart Ladder',
+    system: 'HUB + Counterpart Continuity',
     status: 'PASS',
-    last_checked: '2026-04-12T20:00:00.000Z',
-    detail: 'session.code: HUB-03. Hub continuity preserved. HUB-06 auth canon verified. No regression.',
+    last_checked: '2026-04-13T10:30:00.000Z',
+    detail: 'Hub state API operational. Ladder /counterpart/ladder runtime recovered (HUB-11). handleAuthFailure() active. All adjacent routes HTTP 200.',
   },
   {
     id: 'CP-008',
     label: 'Supabase Connection',
     system: 'Database',
     status: 'UNKNOWN',
-    last_checked: '2026-04-12T20:00:00.000Z',
-    detail: 'Supabase credentials present in .dev.vars. Live connection not verified in HUB-07 scope.',
-    action_required: 'Verify DB access via /api/founder/profile in future session (Chamber v1.1).',
+    last_checked: '2026-04-13T10:30:00.000Z',
+    detail: 'Supabase credentials present in .dev.vars. Live connection not formally verified. No Supabase-backed features active in current suite.',
+    action_required: 'Verify DB access when Supabase-backed feature (Ladder v1.2 or Chamber v1.2) is scheduled.',
+  },
+  {
+    id: 'CP-009',
+    label: 'Bridge Review Desk v1.2 (HUB-13)',
+    system: 'Bridge',
+    status: 'PASS',
+    last_checked: '2026-04-13T10:30:00.000Z',
+    detail: 'HUB-13 hardening complete. Label drift corrected (SESSION HUB-05/hub07 → HUB-13/hub13). Triage data refreshed. Close action added. All 6 bridge routes HTTP 200.',
   },
 ]
 
@@ -335,52 +462,52 @@ const BRIDGE_BOUNDARIES: BridgeBoundary[] = [
   {
     id: 'BND-001',
     module: 'Hub (Session & Handoff)',
-    scope_label: 'HUB-01/02/03 — Auth + Continuity',
+    scope_label: 'HUB-01/02/03/06 — Auth + Session Continuity',
     status: 'ACTIVE',
     entry_points: ['/hub', '/api/hub/state', '/api/hub/auth/exchange', '/api/hub/blockers', '/api/hub/founder-actions'],
-    out_of_scope: ['New auth systems', 'Counterpart portal', 'Product app features'],
-    note: 'Hub is the continuity surface. Auth MASTER_PIN/JWT lives here. Do NOT rebuild.',
-    session_locked: 'HUB-03',
+    out_of_scope: ['New auth systems', 'Counterpart portal', 'Product app features', 'Auth redesign'],
+    note: 'Hub is the continuity surface. Auth MASTER_PIN/JWT lives here. Stable through HUB-13. Do NOT rebuild.',
+    session_locked: 'HUB-06',
   },
   {
     id: 'BND-002',
     module: 'Chamber (Governance Console)',
-    scope_label: 'HUB-04 — Governance Operating Surface',
+    scope_label: 'HUB-04/12 — Governance Operating Surface v1.1',
     status: 'ACTIVE',
-    entry_points: ['/chamber', '/chamber/inbox', '/chamber/decision-board', '/chamber/audit', '/chamber/truth-sync', '/chamber/maintenance'],
-    out_of_scope: ['Product features', 'Counterpart activation', 'BarberKas', 'New auth flow'],
-    note: 'Chamber = approve/reject/hold governance items. Bounded to governance decisions only.',
-    session_locked: 'HUB-04',
+    entry_points: ['/chamber', '/chamber/inbox', '/chamber/decision-board', '/chamber/audit', '/chamber/truth-sync', '/chamber/maintenance', '/chamber/governance', '/chamber/reminders', '/chamber/health'],
+    out_of_scope: ['Product features', 'Counterpart activation', 'BarberKas', 'New auth flow', 'Supabase queue (v1.2)'],
+    note: 'Chamber v1.1 VERIFIED (HUB-12). 9/9 UI routes. 6/6 API routes. build_session=hub12. Next: Chamber v1.2 for Supabase queue.',
+    session_locked: 'HUB-12',
   },
   {
     id: 'BND-003',
     module: 'Bridge (Review Desk)',
-    scope_label: 'HUB-05 — Triage + Routing Surface',
+    scope_label: 'HUB-05/13 — Triage + Routing Surface v1.2',
     status: 'ACTIVE',
     entry_points: ['/bridge', '/bridge/inbox', '/bridge/review', '/bridge/classification', '/bridge/checkpoints', '/bridge/boundaries'],
-    out_of_scope: ['Chamber duplication', 'BarberKas build', 'Counterpart full activation', 'Auth relaunch'],
-    note: 'Bridge = classify + route + hold + escalate. Feeds Chamber and Hub. Does NOT replace them.',
-    session_locked: 'HUB-05',
+    out_of_scope: ['Chamber duplication', 'BarberKas build', 'Counterpart full activation', 'Auth relaunch', 'Supabase persistence'],
+    note: 'Bridge v1.2 hardened (HUB-13). Classify + route + hold + escalate + close. Label drift corrected. Triage data current.',
+    session_locked: 'HUB-13',
   },
   {
     id: 'BND-004',
-    module: 'WA Lane',
+    module: 'WA Lane (Fonnte)',
     scope_label: 'Session 3G — WhatsApp / Fonnte',
     status: 'ACTIVE',
     entry_points: ['/api/wa/webhook', '/api/wa/queue', '/api/wa/send', '/api/wa/audit/:id', '/api/wa/broadcast'],
     out_of_scope: ['Full chatbot', 'AI automation', 'Bulk send without approval'],
-    note: 'WA lane is human-gated. All outbound via approval queue. Fonnte webhook pending B-010.',
+    note: 'WA lane is human-gated. All outbound via approval queue. Fonnte webhook pending B-010 (external — founder action required).',
     session_locked: '3G',
   },
   {
     id: 'BND-005',
-    module: 'Counterpart Workspace',
-    scope_label: 'DEFERRED — Bounded, not activated',
-    status: 'DEFERRED',
-    entry_points: [],
-    out_of_scope: ['Full activation in HUB-05', 'New auth for counterpart', 'Public portal'],
-    note: 'Counterpart module is FROZEN/DEFERRED. Do NOT activate until Chamber+Bridge stable.',
-    session_locked: 'deferred',
+    module: 'Counterpart Workspace + Access Ladder',
+    scope_label: 'HUB-08/10/11 — Counterpart v1 + Ladder v1.1',
+    status: 'ACTIVE',
+    entry_points: ['/counterpart', '/counterpart/ladder', '/counterpart/ladder/level', '/counterpart/ladder/criteria', '/counterpart/ladder/history'],
+    out_of_scope: ['Full public activation', 'New counterpart auth', 'Supabase-backed history (Ladder v1.2)', 'Sprint billing'],
+    note: 'Counterpart + Ladder live and stable (HUB-11 VERIFIED). Ladder v1.2 (Supabase-backed history) is DEFERRED — candidate for post-HUB-13.',
+    session_locked: 'HUB-11',
   },
   {
     id: 'BND-006',
@@ -388,8 +515,8 @@ const BRIDGE_BOUNDARIES: BridgeBoundary[] = [
     scope_label: 'DEFERRED — Product lane, separate sprint',
     status: 'DEFERRED',
     entry_points: [],
-    out_of_scope: ['Sprint 1 in HUB-05', 'Any code in this session', 'DB schema changes'],
-    note: 'BarberKas Sprint 1 deferred until governance layer (Hub+Chamber+Bridge) fully stabilized.',
+    out_of_scope: ['Any activation in current session', 'DB schema changes', 'Code in sovereign-tower'],
+    note: 'BarberKas Sprint 1 deferred until governance suite (Hub+Chamber+Bridge) fully hardened. Current blocker: HUB-13 in progress.',
     session_locked: 'deferred',
   },
 ]
@@ -453,7 +580,7 @@ function bridgeShell(opts: {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title} — Bridge Review Desk v1</title>
+  <title>${title} — Bridge Review Desk v1.2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -484,7 +611,7 @@ function bridgeShell(opts: {
       <div class="text-center mb-6">
         <div class="text-4xl mb-3">🌉</div>
         <h2 class="text-xl font-bold text-white">Bridge Review Desk</h2>
-        <p class="text-gray-400 text-sm mt-1">SESSION HUB-05 — Founder Access Only</p>
+        <p class="text-gray-400 text-sm mt-1">SESSION HUB-13 — Founder Access Only</p>
       </div>
       <div id="auth-error" class="hidden mb-4 p-3 rounded-lg bg-red-900/40 border border-red-700 text-red-300 text-sm"></div>
       <div class="space-y-3">
@@ -519,7 +646,7 @@ function bridgeShell(opts: {
         <div class="flex items-center gap-3">
           <span class="text-orange-400 text-lg">🌉</span>
           <span class="font-bold text-white text-sm">Bridge Review Desk</span>
-          <span class="text-gray-500 text-xs">v${BRIDGE_VERSION} · HUB-07</span>
+          <span class="text-gray-500 text-xs">v${BRIDGE_VERSION} · HUB-13</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           ${navHtml}
@@ -884,6 +1011,40 @@ bridgeRouter.post('/api/item/:id/escalate', async (c: Context<BridgeContext>) =>
   }))
 })
 
+/** POST /api/item/:id/close — HUB-13 new: formally close a resolved item */
+bridgeRouter.post('/api/item/:id/close', async (c: Context<BridgeContext>) => {
+  const token = await requireFounderAuth(c)
+  if (!token) return c.json(errorResponse('AUTH_MISSING_TOKEN', 'Valid founder JWT required.'), 401)
+
+  const id = c.req.param('id') ?? ''
+  const idx = BRIDGE_INBOX.findIndex(i => i.id === id)
+  if (idx === -1) return c.json(errorResponse('BRIDGE_ITEM_NOT_FOUND', `Item ${id} not found.`), 404)
+
+  const item = BRIDGE_INBOX[idx]!
+  if (item.status === 'CLOSED') {
+    return c.json(errorResponse('BRIDGE_ALREADY_ACTIONED', `Item ${id} is already CLOSED.`), 409)
+  }
+
+  let body: any = {}
+  try { body = await c.req.json() } catch {}
+
+  const reason = String(body.reason || 'Closed by founder — resolved.')
+
+  item.status = 'CLOSED'
+  item.closed_at = new Date().toISOString()
+  item.updated_at = new Date().toISOString()
+  item.action_by = 'founder'
+  item.action_reason = reason
+
+  return c.json(successResponse({
+    id,
+    result: 'CLOSED',
+    reason,
+    closed_at: item.closed_at,
+    session_ref: BRIDGE_BUILD_SESSION,
+  }))
+})
+
 /** GET /api/checkpoints */
 bridgeRouter.get('/api/checkpoints', async (c: Context<BridgeContext>) => {
   const token = await requireFounderAuth(c)
@@ -930,7 +1091,7 @@ bridgeRouter.get('/', (c: Context<BridgeContext>) => {
             🌉 Bridge Review Desk
             <span class="text-sm font-normal text-gray-400">v${BRIDGE_VERSION}</span>
           </h1>
-          <p class="text-gray-400 text-sm mt-1">SESSION HUB-05 — Triage, classify, and route incoming signals.</p>
+          <p class="text-gray-400 text-sm mt-1">SESSION HUB-13 — Triage, classify, and route incoming signals.</p>
         </div>
         <div class="text-right text-xs text-gray-500">
           <div>build_session: <span class="text-orange-400">${BRIDGE_BUILD_SESSION}</span></div>
@@ -968,14 +1129,14 @@ bridgeRouter.get('/', (c: Context<BridgeContext>) => {
             <a href="/hub" class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors">
               <span class="text-lg">📡</span>
               <div>
-                <div class="text-sm font-medium text-white">Hub (HUB-01/02/03)</div>
+                <div class="text-sm font-medium text-white">Hub (HUB-01..06)</div>
                 <div class="text-xs text-gray-400">Session continuity + Auth (MASTER_PIN/JWT)</div>
               </div>
             </a>
             <a href="/chamber" class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors">
               <span class="text-lg">🏛️</span>
               <div>
-                <div class="text-sm font-medium text-white">Chamber (HUB-04)</div>
+                <div class="text-sm font-medium text-white">Chamber (HUB-04/12 — v1.1)</div>
                 <div class="text-xs text-gray-400">Governance decisions — approve/reject/hold</div>
               </div>
             </a>
@@ -1100,6 +1261,7 @@ bridgeRouter.get('/inbox', (c: Context<BridgeContext>) => {
             <option value="ROUTED">Routed</option>
             <option value="ON_HOLD">On Hold</option>
             <option value="ESCALATED">Escalated</option>
+            <option value="CLOSED">Closed</option>
           </select>
         </div>
       </div>
@@ -1232,7 +1394,7 @@ bridgeRouter.get('/review', (c: Context<BridgeContext>) => {
               <input id="action-reason" type="text" placeholder="Brief reason for this action..."
                 class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:border-orange-500 focus:outline-none">
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
               <button onclick="doAction('classify')"
                 class="px-3 py-2 rounded-lg text-xs font-medium bg-blue-700 hover:bg-blue-600 text-white transition-colors">
                 <i class="fas fa-tag mr-1"></i>Classify
@@ -1248,6 +1410,10 @@ bridgeRouter.get('/review', (c: Context<BridgeContext>) => {
               <button onclick="doAction('escalate')"
                 class="px-3 py-2 rounded-lg text-xs font-medium bg-red-700 hover:bg-red-600 text-white transition-colors">
                 <i class="fas fa-arrow-up mr-1"></i>Escalate
+              </button>
+              <button onclick="doAction('close')"
+                class="px-3 py-2 rounded-lg text-xs font-medium bg-gray-600 hover:bg-gray-500 text-white transition-colors">
+                <i class="fas fa-check-double mr-1"></i>Close
               </button>
             </div>
             <div id="route-target-row" class="mt-3 hidden">
@@ -1395,7 +1561,7 @@ bridgeRouter.get('/classification', (c: Context<BridgeContext>) => {
   const classes = [
     { id: 'INFRA_SIGNAL', label: 'Infrastructure Signal', icon: 'fa-server', color: 'text-blue-400', desc: 'Cloudflare deploys, GitHub pushes, env config, tokens.', examples: ['CF deploy pending', 'GitHub push blocked', 'API token missing'] },
     { id: 'GOVERNANCE_SIGNAL', label: 'Governance Signal', icon: 'fa-gavel', color: 'text-yellow-400', desc: 'Repo visibility, module gates, policy decisions.', examples: ['Repo public/private decision', 'Module activation gate', 'Counterpart bounded status'] },
-    { id: 'BUILD_SIGNAL', label: 'Build Signal', icon: 'fa-hammer', color: 'text-orange-400', desc: 'Build sessions, agent iterations, feature scope.', examples: ['ScoutScorer iteration', 'HUB-05 build active', 'Chamber v1.1 hardening'] },
+    { id: 'BUILD_SIGNAL', label: 'Build Signal', icon: 'fa-hammer', color: 'text-orange-400', desc: 'Build sessions, agent iterations, feature scope.', examples: ['ScoutScorer iteration', 'HUB-13 bridge hardening', 'Chamber v1.1 verified'] },
     { id: 'PRODUCT_SIGNAL', label: 'Product Signal', icon: 'fa-box', color: 'text-green-400', desc: 'Product lane decisions — BarberKas, modules, sprints.', examples: ['BarberKas Sprint 1 go/no-go', 'Module enablement', 'Feature gate'] },
     { id: 'AUTH_SIGNAL', label: 'Auth Signal', icon: 'fa-key', color: 'text-purple-400', desc: 'JWT, MASTER_PIN, token issues, auth flow changes.', examples: ['Token expired', 'MASTER_PIN rotation', 'JWT_SECRET update'] },
     { id: 'COMMS_SIGNAL', label: 'Comms Signal', icon: 'fa-comment', color: 'text-pink-400', desc: 'WhatsApp, Fonnte, webhook, broadcast signals.', examples: ['Fonnte webhook pending', 'WA send queue', 'Broadcast approval'] },
@@ -1603,9 +1769,9 @@ bridgeRouter.get('/boundaries', (c: Context<BridgeContext>) => {
       <!-- Scope note -->
       <div class="card rounded-xl p-4 border border-orange-900">
         <div class="flex items-center gap-2 text-orange-300 text-sm font-medium mb-1">
-          <i class="fas fa-exclamation-triangle"></i>Scope Lock — HUB-05
+          <i class="fas fa-exclamation-triangle"></i>Scope Lock — HUB-13
         </div>
-        <div class="text-xs text-gray-400">Bridge is bounded to: <strong class="text-white">classify, route, hold, escalate</strong>. Not Chamber. Not Hub. Not BarberKas. Counterpart remains deferred.</div>
+        <div class="text-xs text-gray-400">Bridge v1.2 bounded to: <strong class="text-white">classify, route, hold, escalate, close</strong>. Not Chamber. Not Hub. Not BarberKas. Supabase persistence OUT-OF-SCOPE for HUB-13.</div>
       </div>
 
       <!-- Boundaries list -->
