@@ -1,5 +1,5 @@
 // sovereign-tower — src/routes/access-ladder.ts
-// Counterpart Access Ladder v1.1 — SESSION HUB-10 (Hardening)
+// Counterpart Access Ladder v1.1.1 — SESSION HUB-11 (Runtime Recovery)
 // Sovereign Business Engine v4.0
 // ⚠️ FOUNDER GOVERNANCE LAYER — PT WASKITA CAKRAWARTI DIGITAL ⚠️
 //
@@ -40,8 +40,8 @@ import { verifyJwt } from '@sovereign/auth'
 // CONSTANTS
 // =============================================================================
 
-const LADDER_BUILD_SESSION = 'hub10'
-const LADDER_VERSION = '1.1.0'
+const LADDER_BUILD_SESSION = 'hub11'
+const LADDER_VERSION = '1.1.1'
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -714,7 +714,7 @@ function ladderLayout({
     <div style="text-align:center; margin-bottom:1.5rem;">
       <div style="font-size:2rem; margin-bottom:.5rem;">🪜</div>
       <h2 style="font-size:1.1rem; font-weight:700; color:#e2e8f0;">Access Ladder</h2>
-      <p style="font-size:12px; color:#6b7280; margin-top:.25rem;">Earned Access Progression — HUB-10</p>
+      <p style="font-size:12px; color:#6b7280; margin-top:.25rem;">Earned Access Progression — HUB-11</p>
     </div>
     <div style="margin-bottom:1rem;">
       <label style="font-size:12px; color:#9ca3af; display:block; margin-bottom:6px;">Master PIN</label>
@@ -729,7 +729,7 @@ function ladderLayout({
     <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #1f2937; text-align:center;">
       <p style="font-size:11px; color:#4b5563;">
         <i class="fas fa-stairs" style="color:#7c3aed;"></i>
-        Counterpart Access Ladder v${LADDER_VERSION} · SESSION HUB-10
+        Counterpart Access Ladder v${LADDER_VERSION} · SESSION HUB-11
       </p>
     </div>
   </div>
@@ -750,7 +750,7 @@ function ladderLayout({
       <span style="font-size:1rem;">🤝</span>
       <span style="font-weight:700; font-size:13px; color:#e2e8f0;">Counterpart</span>
       <span class="mobile-hide" style="font-size:11px; color:#6b7280;">· Access Ladder v${LADDER_VERSION}</span>
-      <span style="background:rgba(139,92,246,.2); border:1px solid rgba(139,92,246,.3); color:#c4b5fd; font-size:10px; padding:2px 7px; border-radius:9999px;"><i class="fas fa-stairs"></i> <span class="mobile-hide">HUB-10</span></span>
+      <span style="background:rgba(139,92,246,.2); border:1px solid rgba(139,92,246,.3); color:#c4b5fd; font-size:10px; padding:2px 7px; border-radius:9999px;"><i class="fas fa-stairs"></i> <span class="mobile-hide">HUB-11</span></span>
     </div>
     <div style="display:flex; align-items:center; gap:.6rem;">
       <span class="mobile-hide" style="font-size:11px; color:#34d399;"><i class="fas fa-circle" style="font-size:8px;"></i> Bounded</span>
@@ -776,7 +776,7 @@ function ladderLayout({
         <div style="font-size:10px; color:#4b5563; text-align:center; line-height:1.6;">
           <div style="color:#6b7280; margin-bottom:2px;">Level Saat Ini</div>
           <div id="sidebar-level-label" style="color:#c4b5fd; font-weight:600;">L0 — Observer (Lite)</div>
-          <div style="color:#4b5563; margin-top:4px; font-size:9px;">SESSION HUB-10</div>
+          <div style="color:#4b5563; margin-top:4px; font-size:9px;">SESSION HUB-11</div>
         </div>
       </div>
     </div>
@@ -792,7 +792,7 @@ function ladderLayout({
 
 <script>
 // ====================================================
-// ACCESS LADDER v1.1 — HUB-10 Hardened Auth + Mobile
+// ACCESS LADDER v1.1.1 — HUB-11 Runtime Recovery + Data Fix
 // ====================================================
 const TOKEN_KEY = 'hub_jwt'
 let _token = ''
@@ -867,17 +867,38 @@ function updateSidebarLevel(levelId, levelLabel) {
   if (el) el.textContent = 'L' + levelId + ' \u2014 ' + levelLabel
 }
 
+// ====================================================
+// AUTH FAILURE HANDLER — show re-auth prompt on 401
+// ====================================================
+function handleAuthFailure(containerId, msg) {
+  const el = document.getElementById(containerId)
+  if (!el) return
+  el.innerHTML = '<div class="card" style="border-color:rgba(245,158,11,.3); background:rgba(245,158,11,.04);">'
+    + '<div style="font-size:12px; color:#fbbf24; font-weight:600; margin-bottom:.5rem;"><i class="fas fa-lock"></i> Session tidak valid atau kadaluarsa</div>'
+    + '<p style="font-size:11px; color:#9ca3af; margin-bottom:.75rem;">' + (msg || 'Token tidak diterima server. Masukkan kembali Master PIN Anda.') + '</p>'
+    + '<button onclick="doLogout()" style="background:#7c3aed; border:none; color:white; padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer; font-weight:600;"><i class="fas fa-right-to-bracket"></i> Masukkan Ulang PIN</button>'
+    + '</div>'
+}
+
 // Auto-restore token from storage on page load
 ;(function initAuth(){
   const saved = getToken()
   if (saved) {
     _token = saved
     showApp()
-    // Defer page-specific init until DOM + scripts are fully ready
+    // Use requestAnimationFrame + setTimeout for reliable DOM-ready detection
+    function tryCallReady() {
+      if (typeof window.onLadderReady === 'function') {
+        callPageReady()
+      } else {
+        // onLadderReady not yet defined — retry after a frame
+        requestAnimationFrame(() => setTimeout(tryCallReady, 30))
+      }
+    }
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      setTimeout(callPageReady, 50)
+      requestAnimationFrame(tryCallReady)
     } else {
-      document.addEventListener('DOMContentLoaded', () => setTimeout(callPageReady, 50))
+      document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(tryCallReady))
     }
   }
 })()
@@ -943,7 +964,16 @@ window.onLadderReady = async function(token) {
   try {
     const res = await fetch('/counterpart/api/ladder/overview', { headers: authHeader() })
     const d = await res.json()
-    if (!d.success) return
+    if (!d.success) {
+      // Auth failure → show re-authenticate prompt
+      const errCode = d.error?.code || 'UNKNOWN'
+      const isAuthErr = res.status === 401 || errCode.includes('AUTH')
+      handleAuthFailure('current-level-card',
+        isAuthErr ? 'Session expired atau token tidak valid. Masukkan ulang PIN.' : (d.error?.message || 'Gagal memuat data ladder.'))
+      document.getElementById('progress-section').innerHTML = ''
+      document.getElementById('levels-grid').innerHTML = ''
+      return
+    }
     const { overview, levels, current_level, next_level } = d.data
 
     // Current level card
@@ -964,8 +994,8 @@ window.onLadderReady = async function(token) {
           \${next_level ? \`
             <div style="background:#0d1117; border:1px solid #1f2937; border-radius:8px; padding:.75rem 1rem; min-width:180px;">
               <div style="font-size:11px; color:#6b7280; margin-bottom:.4rem; font-weight:600;">NEXT LEVEL</div>
-              <div style="font-size:13px; font-weight:600; color:#e2e8f0;">L\${next_level.next_level_id} — \${next_level.next_level_label}</div>
-              <div style="font-size:11px; color:#6b7280; margin-top:.25rem;">\${next_level.requirements.length} kriteria · \${next_level.typical_timeline}</div>
+              <div style="font-size:13px; font-weight:600; color:#e2e8f0;">L\${next_level.id} — \${next_level.label}</div>
+              <div style="font-size:11px; color:#6b7280; margin-top:.25rem;">\${(next_level.promotion_criteria||[]).length} kriteria · \${next_level.typical_timeline}</div>
             </div>
           \` : '<div style="font-size:12px;color:#6b7280;">Level tertinggi</div>'}
         </div>
@@ -1044,7 +1074,10 @@ window.onLadderReady = async function(token) {
     const res = await fetch('/counterpart/api/ladder/level/' + LEVEL_ID, { headers: authHeader() })
     const d = await res.json()
     if (!d.success) {
-      document.getElementById('level-detail').innerHTML = '<div class="card" style="color:#f87171;">' + (d.error?.message || 'Level tidak ditemukan.') + '</div>'
+      const errCode = d.error?.code || ''
+      const isAuthErr = res.status === 401 || errCode.includes('AUTH')
+      handleAuthFailure('level-detail',
+        isAuthErr ? 'Session expired. Masukkan ulang PIN.' : (d.error?.message || 'Level tidak ditemukan.'))
       return
     }
     const { level, how_to_reach, how_to_advance } = d.data
@@ -1159,7 +1192,13 @@ window.onLadderReady = async function(token) {
   try {
     const res = await fetch('/counterpart/api/ladder/criteria', { headers: authHeader() })
     const d = await res.json()
-    if (!d.success) return
+    if (!d.success) {
+      const errCode = d.error?.code || ''
+      const isAuthErr = res.status === 401 || errCode.includes('AUTH')
+      handleAuthFailure('criteria-content',
+        isAuthErr ? 'Session expired. Masukkan ulang PIN.' : (d.error?.message || 'Gagal memuat kriteria.'))
+      return
+    }
     const { current_level_id, next_level_criteria, all_criteria, universal_rules } = d.data
 
     document.getElementById('criteria-content').innerHTML = \`
@@ -1248,7 +1287,13 @@ window.onLadderReady = async function(token) {
   try {
     const res = await fetch('/counterpart/api/ladder/history', { headers: authHeader() })
     const d = await res.json()
-    if (!d.success) return
+    if (!d.success) {
+      const errCode = d.error?.code || ''
+      const isAuthErr = res.status === 401 || errCode.includes('AUTH')
+      handleAuthFailure('history-content',
+        isAuthErr ? 'Session expired. Masukkan ulang PIN.' : (d.error?.message || 'Gagal memuat history.'))
+      return
+    }
     const { total, promotions, holds, notes, items } = d.data
 
     const typeColor = { PROMOTION:'#34d399', REVIEW:'#818cf8', HOLD:'#a78bfa', REGRESSION:'#f87171', NOTE:'#6b7280' }
